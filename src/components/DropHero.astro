@@ -1,4 +1,10 @@
 ---
+const drop = {
+  id: "drop-002",
+  name: "Próximo Drop",
+  tag: "Pronto",
+  sizes: ["S","M","L","XL"],
+};
 ---
 
 <!-- DROP HERO — Protagonismo total al drop -->
@@ -55,48 +61,78 @@
     </div>
 
     <!-- Product image panel -->
-    <div class="drop-product" aria-hidden="true">
-      <div class="product-frame">
-        <div class="product-img-wrap">
-          <img
-            src="/camiseta1.png"
-            alt="ISO Tee Core — Drop 001"
-            class="product-img"
-            width="400"
-            height="500"
-            onerror="this.style.display='none'"
-          />
-          <!-- Fallback placeholder if no image -->
-          <div class="product-placeholder">
-            <span class="ph-logo">ISO.</span>
-            <span class="ph-label">Foto del producto</span>
-          </div>
+    <div class="drop-upcoming products" id="collection">
+      <div class="section-head">
+        <div class="head-left">
+          <p class="eyebrow">
+            <span class="line" aria-hidden="true"></span>
+            Drop 002
+          </p>
+          <h2 class="section-title">Próximamente</h2>
         </div>
-
-        <!-- Product tag -->
-        <div class="product-tag">
-          <div class="tag-left">
-            <span class="tag-name">ISO Tee Core</span>
-            <span class="tag-ref">Drop 001 / 100 uds</span>
-          </div>
-          <span class="tag-price">€24,99</span>
-        </div>
-
-        <!-- Stock badge -->
-        <div class="stock-badge">
-          <span class="stock-dot"></span>
-          Disponible ahora
-        </div>
+        <p class="head-note">Edición limitada · Fecha por anunciar</p>
       </div>
 
-      <!-- Floating stats -->
-      <div class="float-stat stat-1">
-        <span class="stat-n">001</span>
-        <span class="stat-l">Primer drop</span>
-      </div>
-      <div class="float-stat stat-2">
-        <span class="stat-n">48h</span>
-        <span class="stat-l">Ventana de compra</span>
+      <div class="products-grid">
+        <article class="product-card mystery">
+          <!-- Image — oculta con signo de interrogación -->
+          <div class="card-image">
+            <div class="mystery-cover">
+              <span class="mystery-q" aria-hidden="true">?</span>
+              <span class="mystery-label">Próximo drop</span>
+            </div>
+            <span class="card-tag">{drop.tag}</span>
+          </div>
+
+          <!-- Info -->
+          <div class="card-body">
+            <div class="card-header">
+              <div>
+                <p class="card-cat">Drop 002</p>
+                <h3 class="card-name">???</h3>
+              </div>
+              <span class="card-price">???</span>
+            </div>
+
+            <!-- Size selector desactivado -->
+            <div class="size-selector" role="group" aria-label="Tallas próximamente">
+              <p class="size-label">Talla</p>
+              <div class="sizes">
+                {drop.sizes.map(s => (
+                  <span class="size-btn locked" aria-disabled="true">{s}</span>
+                ))}
+              </div>
+            </div>
+
+            <!-- Notificación de aviso -->
+            <div class="notify-block">
+              <p class="notify-text">Avísame cuando salga</p>
+              <div class="notify-form">
+                <label for="notify-email" class="sr-only">Tu email</label>
+                <input
+                  type="email"
+                  id="notify-email"
+                  placeholder="tu@email.com"
+                  autocomplete="email"
+                />
+                <button type="button" id="notify-btn">→</button>
+              </div>
+              <p class="notify-feedback" id="notify-feedback" aria-live="polite"></p>
+            </div>
+
+            <!-- Trust signals -->
+            <div class="trust">
+              <span class="trust-item">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                Drops limitados
+              </span>
+              <span class="trust-item">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                Sin reposición
+              </span>
+            </div>
+          </div>
+        </article>
       </div>
     </div>
   </div>
@@ -185,8 +221,8 @@
     z-index: 1;
     flex: 1;
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0;
+    grid-template-columns: minmax(320px, 1.15fr) minmax(360px, 0.85fr);
+    gap: clamp(2rem, 4vw, 3.5rem);
     max-width: var(--max-w);
     width: 100%;
     margin: 0 auto;
@@ -336,13 +372,13 @@
   .cta-ghost:hover { color: var(--accent); border-color: var(--accent); }
 
   /* ---- RIGHT / PRODUCT ---- */
-  .drop-product {
-    position: relative;
+  .drop-upcoming {
     display: flex;
-    align-items: center;
+    flex-direction: column;
     justify-content: center;
-    padding: 3rem var(--pad);
+    padding: clamp(2rem, 4vw, 4rem) var(--pad);
     background: var(--surface);
+    border-left: 1px solid var(--border);
   }
 
   .product-frame {
@@ -542,6 +578,310 @@
     to { transform: translateX(-50%); }
   }
 
+  .products {
+    padding: clamp(3rem, 6vw, 6rem) var(--pad);
+    border-top: 1px solid var(--border);
+  }
+
+  .drop-upcoming.products {
+    padding: clamp(2rem, 4vw, 4rem) var(--pad);
+    border-top: none;
+  }
+
+  .section-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: clamp(2rem, 4vw, 3.5rem);
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .head-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+
+  .line {
+    display: inline-block;
+    width: 1.75rem;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  .section-title {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-style: italic;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    text-transform: uppercase;
+    color: var(--white);
+    letter-spacing: -0.02em;
+    line-height: 0.9;
+  }
+
+  .head-note {
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted-light);
+    border: 1px solid var(--border-light);
+    padding: 0.4rem 0.8rem;
+    align-self: flex-end;
+  }
+
+  .products-grid {
+    display: flex;
+    justify-content: center;
+  }
+
+  .product-card {
+    width: 100%;
+    max-width: 480px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+
+  .card-image {
+    position: relative;
+    aspect-ratio: 4/5;
+    background: var(--bg);
+    overflow: hidden;
+  }
+
+  .card-tag {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--bg);
+    background: var(--accent);
+    padding: 0.28rem 0.6rem;
+    z-index: 2;
+    animation: tag-pulse 2.5s ease-in-out infinite;
+  }
+
+  @keyframes tag-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+
+  .mystery-cover {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    background: var(--surface);
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  .mystery-q {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-style: italic;
+    font-size: clamp(6rem, 18vw, 12rem);
+    color: transparent;
+    -webkit-text-stroke: 2px var(--border-light);
+    line-height: 1;
+    animation: mystery-flicker 4s ease-in-out infinite;
+    user-select: none;
+  }
+
+  .mystery-label {
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .card-body {
+    padding: 1.5rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .card-cat {
+    font-size: 0.58rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.2rem;
+  }
+
+  .card-name {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted-light);
+    line-height: 1;
+  }
+
+  .card-price {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 1.75rem;
+    color: var(--muted-light);
+    letter-spacing: 0.1em;
+    flex-shrink: 0;
+  }
+
+  .size-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+
+  .size-label {
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted-light);
+  }
+
+  .sizes {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .size-btn {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border: 1px solid var(--border);
+  }
+
+  .size-btn.locked {
+    color: var(--muted);
+    cursor: not-allowed;
+    opacity: 0.4;
+    user-select: none;
+  }
+
+  .notify-block {
+    background: var(--surface2);
+    border: 1px solid var(--border-light);
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .notify-text {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--white-dim);
+  }
+
+  .notify-form {
+    display: flex;
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .notify-form input {
+    flex: 1;
+    min-width: 0;
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: 0.75rem 1rem;
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    color: var(--white);
+  }
+
+  .notify-form input::placeholder { color: var(--muted); }
+
+  .notify-form button {
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    padding: 0.75rem 1.1rem;
+    font-size: 1rem;
+    font-weight: 700;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+
+  .notify-form button:hover { background: var(--accent-dim); }
+
+  .notify-feedback {
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    min-height: 1em;
+  }
+
+  .trust {
+    display: flex;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .trust-item {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.6rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted-light);
+  }
+
+  .trust-item svg {
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
   /* ========== RESPONSIVE ========== */
   @media (max-width: 900px) {
     .drop-content {
@@ -554,9 +894,11 @@
       padding: 3rem var(--pad) 2.5rem;
     }
 
-    .drop-product {
+    .drop-upcoming {
       padding: 2.5rem var(--pad);
       background: var(--surface);
+      border-left: none;
+      border-top: 1px solid var(--border);
     }
 
     .product-frame {
