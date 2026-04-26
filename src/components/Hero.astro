@@ -1,0 +1,322 @@
+---
+---
+
+<section class="hero">
+  <div class="hero-bg-text" aria-hidden="true">ISO</div>
+
+  <div class="hero-inner">
+    <div class="hero-left">
+      <p class="eyebrow">
+        <span class="line"></span>
+        Drop 001 — Verano 202
+      </p>
+
+      <h1 class="hero-title">
+        <span class="outline">Call</span><br />
+        <span class="outline">for an</span><br />
+        <span class="filled">ISO.</span>
+      </h1>
+
+      <div class="hero-actions">
+        <a href="#collection" class="btn-primary">Ver colección →</a>
+        <a href="#about" class="btn-ghost">¿Qué es ISO?</a>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="num">001</span>
+          <span class="label">Primer drop</span>
+        </div>
+        <div class="divider"></div>
+        <div class="stat">
+          <span class="num">48h</span>
+          <span class="label">Disponibilidad</span>
+        </div>
+        <div class="divider"></div>
+        <div class="stat">
+          <span class="num">100%</span>
+          <span class="label">Edición limitada</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-right" aria-hidden="true">
+      <div class="grid-lines"></div>
+      <div class="image-frame">
+        <div class="img-placeholder">
+          <img
+            src="/logo-white.png"
+            alt="ISO"
+            class="hero-logo"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='block'"
+          />
+          <p class="logo-fallback" style="display:none">ISO.</p>
+          <p class="ph-text">Foto de producto</p>
+        </div>
+        <div class="frame-tag">
+          <span>Drop 001</span>
+          <span class="price">€89</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker-track">
+      {Array(10).fill("ISO — Drop 001 — Edición Limitada — Baloncesto Urbano — ").map((t) => (
+        <span>{t}</span>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    min-height: calc(100vh - 62px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .hero-bg-text {
+    position: absolute;
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-style: italic;
+    font-size: 38vw;
+    color: transparent;
+    -webkit-text-stroke: 1px #131313;
+    top: 50%;
+    left: 50%;
+    transform: translate(-42%, -52%);
+    white-space: nowrap;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+  }
+
+  .hero-inner {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-left {
+    padding: 5rem 3rem 4rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-right: 1px solid var(--border);
+  }
+
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 2rem;
+  }
+  .line { display: inline-block; width: 2.5rem; height: 1px; background: var(--accent); }
+
+  .hero-title {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-style: italic;
+    font-size: clamp(4.5rem, 8vw, 8rem);
+    line-height: 0.88;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+    margin-bottom: 2.5rem;
+  }
+  .outline {
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--white);
+  }
+  .filled { color: var(--white); }
+
+  /* ISO destacado en azul de marca */
+  .iso-accent {
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: 0.95rem;
+    font-weight: 300;
+    color: var(--muted-light);
+    line-height: 1.75;
+    margin-bottom: 2.5rem;
+  }
+
+  .hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 4rem;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: var(--accent-dark);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 1rem 2rem;
+    transition: background 0.2s, transform 0.15s;
+    display: inline-block;
+  }
+  .btn-primary:hover { background: var(--accent-dim); transform: translateY(-2px); }
+
+  .btn-ghost {
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted-light);
+    border-bottom: 1px solid var(--muted);
+    padding-bottom: 2px;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .btn-ghost:hover { color: var(--accent); border-color: var(--accent); }
+
+  .hero-stats { display: flex; align-items: center; gap: 2rem; }
+  .stat { display: flex; flex-direction: column; gap: 0.25rem; }
+  .num {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 1.5rem;
+    letter-spacing: -0.02em;
+    color: var(--accent);
+  }
+  .label {
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted-light);
+  }
+  .divider { width: 1px; height: 2.5rem; background: var(--border); }
+
+  /* RIGHT */
+  .hero-right {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    overflow: hidden;
+  }
+  .grid-lines {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 60px 60px;
+    opacity: 0.6;
+  }
+  .image-frame {
+    position: relative;
+    width: 100%;
+    max-width: 380px;
+    aspect-ratio: 3/4;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    z-index: 1;
+    overflow: hidden;
+  }
+  .img-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 2rem;
+  }
+  .hero-logo {
+    width: 70%;
+    max-width: 220px;
+    filter: invert(1);
+    opacity: 0.15;
+  }
+  .logo-fallback {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-style: italic;
+    font-size: 5rem;
+    color: var(--surface2);
+    letter-spacing: -0.02em;
+  }
+  .ph-text {
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .frame-tag {
+    position: absolute;
+    bottom: 1.25rem;
+    left: 1.25rem;
+    right: 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 0.75rem 1rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted-light);
+  }
+  .price {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    color: var(--accent);
+  }
+
+  /* TICKER */
+  .ticker {
+    border-top: 1px solid var(--border);
+    overflow: hidden;
+    padding: 0.75rem 0;
+    background: var(--surface);
+  }
+  .ticker-track {
+    display: flex;
+    white-space: nowrap;
+    animation: ticker 22s linear infinite;
+  }
+  .ticker-track span {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-style: italic;
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted-light);
+    flex-shrink: 0;
+  }
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  @media (max-width: 900px) {
+    .hero-inner { grid-template-columns: 1fr; }
+    .hero-right { display: none; }
+    .hero-left { padding: 3rem 1.5rem; border-right: none; }
+    .hero-title { font-size: clamp(3.5rem, 15vw, 5rem); }
+  }
+</style>

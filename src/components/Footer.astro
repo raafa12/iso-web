@@ -1,0 +1,181 @@
+---
+---
+
+<footer class="footer">
+  <div class="footer-top">
+    <div class="footer-brand">
+      <p class="footer-logo">ISO<span>.</span></p>
+      <p class="footer-tagline">Viste el juego.</p>
+    </div>
+
+    <div class="footer-newsletter">
+      <p class="nl-label">Entérate antes que nadie</p>
+      <div class="nl-form">
+        <input type="email" placeholder="tu@email.com" aria-label="Email para newsletter" />
+        <button type="button">→</button>
+      </div>
+      <p class="nl-sub">Drops exclusivos. Sin spam.</p>
+    </div>
+
+    <div class="footer-links">
+      <div class="link-group">
+        <p class="group-title">Marca</p>
+        <a href="#about">Nosotros</a>
+        <a href="#collection">Colección</a>
+      </div>
+      <div class="link-group">
+        <p class="group-title">Info</p>
+        <a href="#">Envíos</a>
+        <a href="#">Devoluciones</a>
+        <a href="#">Contacto</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p class="copyright">© 2025 ISO. Todos los derechos reservados.</p>
+    <div class="social-links">
+      <a href="#" aria-label="Instagram">IG</a>
+      <a href="#" aria-label="TikTok">TK</a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .footer-top {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 4rem;
+    padding: 4rem 3rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .footer-logo {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-style: italic;
+    font-size: 3rem;
+    letter-spacing: -0.02em;
+    color: var(--white);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+  .footer-logo span { color: var(--accent); }
+
+  .footer-tagline {
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .nl-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted-light);
+    margin-bottom: 1rem;
+  }
+
+  .nl-form {
+    display: flex;
+    border: 1px solid var(--border);
+    margin-bottom: 0.75rem;
+  }
+
+  .nl-form input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: 0.75rem 1rem;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    color: var(--white);
+  }
+  .nl-form input::placeholder { color: var(--muted); }
+
+  .nl-form button {
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    padding: 0.75rem 1.25rem;
+    font-size: 1rem;
+    font-weight: 700;
+    transition: background 0.2s;
+  }
+  .nl-form button:hover { background: var(--accent-dim); }
+
+  .nl-sub {
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 3rem;
+  }
+
+  .link-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .group-title {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.25rem;
+  }
+
+  .link-group a {
+    font-size: 0.85rem;
+    font-weight: 400;
+    color: var(--muted-light);
+    transition: color 0.2s;
+  }
+  .link-group a:hover { color: var(--white); }
+
+  .footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 3rem;
+  }
+
+  .copyright {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+
+  .social-links {
+    display: flex;
+    gap: 1.5rem;
+  }
+
+  .social-links a {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    transition: color 0.2s;
+  }
+  .social-links a:hover { color: var(--accent); }
+
+  @media (max-width: 900px) {
+    .footer-top { grid-template-columns: 1fr; gap: 2.5rem; padding: 3rem 1.5rem; }
+    .footer-bottom { padding: 1.25rem 1.5rem; flex-direction: column; gap: 1rem; text-align: center; }
+  }
+</style>

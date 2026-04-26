@@ -1,0 +1,132 @@
+---
+---
+
+<header class="navbar">
+  <a href="/" class="logo" aria-label="ISO inicio">
+    <!-- Logo blanco para fondo oscuro -->
+    <img src="/logo-white.png" alt="ISO" class="logo-img" />
+  </a>
+
+  <nav>
+    <ul class="nav-links">
+      <li><a href="#collection">Colección</a></li>
+      <li><a href="#about">Nosotros</a></li>
+    </ul>
+  </nav>
+
+  <div class="nav-right">
+    <a href="#collection" class="btn-nav">Shop Now →</a>
+    <button class="burger" id="burger" aria-label="Menú">
+      <span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<div class="mobile-menu" id="mobile-menu">
+  <ul>
+    <li><a href="#collection">Colección</a></li>
+    <li><a href="#about">Nosotros</a></li>
+    <li><a href="#collection" class="cta">Shop Now →</a></li>
+  </ul>
+</div>
+
+<style>
+  .navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 3rem;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(8, 8, 8, 0.94);
+    backdrop-filter: blur(12px);
+  }
+
+  .logo-img {
+    height: 52px;
+    width: auto;
+    filter: brightness(0) invert(1);
+    transition: opacity 0.2s;
+  }
+  .logo:hover .logo-img { opacity: 0.8; }
+
+  .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+  .nav-links a {
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted-light);
+    transition: color 0.2s;
+    position: relative;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px; left: 0;
+    width: 0; height: 1px;
+    background: var(--accent);
+    transition: width 0.25s;
+  }
+  .nav-links a:hover { color: var(--white); }
+  .nav-links a:hover::after { width: 100%; }
+
+  .nav-right { display: flex; align-items: center; gap: 1.5rem; }
+
+  .btn-nav {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent-dark);
+    background: var(--accent);
+    padding: 0.55rem 1.25rem;
+    transition: background 0.2s, transform 0.15s;
+    display: inline-block;
+  }
+  .btn-nav:hover { background: var(--accent-dim); transform: translateY(-1px); }
+
+  .burger { display: none; flex-direction: column; gap: 5px; padding: 4px; }
+  .burger span { display: block; width: 22px; height: 1.5px; background: var(--white); }
+
+  .mobile-menu {
+    display: none;
+    position: fixed;
+    inset: 0;
+    top: 62px;
+    background: var(--bg);
+    z-index: 99;
+    padding: 3rem;
+  }
+  .mobile-menu ul { list-style: none; }
+  .mobile-menu a {
+    display: block;
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-style: italic;
+    font-size: 3rem;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border);
+    transition: color 0.2s;
+  }
+  .mobile-menu a:hover { color: var(--white); }
+  .mobile-menu .cta { color: var(--accent) !important; }
+  .mobile-menu.open { display: block; }
+
+  @media (max-width: 768px) {
+    .navbar { padding: 1rem 1.5rem; }
+    .nav-links, .btn-nav { display: none; }
+    .burger { display: flex; }
+  }
+</style>
+
+<script>
+  const burger = document.getElementById('burger');
+  const menu = document.getElementById('mobile-menu');
+  burger?.addEventListener('click', () => menu?.classList.toggle('open'));
+  menu?.querySelectorAll('a').forEach(l => l.addEventListener('click', () => menu.classList.remove('open')));
+</script>
