@@ -1,10 +1,12 @@
 ---
-const products = [
-  { id: 1, name: "ISO Shorts 001", category: "Shorts", price: "€69", tag: "Nuevo", sizes: ["S","M","L","XL"] },
-  { id: 2, name: "ISO Tee Core", category: "Camiseta", price: "€45", tag: "Bestseller", sizes: ["S","M","L"] },
-  { id: 3, name: "ISO Hoodie Drop", category: "Sudadera", price: "€110", tag: "Limitado", sizes: ["M","L","XL"] },
-  { id: 4, name: "ISO Jogger 001", category: "Pantalón", price: "€85", tag: "Nuevo", sizes: ["S","M","L","XL"] },
-];
+const product = {
+  id: 2,
+  name: "ISO Tee Core",
+  category: "Camiseta",
+  price: "€24,99",
+  tag: "Bestseller",
+  sizes: ["S","M","L"]
+};
 ---
 
 <section class="products" id="collection">
@@ -12,38 +14,35 @@ const products = [
     <div class="header-left">
       <p class="section-eyebrow">
         <span class="line"></span>
-        Drop 001
+        Essentials
       </p>
       <h2 class="section-title">La Colección</h2>
     </div>
-    <p class="section-sub">Piezas diseñadas para moverse. Edición limitada, calidad sin excusas.</p>
   </div>
 
   <div class="products-grid">
-    {products.map((p) => (
-      <article class="product-card">
-        <div class="card-image">
-          <!-- Sustituye por <img src={`/products/${p.id}.jpg`} alt={p.name} /> -->
-          <div class="img-placeholder">
-            <span class="ph-num">0{p.id}</span>
+    <article class="product-card">
+      <div class="card-image">
+        <img src="/camiseta1.png" alt={product.name} loading="lazy" />
+        <span class="card-tag">{product.tag}</span>
+      </div>
+
+      <div class="card-info">
+        <div class="card-top">
+          <div>
+            <p class="card-category">{product.category}</p>
+            <h3 class="card-name">{product.name}</h3>
           </div>
-          <span class="card-tag">{p.tag}</span>
+          <span class="card-price">{product.price}</span>
         </div>
-        <div class="card-info">
-          <div class="card-top">
-            <div>
-              <p class="card-category">{p.category}</p>
-              <h3 class="card-name">{p.name}</h3>
-            </div>
-            <span class="card-price">{p.price}</span>
-          </div>
-          <div class="card-sizes">
-            {p.sizes.map(s => <span class="size">{s}</span>)}
-          </div>
-          <button class="card-btn">Añadir al carrito</button>
+
+        <div class="card-sizes">
+          {product.sizes.map(s => <span class="size">{s}</span>)}
         </div>
-      </article>
-    ))}
+
+        <button class="card-btn">Añadir al carrito</button>
+      </div>
+    </article>
   </div>
 </section>
 
@@ -54,11 +53,7 @@ const products = [
   }
 
   .section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    margin-bottom: 4rem;
-    gap: 2rem;
+    margin-bottom: 3rem;
   }
 
   .section-eyebrow {
@@ -72,7 +67,12 @@ const products = [
     color: var(--accent);
     margin-bottom: 0.75rem;
   }
-  .line { display: inline-block; width: 2rem; height: 1px; background: var(--accent); }
+
+  .line {
+    width: 2rem;
+    height: 1px;
+    background: var(--accent);
+  }
 
   .section-title {
     font-family: var(--font-display);
@@ -80,34 +80,27 @@ const products = [
     font-style: italic;
     font-size: clamp(2.5rem, 5vw, 4.5rem);
     text-transform: uppercase;
-    letter-spacing: -0.02em;
-    line-height: 0.9;
     color: var(--white);
   }
 
-  .section-sub {
-    font-size: 0.9rem;
-    font-weight: 300;
-    color: var(--muted-light);
-    max-width: 280px;
-    line-height: 1.7;
-    text-align: right;
-  }
-
+  /* 👇 centramos una sola card */
   .products-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1px;
-    border: 1px solid var(--border);
+    display: flex;
+    justify-content: center;
   }
 
   .product-card {
+    max-width: 320px;
+    width: 100%;
     background: var(--surface);
     display: flex;
     flex-direction: column;
     transition: background 0.2s;
   }
-  .product-card:hover { background: var(--surface2); }
+
+  .product-card:hover {
+    background: var(--surface2);
+  }
 
   .card-image {
     position: relative;
@@ -116,22 +109,17 @@ const products = [
     overflow: hidden;
   }
 
-  .img-placeholder {
+  .card-image img {
     width: 100%;
     height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    object-fit: contain;
+    padding: 1rem;
+    transition: transform 0.35s ease;
   }
-  .ph-num {
-    font-family: var(--font-display);
-    font-weight: 900;
-    font-style: italic;
-    font-size: 5rem;
-    color: var(--surface2);
-    transition: color 0.2s;
+
+  .product-card:hover .card-image img {
+    transform: scale(1.05);
   }
-  .product-card:hover .ph-num { color: var(--surface); }
 
   .card-tag {
     position: absolute;
@@ -157,24 +145,17 @@ const products = [
   .card-top {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    gap: 0.5rem;
   }
 
   .card-category {
     font-size: 0.6rem;
-    font-weight: 700;
     letter-spacing: 0.18em;
-    text-transform: uppercase;
     color: var(--muted);
-    margin-bottom: 0.3rem;
   }
 
   .card-name {
     font-family: var(--font-display);
-    font-weight: 700;
     font-size: 1rem;
-    letter-spacing: 0.02em;
     text-transform: uppercase;
     color: var(--white);
   }
@@ -182,27 +163,21 @@ const products = [
   .card-price {
     font-family: var(--font-display);
     font-weight: 900;
-    font-size: 1.25rem;
     color: var(--accent);
-    white-space: nowrap;
   }
 
   .card-sizes {
     display: flex;
     gap: 0.4rem;
-    flex-wrap: wrap;
   }
 
   .size {
     font-size: 0.6rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    color: var(--muted-light);
     border: 1px solid var(--border);
     padding: 0.2rem 0.45rem;
-    transition: all 0.15s;
     cursor: pointer;
   }
+
   .size:hover {
     border-color: var(--accent);
     color: var(--accent);
@@ -212,28 +187,15 @@ const products = [
     width: 100%;
     background: transparent;
     border: 1px solid var(--border);
-    color: var(--muted-light);
-    font-family: var(--font-display);
-    font-weight: 700;
     font-size: 0.75rem;
     letter-spacing: 0.15em;
-    text-transform: uppercase;
     padding: 0.75rem;
     transition: all 0.2s;
   }
+
   .card-btn:hover {
     background: var(--accent);
     border-color: var(--accent);
     color: var(--bg);
-  }
-
-  @media (max-width: 1100px) {
-    .products-grid { grid-template-columns: repeat(2, 1fr); }
-  }
-  @media (max-width: 640px) {
-    .products { padding: 4rem 1.5rem; }
-    .section-header { flex-direction: column; align-items: flex-start; }
-    .section-sub { text-align: left; }
-    .products-grid { grid-template-columns: 1fr; }
   }
 </style>
