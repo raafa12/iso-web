@@ -1,0 +1,634 @@
+---
+---
+
+<!-- DROP HERO — Protagonismo total al drop -->
+<section class="drop-hero" id="drops">
+  <!-- Background grain texture -->
+  <div class="bg-grain" aria-hidden="true"></div>
+
+  <!-- Top eyebrow bar -->
+  <div class="drop-bar">
+    <span class="bar-pill">LIVE</span>
+    <span class="bar-text">Drop 001 — Edición Limitada</span>
+    <span class="bar-units">Solo 100 unidades</span>
+  </div>
+
+  <!-- Main content -->
+  <div class="drop-content">
+    <div class="drop-text">
+      
+
+      <h1 class="drop-title">
+        <span class="outline-text">Call </span><br />
+        <span class="outline-text">for an</span><br />
+        <span class="filled-text">ISO.</span>
+      </h1>
+
+      <p class="drop-desc">
+        
+      </p>
+
+      <!-- Countdown -->
+      <div class="countdown" id="countdown" aria-label="Cuenta atrás del drop">
+        <div class="cd-unit">
+          <span class="cd-num" id="cd-hours">48</span>
+          <span class="cd-label">Horas</span>
+        </div>
+        <span class="cd-sep" aria-hidden="true">:</span>
+        <div class="cd-unit">
+          <span class="cd-num" id="cd-min">00</span>
+          <span class="cd-label">Min</span>
+        </div>
+        <span class="cd-sep" aria-hidden="true">:</span>
+        <div class="cd-unit">
+          <span class="cd-num" id="cd-sec">00</span>
+          <span class="cd-label">Seg</span>
+        </div>
+      </div>
+
+      <div class="drop-ctas">
+        <a href="#collection" class="cta-primary">
+          Comprar ahora →
+        </a>
+        <a href="#about" class="cta-ghost">¿Qué es ISO?</a>
+      </div>
+    </div>
+
+    <!-- Product image panel -->
+    <div class="drop-product" aria-hidden="true">
+      <div class="product-frame">
+        <div class="product-img-wrap">
+          <img
+            src="/camiseta1.png"
+            alt="ISO Tee Core — Drop 001"
+            class="product-img"
+            width="400"
+            height="500"
+            onerror="this.style.display='none'"
+          />
+          <!-- Fallback placeholder if no image -->
+          <div class="product-placeholder">
+            <span class="ph-logo">ISO.</span>
+            <span class="ph-label">Foto del producto</span>
+          </div>
+        </div>
+
+        <!-- Product tag -->
+        <div class="product-tag">
+          <div class="tag-left">
+            <span class="tag-name">ISO Tee Core</span>
+            <span class="tag-ref">Drop 001 / 100 uds</span>
+          </div>
+          <span class="tag-price">€24,99</span>
+        </div>
+
+        <!-- Stock badge -->
+        <div class="stock-badge">
+          <span class="stock-dot"></span>
+          Disponible ahora
+        </div>
+      </div>
+
+      <!-- Floating stats -->
+      <div class="float-stat stat-1">
+        <span class="stat-n">001</span>
+        <span class="stat-l">Primer drop</span>
+      </div>
+      <div class="float-stat stat-2">
+        <span class="stat-n">48h</span>
+        <span class="stat-l">Ventana de compra</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scrolling ticker -->
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker-track">
+      {Array(12).fill(null).map(() => (
+        <span>ISO Drop 001 — Edición Limitada — Call for an ISO — 100 Unidades — </span>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .drop-hero {
+    position: relative;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    padding-top: var(--nav-h);
+    overflow: hidden;
+    background: var(--bg);
+  }
+
+  /* Grain overlay */
+  .bg-grain {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    opacity: 0.6;
+  }
+
+  /* ---- DROP BAR ---- */
+  .drop-bar {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.7rem var(--pad);
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    flex-wrap: wrap;
+    row-gap: 0.25rem;
+  }
+
+  .bar-pill {
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--bg);
+    background: var(--accent);
+    padding: 0.2rem 0.55rem;
+    animation: pulse-pill 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-pill {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+
+  .bar-text {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--white-dim);
+    flex: 1;
+  }
+
+  .bar-units {
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  /* ---- MAIN CONTENT ---- */
+  .drop-content {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    max-width: var(--max-w);
+    width: 100%;
+    margin: 0 auto;
+    padding: 0;
+  }
+
+  /* ---- LEFT / TEXT ---- */
+  .drop-text {
+    padding: clamp(2.5rem, 5vw, 5rem) var(--pad);
+    padding-right: clamp(1.5rem, 3vw, 3rem);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-right: 1px solid var(--border);
+  }
+
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+  }
+  .line {
+    display: inline-block;
+    width: 2rem;
+    height: 1px;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .drop-title {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-style: italic;
+    font-size: clamp(4rem, 8vw, 7.5rem);
+    line-height: 0.88;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+  .outline-text {
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--white);
+  }
+  .filled-text {
+    color: var(--white);
+  }
+
+  .drop-desc {
+    font-size: clamp(0.85rem, 1.5vw, 1rem);
+    font-weight: 300;
+    color: var(--muted-light);
+    line-height: 1.75;
+    max-width: 380px;
+    margin-bottom: 2.5rem;
+  }
+
+  /* ---- COUNTDOWN ---- */
+  .countdown {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.5rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .cd-unit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    padding: 0.75rem 1.25rem;
+    min-width: 72px;
+  }
+
+  .cd-num {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+    color: var(--accent);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .cd-label {
+    font-size: 0.55rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted-light);
+    margin-top: 0.25rem;
+  }
+
+  .cd-sep {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 2rem;
+    color: var(--muted);
+    padding-bottom: 0.75rem;
+    line-height: 1;
+  }
+
+  /* ---- CTAs ---- */
+  .drop-ctas {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .cta-primary {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent-dark);
+    background: var(--accent);
+    padding: 1rem 2.25rem;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    display: inline-block;
+    white-space: nowrap;
+  }
+  .cta-primary:hover {
+    background: var(--accent-dim);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(126, 200, 227, 0.2);
+  }
+
+  .cta-ghost {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted-light);
+    border-bottom: 1px solid var(--muted);
+    padding-bottom: 2px;
+    transition: color 0.2s, border-color 0.2s;
+    white-space: nowrap;
+  }
+  .cta-ghost:hover { color: var(--accent); border-color: var(--accent); }
+
+  /* ---- RIGHT / PRODUCT ---- */
+  .drop-product {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem var(--pad);
+    background: var(--surface);
+  }
+
+  .product-frame {
+    position: relative;
+    width: 100%;
+    max-width: 360px;
+    border: 1px solid var(--border-light);
+    background: var(--bg);
+    overflow: visible;
+  }
+
+  .product-img-wrap {
+    position: relative;
+    aspect-ratio: 3/4;
+    overflow: hidden;
+    background: var(--surface2);
+  }
+
+  .product-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 1.5rem;
+    transition: transform 0.5s ease;
+  }
+  .product-frame:hover .product-img {
+    transform: scale(1.04);
+  }
+
+  .product-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    pointer-events: none;
+  }
+
+  .ph-logo {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-style: italic;
+    font-size: 4rem;
+    color: var(--surface3);
+    letter-spacing: -0.02em;
+  }
+
+  .ph-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .product-tag {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.9rem 1.1rem;
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .tag-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .tag-name {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--white);
+  }
+
+  .tag-ref {
+    font-size: 0.58rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted-light);
+  }
+
+  .tag-price {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 1.4rem;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+  }
+
+  .stock-badge {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--bg);
+    background: var(--accent);
+    padding: 0.3rem 0.7rem;
+  }
+
+  .stock-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--bg);
+    flex-shrink: 0;
+    animation: dot-pulse 1.5s ease-in-out infinite;
+  }
+
+  @keyframes dot-pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.4); opacity: 0.6; }
+  }
+
+  /* Floating stats */
+  .float-stat {
+    position: absolute;
+    background: var(--bg);
+    border: 1px solid var(--border-light);
+    padding: 0.75rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    pointer-events: none;
+  }
+
+  .stat-n {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 1.5rem;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  .stat-l {
+    font-size: 0.55rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted-light);
+  }
+
+  .stat-1 {
+    bottom: 5rem;
+    left: -3.5rem;
+  }
+
+  .stat-2 {
+    top: 4rem;
+    right: -3.5rem;
+  }
+
+  /* ---- TICKER ---- */
+  .ticker {
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid var(--border);
+    overflow: hidden;
+    padding: 0.7rem 0;
+    background: var(--surface);
+    flex-shrink: 0;
+  }
+
+  .ticker-track {
+    display: flex;
+    white-space: nowrap;
+    animation: ticker 28s linear infinite;
+    will-change: transform;
+  }
+
+  .ticker-track span {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-style: italic;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted-light);
+    flex-shrink: 0;
+    padding-right: 0;
+  }
+
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* ========== RESPONSIVE ========== */
+  @media (max-width: 900px) {
+    .drop-content {
+      grid-template-columns: 1fr;
+    }
+
+    .drop-text {
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+      padding: 3rem var(--pad) 2.5rem;
+    }
+
+    .drop-product {
+      padding: 2.5rem var(--pad);
+      background: var(--surface);
+    }
+
+    .product-frame {
+      max-width: 280px;
+    }
+
+    .float-stat {
+      display: none;
+    }
+
+    .countdown {
+      gap: 0.4rem;
+    }
+
+    .cd-unit {
+      min-width: 60px;
+      padding: 0.6rem 0.9rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .drop-title {
+      font-size: clamp(3.5rem, 18vw, 5rem);
+    }
+
+    .product-frame {
+      max-width: 240px;
+    }
+
+    .drop-ctas {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .cta-primary {
+      width: 100%;
+      text-align: center;
+    }
+  }
+</style>
+
+<script>
+  // Countdown timer — 48 hours from page load (demo)
+  function startCountdown() {
+    const end = new Date();
+    end.setHours(end.getHours() + 48);
+
+    const hoursEl = document.getElementById('cd-hours');
+    const minEl = document.getElementById('cd-min');
+    const secEl = document.getElementById('cd-sec');
+
+    function update() {
+      const now = new Date();
+      const diff = Math.max(0, end.getTime() - now.getTime());
+
+      const totalSeconds = Math.floor(diff / 1000);
+      const h = Math.floor(totalSeconds / 3600);
+      const m = Math.floor((totalSeconds % 3600) / 60);
+      const s = totalSeconds % 60;
+
+      const pad = (n: number) => String(n).padStart(2, '0');
+
+      if (hoursEl) hoursEl.textContent = pad(h);
+      if (minEl) minEl.textContent = pad(m);
+      if (secEl) secEl.textContent = pad(s);
+
+      if (diff > 0) requestAnimationFrame(update);
+    }
+
+    update();
+  }
+
+  startCountdown();
+</script>

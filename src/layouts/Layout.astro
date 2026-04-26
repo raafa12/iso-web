@@ -6,7 +6,7 @@ interface Props {
 
 const {
   title = "ISO — TAKE A BREAK",
-  description = "ISO. Clothing basketball brand.",
+  description = "ISO. Ropa de baloncesto. Drops limitados.",
 } = Astro.props;
 ---
 
@@ -20,10 +20,10 @@ const {
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
-    <link rel="icon" type="image/png" href="/logo-white.png" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,700;0,900;1,700;1,900&family=Barlow:wght@300;400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,700;0,900;1,700;1,900&family=Barlow:wght@300;400;500;600&display=swap"
       rel="stylesheet"
     />
     <title>{title}</title>
@@ -35,25 +35,41 @@ const {
 
 <style is:global>
   :root {
-    --bg: #080808;
-    --surface: #0f0f0f;
-    --surface2: #161616;
-    --border: #1e1e1e;
+    --bg: #070707;
+    --surface: #0d0d0d;
+    --surface2: #141414;
+    --surface3: #1a1a1a;
+    --border: #1c1c1c;
+    --border-light: #282828;
 
-    /* Azul hielo — color de marca ISO */
     --accent: #7ec8e3;
     --accent-dim: #5ab4d4;
-    --accent-dark: #0a1f28;
+    --accent-glow: rgba(126, 200, 227, 0.15);
+    --accent-dark: #071820;
 
-    --white: #f0ece4;
-    --muted: #3a3a3a;
-    --muted-light: #777;
+    --white: #f2ede5;
+    --white-dim: #c8c2b8;
+    --muted: #3d3d3d;
+    --muted-light: #6e6e6e;
+
     --font-display: "Barlow Condensed", sans-serif;
     --font-body: "Barlow", sans-serif;
+
+    --nav-h: 64px;
+    --max-w: 1400px;
+    --pad: clamp(1.25rem, 4vw, 3rem);
   }
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; }
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    font-size: 16px;
+  }
 
   body {
     background-color: var(--bg);
@@ -63,13 +79,30 @@ const {
     line-height: 1.6;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   img { display: block; max-width: 100%; }
-  button { cursor: pointer; border: none; background: none; font-family: inherit; }
+  button { cursor: pointer; border: none; background: none; font-family: inherit; color: inherit; }
   a { color: inherit; text-decoration: none; }
+  ul { list-style: none; }
 
-  ::-webkit-scrollbar { width: 4px; }
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 3px; }
   ::-webkit-scrollbar-track { background: var(--bg); }
   ::-webkit-scrollbar-thumb { background: var(--accent-dim); }
+
+  /* Selection */
+  ::selection { background: var(--accent); color: var(--bg); }
+
+  /* Utility */
+  .sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    white-space: nowrap;
+    border: 0;
+  }
 </style>

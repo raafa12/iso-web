@@ -3,29 +3,31 @@
 
 <section class="about" id="about">
   <div class="about-inner">
-    <div class="about-left">
-      <div class="big-letter" aria-hidden="true">I</div>
+    <!-- Decorative left column -->
+    <div class="about-deco" aria-hidden="true">
+      <div class="big-letter">I</div>
     </div>
 
-    <div class="about-right">
+    <!-- Content -->
+    <div class="about-content">
       <p class="eyebrow">
-        <span class="line"></span>
+        <span class="line" aria-hidden="true"></span>
         ¿Qué es ISO?
       </p>
 
       <h2 class="about-title">
-        take a break.<br />
-        <span class="outline">call for an</span><br />
-        iso.
+        <span class="outline">take a</span><br />
+        <span class="outline">break.</span><br />
+        <span class="filled">iso.</span>
       </h2>
 
-      <div class="about-text">
+      <div class="about-body">
         <p>
-          ISO nace de la cancha. De ese momento en que solo queda tú y el aro. 
+          ISO nace de la cancha. De ese momento en que solo quedas tú y el aro.
           Sin compañeros. Sin excusas. Puro juego.
         </p>
         <p>
-          Diseñamos ropa para los que entienden eso. Para los que se quedan 
+          Diseñamos ropa para los que entienden eso. Para los que se quedan
           después del entrenamiento. Para los que llevan la cancha a la calle.
         </p>
         <p>
@@ -33,18 +35,18 @@
         </p>
       </div>
 
-      <div class="about-values">
+      <div class="values">
         <div class="value">
-          <span class="value-num">01</span>
-          <span class="value-text">Calidad sin compromiso</span>
+          <span class="v-num" aria-hidden="true">01</span>
+          <span class="v-text">Calidad sin compromiso</span>
         </div>
         <div class="value">
-          <span class="value-num">02</span>
-          <span class="value-text">Ediciones limitadas</span>
+          <span class="v-num" aria-hidden="true">02</span>
+          <span class="v-text">Ediciones limitadas</span>
         </div>
         <div class="value">
-          <span class="value-num">03</span>
-          <span class="value-text">Diseño de calle</span>
+          <span class="v-num" aria-hidden="true">03</span>
+          <span class="v-text">Diseño de calle</span>
         </div>
       </div>
     </div>
@@ -60,10 +62,13 @@
   .about-inner {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    min-height: 80vh;
+    min-height: 75vh;
+    max-width: var(--max-w);
+    margin: 0 auto;
   }
 
-  .about-left {
+  /* Decorative column */
+  .about-deco {
     background: var(--surface);
     border-right: 1px solid var(--border);
     display: flex;
@@ -79,15 +84,17 @@
     font-style: italic;
     font-size: 40vw;
     color: transparent;
-    -webkit-text-stroke: 1px var(--border);
+    -webkit-text-stroke: 1px var(--border-light);
     line-height: 1;
     user-select: none;
     position: absolute;
-    transform: translateX(-10%);
+    left: 50%;
+    transform: translateX(-45%);
   }
 
-  .about-right {
-    padding: 6rem 4rem;
+  /* Content */
+  .about-content {
+    padding: clamp(3rem, 6vw, 6rem) var(--pad);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -96,50 +103,64 @@
   .eyebrow {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    font-size: 0.68rem;
+    gap: 0.75rem;
+    font-size: 0.65rem;
     font-weight: 700;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
     color: var(--accent);
-    margin-bottom: 2rem;
+    margin-bottom: 1.75rem;
   }
-  .line { display: inline-block; width: 2rem; height: 1px; background: var(--accent); }
+
+  .line {
+    display: inline-block;
+    width: 1.75rem;
+    height: 1px;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
 
   .about-title {
     font-family: var(--font-display);
     font-weight: 900;
     font-style: italic;
-    font-size: clamp(3rem, 5vw, 5rem);
-    line-height: 0.9;
+    font-size: clamp(2.5rem, 5vw, 5rem);
+    line-height: 0.88;
     text-transform: uppercase;
     letter-spacing: -0.02em;
-    color: var(--white);
-    margin-bottom: 2.5rem;
+    margin-bottom: 2.25rem;
   }
+
   .outline {
     color: transparent;
     -webkit-text-stroke: 1.5px var(--white);
+    display: block;
   }
 
-  .about-text {
+  .filled {
+    color: var(--white);
+    display: block;
+  }
+
+  .about-body {
     display: flex;
     flex-direction: column;
     gap: 1rem;
     margin-bottom: 3rem;
   }
-  .about-text p {
-    font-size: 0.95rem;
+
+  .about-body p {
+    font-size: 0.9rem;
     font-weight: 300;
     color: var(--muted-light);
     line-height: 1.8;
-    max-width: 420px;
+    max-width: 400px;
   }
 
-  .about-values {
+  /* Values */
+  .values {
     display: flex;
     flex-direction: column;
-    gap: 0;
     border-top: 1px solid var(--border);
   }
 
@@ -147,29 +168,44 @@
     display: flex;
     align-items: center;
     gap: 1.5rem;
-    padding: 1.25rem 0;
+    padding: 1.1rem 0;
     border-bottom: 1px solid var(--border);
   }
 
-  .value-num {
+  .v-num {
     font-family: var(--font-display);
     font-weight: 900;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     color: var(--accent);
     letter-spacing: 0.1em;
+    flex-shrink: 0;
   }
 
-  .value-text {
-    font-size: 0.78rem;
+  .v-text {
+    font-size: 0.72rem;
     font-weight: 500;
     letter-spacing: 0.15em;
     text-transform: uppercase;
     color: var(--muted-light);
   }
 
+  /* ========== RESPONSIVE ========== */
   @media (max-width: 900px) {
-    .about-inner { grid-template-columns: 1fr; }
-    .about-left { display: none; }
-    .about-right { padding: 4rem 1.5rem; }
+    .about-inner {
+      grid-template-columns: 1fr;
+      min-height: auto;
+    }
+
+    .about-deco {
+      display: none;
+    }
+
+    .about-content {
+      padding: 3rem var(--pad) 4rem;
+    }
+
+    .about-body p {
+      max-width: none;
+    }
   }
 </style>
