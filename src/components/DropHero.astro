@@ -15,7 +15,7 @@ const drop = {
   <!-- Top eyebrow bar -->
   <div class="drop-bar">
     <span class="bar-pill">LIVE</span>
-    <span class="bar-text">Drop 001 — Edición Limitada</span>
+    <span class="bar-text">Drop 001 — Edición Limitada · Sin reposición</span>
     <span class="bar-units">Solo 100 unidades</span>
   </div>
 
@@ -37,7 +37,12 @@ const drop = {
       <!-- Countdown -->
       <div class="countdown" id="countdown" aria-label="Cuenta atrás del drop">
         <div class="cd-unit">
-          <span class="cd-num" id="cd-hours">48</span>
+          <span class="cd-num" id="cd-days">00</span>
+          <span class="cd-label">Días</span>
+        </div>
+        <span class="cd-sep" aria-hidden="true">:</span>
+        <div class="cd-unit">
+          <span class="cd-num" id="cd-hours">00</span>
           <span class="cd-label">Horas</span>
         </div>
         <span class="cd-sep" aria-hidden="true">:</span>
@@ -53,9 +58,6 @@ const drop = {
       </div>
 
       <div class="drop-ctas">
-        <a href="#collection" class="cta-primary">
-          Comprar ahora →
-        </a>
         <a href="#about" class="cta-ghost">¿Qué es ISO?</a>
       </div>
     </div>
@@ -66,11 +68,11 @@ const drop = {
         <div class="head-left">
           <p class="eyebrow">
             <span class="line" aria-hidden="true"></span>
-            Drop 002
+            Drop 001
           </p>
           <h2 class="section-title">Próximamente</h2>
         </div>
-        <p class="head-note">Edición limitada · Fecha por anunciar</p>
+        <p class="head-note">Edición limitada · 100 unidades </p>
       </div>
 
       <div class="products-grid">
@@ -120,17 +122,6 @@ const drop = {
               <p class="notify-feedback" id="notify-feedback" aria-live="polite"></p>
             </div>
 
-            <!-- Trust signals -->
-            <div class="trust">
-              <span class="trust-item">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                Drops limitados
-              </span>
-              <span class="trust-item">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                Sin reposición
-              </span>
-            </div>
           </div>
         </article>
       </div>
@@ -150,7 +141,7 @@ const drop = {
 <style>
   .drop-hero {
     position: relative;
-    min-height: 100svh;
+    min-height: 35svh;
     display: flex;
     flex-direction: column;
     padding-top: var(--nav-h);
@@ -174,12 +165,12 @@ const drop = {
     z-index: 1;
     display: flex;
     align-items: center;
-    gap: 1rem;
-    padding: 0.7rem var(--pad);
+    gap: 0.6rem;
+    padding: 0.35rem var(--pad);
     border-bottom: 1px solid var(--border);
     background: var(--surface);
     flex-wrap: wrap;
-    row-gap: 0.25rem;
+    row-gap: 0.16rem;
   }
 
   .bar-pill {
@@ -221,8 +212,9 @@ const drop = {
     z-index: 1;
     flex: 1;
     display: grid;
-    grid-template-columns: minmax(320px, 1.15fr) minmax(360px, 0.85fr);
-    gap: clamp(2rem, 4vw, 3.5rem);
+    align-items: stretch;
+    grid-template-columns: minmax(260px, 0.9fr) minmax(320px, 1.1fr);
+    gap: clamp(0.9rem, 1.5vw, 1.4rem);
     max-width: var(--max-w);
     width: 100%;
     margin: 0 auto;
@@ -231,8 +223,8 @@ const drop = {
 
   /* ---- LEFT / TEXT ---- */
   .drop-text {
-    padding: clamp(2.5rem, 5vw, 5rem) var(--pad);
-    padding-right: clamp(1.5rem, 3vw, 3rem);
+    padding: clamp(0.7rem, 1.5vw, 1.2rem) var(--pad);
+    padding-right: clamp(0.6rem, 1vw, 0.9rem);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -262,11 +254,11 @@ const drop = {
     font-family: var(--font-display);
     font-weight: 900;
     font-style: italic;
-    font-size: clamp(4rem, 8vw, 7.5rem);
-    line-height: 0.88;
+    font-size: clamp(3.5rem, 7.5vw, 7rem);
+    line-height: 1;
     letter-spacing: -0.02em;
     text-transform: uppercase;
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.7rem;
   }
   .outline-text {
     color: transparent;
@@ -277,20 +269,20 @@ const drop = {
   }
 
   .drop-desc {
-    font-size: clamp(0.85rem, 1.5vw, 1rem);
+    font-size: clamp(0.78rem, 1.2vw, 0.92rem);
     font-weight: 300;
     color: var(--muted-light);
-    line-height: 1.75;
-    max-width: 380px;
-    margin-bottom: 2.5rem;
+    line-height: 1.5;
+    max-width: 320px;
+    margin-bottom: 0.9rem;
   }
 
   /* ---- COUNTDOWN ---- */
   .countdown {
     display: flex;
     align-items: flex-end;
-    gap: 0.5rem;
-    margin-bottom: 2.5rem;
+    gap: 0.3rem;
+    margin-bottom: 0.9rem;
   }
 
   .cd-unit {
@@ -299,14 +291,14 @@ const drop = {
     align-items: center;
     background: var(--surface);
     border: 1px solid var(--border-light);
-    padding: 0.75rem 1.25rem;
-    min-width: 72px;
+    padding: 0.45rem 0.9rem;
+    min-width: 52px;
   }
 
   .cd-num {
     font-family: var(--font-display);
     font-weight: 900;
-    font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+    font-size: clamp(1.4rem, 3vw, 2rem);
     color: var(--accent);
     letter-spacing: -0.02em;
     line-height: 1;
@@ -335,19 +327,19 @@ const drop = {
   .drop-ctas {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: 0.8rem;
     flex-wrap: wrap;
   }
 
   .cta-primary {
     font-family: var(--font-display);
     font-weight: 700;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--accent-dark);
     background: var(--accent);
-    padding: 1rem 2.25rem;
+    padding: 0.8rem 1.6rem;
     transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
     display: inline-block;
     white-space: nowrap;
@@ -376,7 +368,7 @@ const drop = {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: clamp(2rem, 4vw, 4rem) var(--pad);
+    padding: clamp(0.8rem, 1.5vw, 1.2rem) var(--pad);
     background: var(--surface);
     border-left: 1px solid var(--border);
   }
@@ -549,7 +541,7 @@ const drop = {
     z-index: 1;
     border-top: 1px solid var(--border);
     overflow: hidden;
-    padding: 0.7rem 0;
+    padding: 0.35rem 0;
     background: var(--surface);
     flex-shrink: 0;
   }
@@ -584,7 +576,7 @@ const drop = {
   }
 
   .drop-upcoming.products {
-    padding: clamp(2rem, 4vw, 4rem) var(--pad);
+    padding: clamp(0.8rem, 1.5vw, 1.2rem) var(--pad);
     border-top: none;
   }
 
@@ -592,27 +584,27 @@ const drop = {
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
-    margin-bottom: clamp(2rem, 4vw, 3.5rem);
+    margin-bottom: clamp(1rem, 2vw, 1.5rem);
     flex-wrap: wrap;
-    gap: 1rem;
+    gap: 0.75rem;
   }
 
   .head-left {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.35rem;
   }
 
   .eyebrow {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    font-size: 0.65rem;
+    gap: 0.5rem;
+    font-size: 0.62rem;
     font-weight: 700;
     letter-spacing: 0.22em;
     text-transform: uppercase;
     color: var(--accent);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.3rem;
   }
 
   .line {
@@ -626,21 +618,21 @@ const drop = {
     font-family: var(--font-display);
     font-weight: 900;
     font-style: italic;
-    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-size: clamp(1.8rem, 3vw, 2.6rem);
     text-transform: uppercase;
     color: var(--white);
     letter-spacing: -0.02em;
-    line-height: 0.9;
+    line-height: 1;
   }
 
   .head-note {
-    font-size: 0.68rem;
+    font-size: 0.62rem;
     font-weight: 500;
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--muted-light);
     border: 1px solid var(--border-light);
-    padding: 0.4rem 0.8rem;
+    padding: 0.3rem 0.65rem;
     align-self: flex-end;
   }
 
@@ -651,7 +643,7 @@ const drop = {
 
   .product-card {
     width: 100%;
-    max-width: 480px;
+    max-width: 360px;
     background: var(--surface);
     border: 1px solid var(--border);
   }
@@ -719,11 +711,11 @@ const drop = {
   }
 
   .card-body {
-    padding: 1.5rem;
+    padding: 0.9rem;
     border-top: 1px solid var(--border);
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: 0.8rem;
   }
 
   .card-header {
@@ -782,12 +774,12 @@ const drop = {
   }
 
   .size-btn {
-    width: 44px;
-    height: 44px;
+    width: 34px;
+    height: 34px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.72rem;
+    font-size: 0.65rem;
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -804,10 +796,10 @@ const drop = {
   .notify-block {
     background: var(--surface2);
     border: 1px solid var(--border-light);
-    padding: 1.25rem;
+    padding: 0.85rem;
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.45rem;
   }
 
   .notify-text {
@@ -921,7 +913,7 @@ const drop = {
 
   @media (max-width: 480px) {
     .drop-title {
-      font-size: clamp(3.5rem, 18vw, 5rem);
+      font-size: clamp(4.5rem, 20vw, 7.5rem);
     }
 
     .product-frame {
@@ -942,11 +934,16 @@ const drop = {
 </style>
 
 <script>
-  // Countdown timer — 48 hours from page load (demo)
+  // Countdown timer — hasta el 1 de agosto
   function startCountdown() {
-    const end = new Date();
-    end.setHours(end.getHours() + 48);
+    const countdown = document.getElementById('countdown');
+    if (!countdown) return;
 
+    const end = new Date();
+    const year = end.getMonth() <= 6 ? end.getFullYear() : end.getFullYear() + 1;
+    end.setFullYear(year, 7, 1, 0, 0, 0, 0);
+
+    const daysEl = document.getElementById('cd-days');
     const hoursEl = document.getElementById('cd-hours');
     const minEl = document.getElementById('cd-min');
     const secEl = document.getElementById('cd-sec');
@@ -956,21 +953,26 @@ const drop = {
       const diff = Math.max(0, end.getTime() - now.getTime());
 
       const totalSeconds = Math.floor(diff / 1000);
-      const h = Math.floor(totalSeconds / 3600);
-      const m = Math.floor((totalSeconds % 3600) / 60);
+      const d = Math.floor(totalSeconds / 86400);
+      const h = Math.floor(totalSeconds / 3600) % 24;
+      const m = Math.floor(totalSeconds / 60) % 60;
       const s = totalSeconds % 60;
 
-      const pad = (n: number) => String(n).padStart(2, '0');
+      const pad = (n) => String(n).padStart(2, '0');
 
+      if (daysEl) daysEl.textContent = pad(d);
       if (hoursEl) hoursEl.textContent = pad(h);
       if (minEl) minEl.textContent = pad(m);
       if (secEl) secEl.textContent = pad(s);
-
-      if (diff > 0) requestAnimationFrame(update);
     }
 
     update();
+    setInterval(update, 1000);
   }
 
-  startCountdown();
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    startCountdown();
+  } else {
+    document.addEventListener('DOMContentLoaded', startCountdown);
+  }
 </script>
