@@ -15,7 +15,7 @@ const drop = {
   <!-- Top eyebrow bar -->
   <div class="drop-bar">
     <span class="bar-pill">LIVE</span>
-    <span class="bar-text">Drop 001 — Edición Limitada · Sin reposición</span>
+    <span class="bar-text">Drop 001 — Edición Limitada </span>
     <span class="bar-units">Solo 100 unidades</span>
   </div>
 
@@ -72,7 +72,6 @@ const drop = {
           </p>
           <h2 class="section-title">Próximamente</h2>
         </div>
-        <p class="head-note">Edición limitada · 100 unidades </p>
       </div>
 
       <div class="products-grid">
@@ -128,15 +127,15 @@ const drop = {
     </div>
   </div>
 
-  <!-- Scrolling ticker -->
-  <div class="ticker" aria-hidden="true">
-    <div class="ticker-track">
-      {Array(12).fill(null).map(() => (
-        <span>ISO Drop 001 — Edición Limitada — Call for an ISO — 100 Unidades — </span>
-      ))}
-    </div>
-  </div>
 </section>
+
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track">
+    {Array(12).fill(null).map(() => (
+      <span>ISO Drop 001 — Edición Limitada — 100 Unidades — </span>
+    ))}
+  </div>
+</div>
 
 <style>
   .drop-hero {
@@ -144,8 +143,8 @@ const drop = {
     min-height: 35svh;
     display: flex;
     flex-direction: column;
-    padding-top: var(--nav-h);
-    overflow: hidden;
+    padding-top: calc(var(--nav-h) + 3rem);
+    overflow: visible;
     background: var(--bg);
   }
 
@@ -161,8 +160,11 @@ const drop = {
 
   /* ---- DROP BAR ---- */
   .drop-bar {
-    position: relative;
-    z-index: 1;
+    position: fixed;
+    top: var(--nav-h);
+    left: 0;
+    right: 0;
+    z-index: 150;
     display: flex;
     align-items: center;
     gap: 0.6rem;
