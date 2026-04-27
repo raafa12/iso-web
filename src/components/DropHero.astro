@@ -58,6 +58,7 @@
     display: flex;
     flex-direction: column;
     padding-top: calc(var(--nav-h) + 3rem);
+    padding-bottom: 10rem;
     overflow: visible;
     background: var(--bg);
   }
@@ -253,7 +254,31 @@
 
   @media (max-width: 480px) {
     .drop-title {
-      font-size: clamp(4.5rem, 20vw, 7.5rem);
+      font-size: clamp(3.5rem, 16vw, 6rem);
+    }
+
+    .countdown {
+      gap: 0.25rem;
+    }
+
+    .cd-unit {
+      min-width: 0;
+      flex: 1;
+      padding: 0.5rem 0.4rem;
+    }
+
+    .cd-num {
+      font-size: clamp(1.4rem, 7vw, 2rem);
+    }
+
+    .cd-label {
+      font-size: 0.55rem;
+      letter-spacing: 0.06em;
+    }
+
+    .cd-sep {
+      font-size: clamp(1.4rem, 7vw, 2rem);
+      padding-bottom: 0.4rem;
     }
 
     .drop-ctas {
