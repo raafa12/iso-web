@@ -14,7 +14,7 @@
       <h1 class="drop-title">
         <span class="outline-text">Call </span><br />
         <span class="outline-text">for an</span><br />
-        <span class="filled-text">ISO.</span>
+        <img src="/logo-mark.png" alt="ISO" class="drop-title-logo" />
       </h1>
 
       <p class="drop-desc">
@@ -54,8 +54,14 @@
 <style>
   .drop-hero {
     position: relative;
-    min-height: 100svh;
-    height: 100svh;
+    /* Fallback for browsers without dvh support */
+    min-height: 100vh;
+    height: 100vh;
+    /* dvh tracks the *current* browser chrome (address bar, toolbars),
+       so the section always fills exactly what's visible on mobile —
+       100svh alone left a gap that revealed the next section on load. */
+    min-height: 100dvh;
+    height: 100dvh;
     display: flex;
     flex-direction: column;
     padding-top: calc(var(--nav-h) + 3rem);
@@ -136,6 +142,14 @@
   }
   .filled-text {
     color: var(--white);
+  }
+
+  .drop-title-logo {
+    display: block;
+    height: 0.85em;
+    width: auto;
+    margin-top: 0.08em;
+    margin-left: -0.1em;
   }
 
   .drop-desc {

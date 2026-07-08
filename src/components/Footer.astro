@@ -2,72 +2,24 @@
 ---
 
 <footer class="footer">
-  <div class="footer-top">
-    <!-- Brand -->
-    <div class="footer-brand">
-      <a href="/" class="footer-logo" aria-label="ISO — Inicio">
-        <img src="/logo-white.png" alt="ISO logo" class="footer-logo-image" />
-      </a>
-      <div class="footer-socials">
-        <a href="https://instagram.com/isowear_" target="_blank" rel="noopener noreferrer" aria-label="Instagram @isowear_">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <rect x="3" y="3" width="18" height="18" rx="5" />
-            <path d="M16 11.37a4 4 0 1 1-7.99.5A4 4 0 0 1 16 11.37z" />
-            <path d="M17.5 6.5h.01" />
-          </svg>
-          @isowear_
-        </a>
-        <a href="https://www.tiktok.com/@isowear" target="_blank" rel="noopener noreferrer" aria-label="TikTok @isowear">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="M9.5 3.5c0 1.3.18 2.5.5 3.6 1.5 0 2.9-.6 3.9-1.6v4.4c-1 .9-2.3 1.5-3.7 1.6v4.1c0 1.7-1.4 3-3 3-1.6 0-2.9-1.4-3-3.1a3 3 0 0 1 3-3.1c.5 0 1 .1 1.4.3V8.8C9.8 8.8 9.6 8.2 9.6 7.6 9.6 7 9.7 6.4 9.8 5.8h-.3c-.7 0-1.4-.2-2-.4v-1.9c.8.3 1.7.5 2.6.5zm7.7 3.2h1.3c-.5-1.3-1.6-2.3-3-2.8v1.6c.8.3 1.4 1 1.7 1.9z" />
-          </svg>
-          @isowear
-        </a>
-      </div>
-    </div>
-
-    <!-- Newsletter -->
-    <div class="footer-nl">
-      <p class="nl-title">Entérate antes que nadie</p>
-      <p class="nl-sub-text">Acceso anticipado a cada drop. Sin spam.</p>
-      <div class="nl-form" role="form" aria-label="Suscripción al newsletter">
-        <label for="nl-email" class="sr-only">Tu email</label>
-        <input
-          type="email"
-          id="nl-email"
-          name="email"
-          placeholder="tu@email.com"
-          autocomplete="email"
-          required
-        />
-        <button type="button" id="nl-submit" aria-label="Suscribirme">→</button>
-      </div>
-      <p class="nl-note" id="nl-feedback" aria-live="polite"></p>
-    </div>
-
-    <!-- Links -->
-    <div class="footer-links">
-      <div class="link-col">
-        <p class="col-title">Marca</p>
-        <a href="#drops">Drops</a>
-        <a href="#collection">Colección</a>
-        <a href="#about">Nosotros</a>
-      </div>
-      <div class="link-col">
-        <p class="col-title">Info</p>
-        <a href="#">Envíos</a>
-        <a href="#">Devoluciones</a>
-        <a href="#">Contacto</a>
-      </div>
-    </div>
-  </div>
-
   <div class="footer-bottom">
-    <p class="copyright">© 2026 ISO. Todos los derechos reservados.</p>
-    <div class="footer-bottom-links">
-      <a href="#">Privacidad</a>
-      <a href="#">Términos</a>
+    <div class="footer-socials">
+      <a href="https://instagram.com/isowear_" target="_blank" rel="noopener noreferrer" aria-label="Instagram @isowear_">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="3" width="18" height="18" rx="5" />
+          <path d="M16 11.37a4 4 0 1 1-7.99.5A4 4 0 0 1 16 11.37z" />
+          <path d="M17.5 6.5h.01" />
+        </svg>
+        @isowear_
+      </a>
+      <a href="https://www.tiktok.com/@isowear" target="_blank" rel="noopener noreferrer" aria-label="TikTok @isowear">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M9.5 3.5c0 1.3.18 2.5.5 3.6 1.5 0 2.9-.6 3.9-1.6v4.4c-1 .9-2.3 1.5-3.7 1.6v4.1c0 1.7-1.4 3-3 3-1.6 0-2.9-1.4-3-3.1a3 3 0 0 1 3-3.1c.5 0 1 .1 1.4.3V8.8C9.8 8.8 9.6 8.2 9.6 7.6 9.6 7 9.7 6.4 9.8 5.8h-.3c-.7 0-1.4-.2-2-.4v-1.9c.8.3 1.7.5 2.6.5zm7.7 3.2h1.3c-.5-1.3-1.6-2.3-3-2.8v1.6c.8.3 1.4 1 1.7 1.9z" />
+        </svg>
+        @isowear
+      </a>
     </div>
+    <p class="copyright">© 2026 ISO. Todos los derechos reservados.</p>
   </div>
 </footer>
 
@@ -77,34 +29,13 @@
     background: var(--surface);
   }
 
-  .footer-top {
-    display: grid;
-    grid-template-columns: 1fr 1.5fr 1fr;
-    gap: 3rem;
-    padding: clamp(3rem, 5vw, 4.5rem) var(--pad);
-    border-bottom: 1px solid var(--border);
-  }
-
-  /* Brand */
-  .footer-logo {
-    display: inline-block;
-    margin-bottom: 0.5rem;
-  }
-
-  .footer-logo-image {
-    display: block;
-    height: 7rem;
-    width: auto;
-    max-width: 22rem;
-  }
-
-  .footer-sub {
-    font-size: 0.65rem;
-    font-weight: 500;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 1.5rem;
+  .footer-bottom {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding: clamp(2rem, 4vw, 2.75rem) var(--pad);
   }
 
   .footer-socials {
@@ -134,189 +65,18 @@
     border-color: var(--accent);
   }
 
-  /* Newsletter */
-  .nl-title {
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--white-dim);
-    margin-bottom: 0.35rem;
-  }
-
-  .nl-sub-text {
-    font-size: 0.7rem;
-    font-weight: 300;
-    color: var(--muted-light);
-    margin-bottom: 1.25rem;
-  }
-
-  .nl-form {
-    display: flex;
-    border: 1px solid var(--border);
-    margin-bottom: 0.5rem;
-    overflow: hidden;
-  }
-
-  .nl-form input {
-    flex: 1;
-    min-width: 0;
-    background: transparent;
-    border: none;
-    outline: none;
-    padding: 0.8rem 1rem;
-    font-family: var(--font-body);
-    font-size: 0.82rem;
-    color: var(--white);
-  }
-  .nl-form input::placeholder { color: var(--muted); }
-
-  .nl-form button {
-    background: var(--accent);
-    color: var(--bg);
-    border: none;
-    padding: 0.8rem 1.2rem;
-    font-size: 1.1rem;
-    font-weight: 700;
-    transition: background 0.2s;
-    flex-shrink: 0;
-  }
-  .nl-form button:hover { background: var(--accent-dim); }
-
-  .nl-note {
-    font-size: 0.62rem;
-    letter-spacing: 0.1em;
-    color: var(--accent);
-    min-height: 1em;
-  }
-
-  /* Links */
-  .footer-links {
-    display: flex;
-    gap: 2.5rem;
-    justify-content: flex-end;
-  }
-
-  .link-col {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .col-title {
-    font-size: 0.6rem;
-    font-weight: 700;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 0.25rem;
-  }
-
-  .link-col a {
-    font-size: 0.82rem;
-    font-weight: 400;
-    color: var(--muted-light);
-    transition: color 0.2s;
-  }
-  .link-col a:hover { color: var(--white); }
-
-  /* Bottom */
-  .footer-bottom {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1.25rem var(--pad);
-    flex-wrap: wrap;
-    gap: 0.75rem;
-  }
-
   .copyright {
     font-size: 0.65rem;
     letter-spacing: 0.1em;
     color: var(--muted);
+    text-align: center;
   }
-
-  .footer-bottom-links {
-    display: flex;
-    gap: 1.5rem;
-  }
-
-  .footer-bottom-links a {
-    font-size: 0.65rem;
-    letter-spacing: 0.1em;
-    color: var(--muted);
-    transition: color 0.2s;
-  }
-  .footer-bottom-links a:hover { color: var(--accent); }
 
   /* ========== RESPONSIVE ========== */
-  @media (max-width: 900px) {
-    .footer-top {
-      grid-template-columns: 1fr 1fr;
-      gap: 2.5rem;
-    }
-
-    .footer-links {
-      justify-content: flex-start;
-    }
-  }
-
   @media (max-width: 600px) {
-    .footer-top {
-      grid-template-columns: 1fr;
-      gap: 2rem;
-      padding: 2.5rem var(--pad);
-    }
-
-    .footer-bottom {
-      flex-direction: column;
-      text-align: center;
-      gap: 0.5rem;
+    .footer-socials {
+      flex-wrap: wrap;
+      justify-content: center;
     }
   }
 </style>
-
-<script>
-  const emailInput = document.getElementById('nl-email') as HTMLInputElement | null;
-  const submitBtn = document.getElementById('nl-submit') as HTMLButtonElement | null;
-  const feedback = document.getElementById('nl-feedback');
-
-  submitBtn?.addEventListener('click', async () => {
-    const email = emailInput?.value.trim();
-
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      if (feedback) feedback.textContent = 'Introduce un email válido.';
-      return;
-    }
-
-    submitBtn.textContent = '...';
-    submitBtn.disabled = true;
-
-    // TODO: Conectar con Mailchimp / ConvertKit / tu propio endpoint
-    // const res = await fetch('/api/newsletter', {
-    //   method: 'POST',
-    //   body: JSON.stringify({ email }),
-    //   headers: { 'Content-Type': 'application/json' }
-    // });
-
-    // Demo: simular éxito
-    await new Promise(r => setTimeout(r, 800));
-
-    if (feedback) feedback.textContent = '¡Apuntado! Te avisamos en el próximo drop.';
-    if (emailInput) emailInput.value = '';
-    submitBtn.textContent = '✓';
-    submitBtn.style.background = '#2ecc71';
-
-    setTimeout(() => {
-      submitBtn.textContent = '→';
-      submitBtn.style.background = '';
-      submitBtn.disabled = false;
-      if (feedback) feedback.textContent = '';
-    }, 4000);
-  });
-
-  // Submit on Enter
-  emailInput?.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') submitBtn?.click();
-  });
-</script>
