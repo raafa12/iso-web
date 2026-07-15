@@ -1,0 +1,270 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+
+// TODO: sustituye esta URL por la de tu propio formulario en Formspree
+// (la consigues al crear la cuenta: https://formspree.io -> New Form)
+const FORMSPREE_ENDPOINT = 'https://formspree.io/f/TU_ID_AQUI';
+---
+
+<Layout
+  title="ISO — Who is the 1x1 King?"
+  description="Apúntate para tener acceso prioritario al primer drop de ISO."
+>
+  <Navbar />
+  <main>
+    <section class="torneo-hero">
+      <div class="bg-grain" aria-hidden="true"></div>
+
+      <div class="torneo-inner">
+        <p class="eyebrow">
+          <span class="line" aria-hidden="true"></span>
+          Who is the 1x1 King?
+        </p>
+
+        <h1 class="torneo-title">
+          <span class="outline">Acceso</span><br />
+          <span class="filled">prioritario.</span>
+        </h1>
+
+        <p class="torneo-desc">
+          Estuviste en la cancha el 1 de agosto. Ahora sé de los primeros en
+          enterarte cuando salga el <strong>Drop 001</strong>. Sin reposición.
+          Si lo ves, es el momento.
+        </p>
+
+        <form
+          class="signup-form"
+          id="signup-form"
+          action={FORMSPREE_ENDPOINT}
+          method="POST"
+        >
+          <div class="field">
+            <label for="name">Nombre</label>
+            <input type="text" id="name" name="name" required placeholder="Tu nombre" />
+          </div>
+
+          <div class="field">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required placeholder="tu@email.com" />
+          </div>
+
+          <div class="field">
+            <label for="instagram">Instagram <span class="optional">(opcional)</span></label>
+            <input type="text" id="instagram" name="instagram" placeholder="@tuusuario" />
+          </div>
+
+          <label class="consent">
+            <input type="checkbox" name="consent" required />
+            <span>Acepto que ISO guarde mis datos para avisarme del drop. Nada de spam, solo esto.</span>
+          </label>
+
+          <button type="submit" class="btn-submit">Quiero acceso →</button>
+
+          <p class="form-status" id="form-status" role="status"></p>
+        </form>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  .torneo-hero {
+    position: relative;
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    padding: calc(var(--nav-h) + 3rem) var(--pad) 4rem;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  .bg-grain {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    opacity: 0.6;
+  }
+
+  .torneo-inner {
+    position: relative;
+    z-index: 1;
+    max-width: 560px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+  }
+  .line { display: inline-block; width: 2.5rem; height: 1px; background: var(--accent); }
+
+  .torneo-title {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-style: italic;
+    font-size: clamp(3rem, 7vw, 5rem);
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+  .outline {
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--white);
+  }
+  .filled { color: var(--white); }
+
+  .torneo-desc {
+    font-size: 0.95rem;
+    font-weight: 300;
+    color: var(--muted-light);
+    line-height: 1.75;
+    margin-bottom: 2.5rem;
+    max-width: 440px;
+  }
+  .torneo-desc strong {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .signup-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .field label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted-light);
+  }
+  .optional {
+    text-transform: none;
+    font-weight: 400;
+    letter-spacing: normal;
+    color: var(--muted);
+  }
+
+  .field input[type="text"],
+  .field input[type="email"] {
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    color: var(--white);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    padding: 0.9rem 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .field input:focus {
+    border-color: var(--accent);
+  }
+  .field input::placeholder {
+    color: var(--muted);
+  }
+
+  .consent {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    font-size: 0.8rem;
+    color: var(--muted-light);
+    line-height: 1.5;
+    cursor: pointer;
+    margin-top: 0.25rem;
+  }
+  .consent input {
+    margin-top: 0.2rem;
+    accent-color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .btn-submit {
+    background: var(--accent);
+    color: var(--accent-dark);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 1rem 2rem;
+    transition: background 0.2s, transform 0.15s;
+    margin-top: 0.5rem;
+  }
+  .btn-submit:hover { background: var(--accent-dim); transform: translateY(-2px); }
+  .btn-submit:disabled { opacity: 0.6; cursor: default; transform: none; }
+
+  .form-status {
+    font-size: 0.82rem;
+    color: var(--muted-light);
+    min-height: 1.2em;
+  }
+  .form-status.success { color: var(--accent); }
+  .form-status.error { color: #e37e7e; }
+
+  @media (max-width: 600px) {
+    .torneo-hero { padding: calc(var(--nav-h) + 2rem) var(--pad) 3rem; }
+    .torneo-title { font-size: clamp(2.6rem, 12vw, 3.5rem); }
+  }
+</style>
+
+<script>
+  const form = document.getElementById('signup-form') as HTMLFormElement | null;
+  const status = document.getElementById('form-status');
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!status) return;
+
+    const submitBtn = form.querySelector('.btn-submit') as HTMLButtonElement | null;
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Enviando...';
+    }
+
+    try {
+      const response = await fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { Accept: 'application/json' },
+      });
+
+      if (response.ok) {
+        status.textContent = 'Listo. Te avisaremos en cuanto salga el drop.';
+        status.className = 'form-status success';
+        form.reset();
+        if (submitBtn) submitBtn.textContent = 'Enviado ✓';
+      } else {
+        throw new Error('Form submission failed');
+      }
+    } catch (err) {
+      status.textContent = 'Algo ha fallado. Inténtalo de nuevo en un momento.';
+      status.className = 'form-status error';
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Quiero acceso →';
+      }
+    }
+  });
+</script>
