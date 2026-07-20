@@ -1,0 +1,212 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="ISO — Validar entrada" description="Panel de validación de invitaciones">
+  <main class="scan-page">
+    <div class="scan-header">
+      <p class="eyebrow">Staff · Puerta</p>
+      <h1>Validar entrada</h1>
+    </div>
+
+    <div id="reader"></div>
+
+    <div id="result" class="result idle">
+      <p class="result-main">Apunta al QR de la invitación</p>
+    </div>
+
+    <details class="manual-entry">
+      <summary>Introducir código a mano</summary>
+      <form id="manual-form">
+        <input type="text" id="manual-code" placeholder="Código de la invitación" autocomplete="off" />
+        <button type="submit">Validar</button>
+      </form>
+    </details>
+
+    <p class="counter" id="counter">0 validadas en esta sesión</p>
+  </main>
+</Layout>
+
+<style>
+  .scan-page {
+    min-height: 100dvh;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1.25rem 3rem;
+    gap: 1.5rem;
+  }
+
+  .scan-header { text-align: center; }
+  .eyebrow {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.4rem;
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-style: italic;
+    font-size: 1.8rem;
+    text-transform: uppercase;
+  }
+
+  #reader {
+    width: 100%;
+    max-width: 420px;
+    border: 1px solid var(--border-light);
+    overflow: hidden;
+  }
+
+  .result {
+    width: 100%;
+    max-width: 420px;
+    padding: 1.5rem;
+    text-align: center;
+    border: 2px solid var(--border-light);
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .result-main {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.3rem;
+    text-transform: uppercase;
+  }
+  .result-sub {
+    font-size: 0.85rem;
+    color: var(--muted-light);
+    margin-top: 0.4rem;
+  }
+  .result.idle { border-color: var(--border-light); }
+  .result.valid { border-color: var(--accent); background: var(--accent-glow); }
+  .result.invalid { border-color: #e37e7e; background: rgba(227, 126, 126, 0.12); }
+
+  .manual-entry {
+    width: 100%;
+    max-width: 420px;
+    color: var(--muted-light);
+    font-size: 0.85rem;
+  }
+  .manual-entry summary { cursor: pointer; }
+  #manual-form {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+  #manual-code {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    color: var(--white);
+    padding: 0.7rem 0.9rem;
+    font-family: var(--font-body);
+  }
+  #manual-form button {
+    background: var(--accent);
+    color: var(--accent-dark);
+    font-weight: 700;
+    padding: 0.7rem 1.1rem;
+  }
+
+  .counter {
+    font-size: 0.8rem;
+    color: var(--muted-light);
+  }
+</style>
+
+<script>
+  // @ts-nocheck
+  import { Html5Qrcode } from 'html5-qrcode';
+
+  const resultEl = document.getElementById('result');
+  const counterEl = document.getElementById('counter');
+  const manualForm = document.getElementById('manual-form');
+  const manualInput = document.getElementById('manual-code');
+
+  let validatedCount = 0;
+  let busy = false;
+  let lastCode = '';
+  let lastCodeTime = 0;
+
+  function beep(ok) {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = ok ? 880 : 220;
+      gain.gain.value = 0.15;
+      osc.start();
+      setTimeout(() => { osc.stop(); ctx.close(); }, 180);
+    } catch {}
+    if (navigator.vibrate) navigator.vibrate(ok ? 80 : [80, 60, 80]);
+  }
+
+  function showResult(state, main, sub) {
+    resultEl.className = `result ${state}`;
+    resultEl.innerHTML = `<p class="result-main">${main}</p>${sub ? `<p class="result-sub">${sub}</p>` : ''}`;
+  }
+
+  async function validarCodigo(code) {
+    if (!code || busy) return;
+
+    // Evita doble disparo si la cámara lee el mismo QR varias veces seguidas
+    const now = Date.now();
+    if (code === lastCode && now - lastCodeTime < 3000) return;
+    lastCode = code;
+    lastCodeTime = now;
+
+    busy = true;
+    showResult('idle', 'Comprobando...');
+
+    try {
+      const res = await fetch('/api/validar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code }),
+      });
+      const data = await res.json();
+
+      if (data.valid) {
+        validatedCount++;
+        counterEl.textContent = `${validatedCount} validadas en esta sesión`;
+        showResult('valid', `✓ Invitación #${data.invite_number}`, data.name || 'Acceso permitido');
+        beep(true);
+      } else if (data.reason === 'ya_usada') {
+        showResult('invalid', '✕ Ya usada', `Invitación #${data.invite_number}`);
+        beep(false);
+      } else {
+        showResult('invalid', '✕ Código no válido', 'Esta invitación no existe');
+        beep(false);
+      }
+    } catch (err) {
+      showResult('invalid', '✕ Error de red', 'Reintenta en un momento');
+      beep(false);
+    } finally {
+      setTimeout(() => { busy = false; }, 900);
+    }
+  }
+
+  manualForm?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const code = manualInput.value.trim();
+    manualInput.value = '';
+    validarCodigo(code);
+  });
+
+  const scanner = new Html5Qrcode('reader');
+  scanner
+    .start(
+      { facingMode: 'environment' },
+      { fps: 10, qrbox: { width: 250, height: 250 } },
+      (decodedText) => validarCodigo(decodedText)
+    )
+    .catch(() => {
+      showResult('invalid', 'No se pudo abrir la cámara', 'Usa el código manual de abajo');
+    });
+</script>
