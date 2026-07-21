@@ -22,10 +22,6 @@ export default async (req) => {
     );
   }
 
-  // --- LOG TEMPORAL DE DIAGNÓSTICO: borrar cuando funcione ---
-  console.log('DEBUG SUPABASE_URL:', JSON.stringify(SUPABASE_URL));
-  console.log('DEBUG SUPABASE_SERVICE_KEY prefix:', SUPABASE_SERVICE_KEY.slice(0, 12), '... length:', SUPABASE_SERVICE_KEY.length);
-  // --- FIN LOG TEMPORAL ---
 
   let code;
   try {
@@ -39,7 +35,6 @@ export default async (req) => {
     return new Response(JSON.stringify({ valid: false, reason: 'sin_codigo' }), { status: 400 });
   }
 
-  console.log('DEBUG code recibido:', JSON.stringify(code));
 
   const headers = {
     apikey: SUPABASE_SERVICE_KEY,
@@ -47,6 +42,22 @@ export default async (req) => {
     'Content-Type': 'application/json',
     Prefer: 'return=representation',
   };
+
+  // Consulta el aforo actual sin traer filas: solo pedimos el conteo,
+  // que Supabase devuelve en la cabecera Content-Range (ej. "0-0/126").
+  async function getCount(onlyUsed) {
+    const url = `${SUPABASE_URL}/rest/v1/invitations?select=code${onlyUsed ? '&used=eq.true' : ''}`;
+    const res = await fetch(url, {
+      headers: { ...headers, Prefer: 'count=exact', Range: '0-0' },
+    });
+    const range = res.headers.get('content-range');
+    return range ? parseInt(range.split('/')[1], 10) : null;
+  }
+
+  async function getStats() {
+    const [used, total] = await Promise.all([getCount(true), getCount(false)]);
+    return { used, total };
+  }
 
   // Intento atómico: solo actualiza si used = false. Si la fila ya estaba
   // usada, esta consulta no devuelve nada (0 filas), y eso es justo la señal
@@ -61,20 +72,23 @@ export default async (req) => {
   );
 
   if (!updateRes.ok) {
-    const errBody = await updateRes.text();
-    console.log('DEBUG updateRes NOT OK. Status:', updateRes.status, 'Body:', errBody);
     return new Response(JSON.stringify({ error: 'Error al consultar la base de datos' }), {
       status: 502,
     });
   }
 
   const updated = await updateRes.json();
-  console.log('DEBUG updateRes status:', updateRes.status, 'rows:', JSON.stringify(updated));
 
   if (updated.length > 0) {
     const row = updated[0];
+    const stats = await getStats();
     return new Response(
-      JSON.stringify({ valid: true, invite_number: row.invite_number, name: row.name || null }),
+      JSON.stringify({
+        valid: true,
+        invite_number: row.invite_number,
+        name: row.name || null,
+        stats,
+      }),
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
   }
@@ -88,15 +102,18 @@ export default async (req) => {
   const lookup = await lookupRes.json();
 
   if (lookup.length === 0) {
-    return new Response(JSON.stringify({ valid: false, reason: 'no_existe' }), { status: 200 });
+    const stats = await getStats();
+    return new Response(JSON.stringify({ valid: false, reason: 'no_existe', stats }), { status: 200 });
   }
 
+  const stats = await getStats();
   return new Response(
     JSON.stringify({
       valid: false,
       reason: 'ya_usada',
       invite_number: lookup[0].invite_number,
       used_at: lookup[0].used_at,
+      stats,
     }),
     { status: 200 }
   );

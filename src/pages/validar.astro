@@ -9,6 +9,23 @@ import Layout from '../layouts/Layout.astro';
       <h1>Validar entrada</h1>
     </div>
 
+    <div class="stats-panel" id="stats-panel">
+      <div class="stat">
+        <span class="stat-value" id="stat-inside">–</span>
+        <span class="stat-label">Dentro</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat">
+        <span class="stat-value" id="stat-remaining">–</span>
+        <span class="stat-label">Quedan</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat">
+        <span class="stat-value" id="stat-total">–</span>
+        <span class="stat-label">Aforo total</span>
+      </div>
+    </div>
+
     <div id="reader"></div>
 
     <div id="result" class="result idle">
@@ -22,8 +39,6 @@ import Layout from '../layouts/Layout.astro';
         <button type="submit">Validar</button>
       </form>
     </details>
-
-    <p class="counter" id="counter">0 validadas en esta sesión</p>
   </main>
 </Layout>
 
@@ -55,6 +70,35 @@ import Layout from '../layouts/Layout.astro';
     text-transform: uppercase;
   }
 
+  .stats-panel {
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    padding: 0.9rem 0.5rem;
+  }
+  .stat { display: flex; flex-direction: column; align-items: center; gap: 0.15rem; }
+  .stat-value {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-style: italic;
+    font-size: 1.5rem;
+    color: var(--white);
+  }
+  .stat-value.warn { color: #e3b04b; }
+  .stat-value.critical { color: #e37e7e; }
+  .stat-label {
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted-light);
+  }
+  .stat-divider { width: 1px; height: 2rem; background: var(--border-light); }
+
   #reader {
     width: 100%;
     max-width: 420px;
@@ -82,8 +126,10 @@ import Layout from '../layouts/Layout.astro';
     margin-top: 0.4rem;
   }
   .result.idle { border-color: var(--border-light); }
-  .result.valid { border-color: var(--accent); background: var(--accent-glow); }
+  .result.valid { border-color: #22c55e; background: rgba(34, 197, 94, 0.14); }
+  .result.valid .result-main { color: #22c55e; }
   .result.invalid { border-color: #e37e7e; background: rgba(227, 126, 126, 0.12); }
+  .result.invalid .result-main { color: #e37e7e; }
 
   .manual-entry {
     width: 100%;
@@ -111,11 +157,6 @@ import Layout from '../layouts/Layout.astro';
     font-weight: 700;
     padding: 0.7rem 1.1rem;
   }
-
-  .counter {
-    font-size: 0.8rem;
-    color: var(--muted-light);
-  }
 </style>
 
 <script>
@@ -123,14 +164,40 @@ import Layout from '../layouts/Layout.astro';
   import { Html5Qrcode } from 'html5-qrcode';
 
   const resultEl = document.getElementById('result');
-  const counterEl = document.getElementById('counter');
   const manualForm = document.getElementById('manual-form');
   const manualInput = document.getElementById('manual-code');
+  const statInside = document.getElementById('stat-inside');
+  const statRemaining = document.getElementById('stat-remaining');
+  const statTotal = document.getElementById('stat-total');
 
-  let validatedCount = 0;
   let busy = false;
   let lastCode = '';
   let lastCodeTime = 0;
+
+  function updateStats(stats) {
+    if (!stats || stats.used == null || stats.total == null) return;
+    const remaining = stats.total - stats.used;
+    statInside.textContent = stats.used;
+    statRemaining.textContent = remaining;
+    statTotal.textContent = stats.total;
+
+    statRemaining.className = 'stat-value';
+    if (remaining <= 10) statRemaining.className = 'stat-value critical';
+    else if (remaining <= 30) statRemaining.className = 'stat-value warn';
+  }
+
+  async function loadInitialStats() {
+    try {
+      const res = await fetch('/api/validar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: '__stats_only__' }),
+      });
+      const data = await res.json();
+      updateStats(data.stats);
+    } catch {}
+  }
+  loadInitialStats();
 
   function beep(ok) {
     try {
@@ -173,8 +240,6 @@ import Layout from '../layouts/Layout.astro';
       const data = await res.json();
 
       if (data.valid) {
-        validatedCount++;
-        counterEl.textContent = `${validatedCount} validadas en esta sesión`;
         showResult('valid', `✓ Invitación #${data.invite_number}`, data.name || 'Acceso permitido');
         beep(true);
       } else if (data.reason === 'ya_usada') {
@@ -184,6 +249,7 @@ import Layout from '../layouts/Layout.astro';
         showResult('invalid', '✕ Código no válido', 'Esta invitación no existe');
         beep(false);
       }
+      updateStats(data.stats);
     } catch (err) {
       showResult('invalid', '✕ Error de red', 'Reintenta en un momento');
       beep(false);
