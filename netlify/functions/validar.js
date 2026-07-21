@@ -22,6 +22,11 @@ export default async (req) => {
     );
   }
 
+  // --- LOG TEMPORAL DE DIAGNÓSTICO: borrar cuando funcione ---
+  console.log('DEBUG SUPABASE_URL:', JSON.stringify(SUPABASE_URL));
+  console.log('DEBUG SUPABASE_SERVICE_KEY prefix:', SUPABASE_SERVICE_KEY.slice(0, 12), '... length:', SUPABASE_SERVICE_KEY.length);
+  // --- FIN LOG TEMPORAL ---
+
   let code;
   try {
     const body = await req.json();
@@ -33,6 +38,8 @@ export default async (req) => {
   if (!code) {
     return new Response(JSON.stringify({ valid: false, reason: 'sin_codigo' }), { status: 400 });
   }
+
+  console.log('DEBUG code recibido:', JSON.stringify(code));
 
   const headers = {
     apikey: SUPABASE_SERVICE_KEY,
@@ -54,12 +61,15 @@ export default async (req) => {
   );
 
   if (!updateRes.ok) {
+    const errBody = await updateRes.text();
+    console.log('DEBUG updateRes NOT OK. Status:', updateRes.status, 'Body:', errBody);
     return new Response(JSON.stringify({ error: 'Error al consultar la base de datos' }), {
       status: 502,
     });
   }
 
   const updated = await updateRes.json();
+  console.log('DEBUG updateRes status:', updateRes.status, 'rows:', JSON.stringify(updated));
 
   if (updated.length > 0) {
     const row = updated[0];
