@@ -268,7 +268,7 @@ import Layout from '../layouts/Layout.astro';
       }
       const data = await res.json();
       localStorage.setItem(STORAGE_KEY, passcode);
-      gateEl.hidden = true;
+      gateEl.style.display = 'none';
       appEl.hidden = false;
       updateStats(data.stats);
       startScannerOnce();
@@ -341,7 +341,7 @@ import Layout from '../layouts/Layout.astro';
         showResult('invalid', '✕ Sesión caducada', 'Vuelve a introducir el código de staff');
         localStorage.removeItem(STORAGE_KEY);
         appEl.hidden = true;
-        gateEl.hidden = false;
+        gateEl.style.display = '';
         return;
       }
 
@@ -351,7 +351,14 @@ import Layout from '../layouts/Layout.astro';
         showResult('valid', `✓ Invitación #${data.invite_number}`, data.name || 'Acceso permitido');
         beep(true);
       } else if (data.reason === 'ya_usada') {
-        showResult('invalid', '✕ Ya usada', `Invitación #${data.invite_number}`);
+        const hora = data.used_at
+          ? new Date(data.used_at).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
+          : null;
+        showResult(
+          'invalid',
+          '✕ Ya usada',
+          hora ? `Invitación #${data.invite_number} · entró a las ${hora}` : `Invitación #${data.invite_number}`
+        );
         beep(false);
       } else {
         showResult('invalid', '✕ Código no válido', 'Esta invitación no existe');
