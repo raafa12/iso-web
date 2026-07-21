@@ -4,41 +4,54 @@ import Layout from '../layouts/Layout.astro';
 
 <Layout title="ISO — Validar entrada" description="Panel de validación de invitaciones">
   <main class="scan-page">
-    <div class="scan-header">
+    <div class="gate" id="gate">
       <p class="eyebrow">Staff · Puerta</p>
-      <h1>Validar entrada</h1>
-    </div>
-
-    <div class="stats-panel" id="stats-panel">
-      <div class="stat">
-        <span class="stat-value" id="stat-inside">–</span>
-        <span class="stat-label">Dentro</span>
-      </div>
-      <div class="stat-divider"></div>
-      <div class="stat">
-        <span class="stat-value" id="stat-remaining">–</span>
-        <span class="stat-label">Quedan</span>
-      </div>
-      <div class="stat-divider"></div>
-      <div class="stat">
-        <span class="stat-value" id="stat-total">–</span>
-        <span class="stat-label">Aforo total</span>
-      </div>
-    </div>
-
-    <div id="reader"></div>
-
-    <div id="result" class="result idle">
-      <p class="result-main">Apunta al QR de la invitación</p>
-    </div>
-
-    <details class="manual-entry">
-      <summary>Introducir código a mano</summary>
-      <form id="manual-form">
-        <input type="text" id="manual-code" placeholder="Código de la invitación" autocomplete="off" />
-        <button type="submit">Validar</button>
+      <h1>Acceso restringido</h1>
+      <p class="gate-desc">Introduce el código de acceso del staff</p>
+      <form id="gate-form">
+        <input type="password" id="gate-code" placeholder="Código de acceso" autocomplete="off" inputmode="text" />
+        <button type="submit">Entrar</button>
       </form>
-    </details>
+      <p class="gate-error" id="gate-error"></p>
+    </div>
+
+    <div class="app" id="app" hidden>
+      <div class="scan-header">
+        <p class="eyebrow">Staff · Puerta</p>
+        <h1>Validar entrada</h1>
+      </div>
+
+      <div class="stats-panel" id="stats-panel">
+        <div class="stat">
+          <span class="stat-value" id="stat-inside">–</span>
+          <span class="stat-label">Dentro</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-value" id="stat-remaining">–</span>
+          <span class="stat-label">Quedan</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-value" id="stat-total">–</span>
+          <span class="stat-label">Aforo total</span>
+        </div>
+      </div>
+
+      <div id="reader"></div>
+
+      <div id="result" class="result idle">
+        <p class="result-main">Apunta al QR de la invitación</p>
+      </div>
+
+      <details class="manual-entry">
+        <summary>Introducir código a mano</summary>
+        <form id="manual-form">
+          <input type="text" id="manual-code" placeholder="Código de la invitación" autocomplete="off" />
+          <button type="submit">Validar</button>
+        </form>
+      </details>
+    </div>
   </main>
 </Layout>
 
@@ -50,6 +63,59 @@ import Layout from '../layouts/Layout.astro';
     flex-direction: column;
     align-items: center;
     padding: 2rem 1.25rem 3rem;
+    gap: 1.5rem;
+  }
+
+  .gate {
+    width: 100%;
+    max-width: 360px;
+    margin: auto;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .gate-desc {
+    font-size: 0.85rem;
+    color: var(--muted-light);
+    margin-bottom: 0.5rem;
+  }
+  #gate-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  #gate-code {
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    color: var(--white);
+    padding: 0.9rem 1rem;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    text-align: center;
+    letter-spacing: 0.05em;
+  }
+  #gate-form button {
+    background: var(--accent);
+    color: var(--accent-dark);
+    font-weight: 700;
+    padding: 0.9rem 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .gate-error {
+    color: #e37e7e;
+    font-size: 0.8rem;
+    min-height: 1.2em;
+  }
+
+  .app {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     gap: 1.5rem;
   }
 
@@ -163,6 +229,12 @@ import Layout from '../layouts/Layout.astro';
   // @ts-nocheck
   import { Html5Qrcode } from 'html5-qrcode';
 
+  const gateEl = document.getElementById('gate');
+  const appEl = document.getElementById('app');
+  const gateForm = document.getElementById('gate-form');
+  const gateInput = document.getElementById('gate-code');
+  const gateError = document.getElementById('gate-error');
+
   const resultEl = document.getElementById('result');
   const manualForm = document.getElementById('manual-form');
   const manualInput = document.getElementById('manual-code');
@@ -173,6 +245,50 @@ import Layout from '../layouts/Layout.astro';
   let busy = false;
   let lastCode = '';
   let lastCodeTime = 0;
+  let scannerStarted = false;
+  const scanner = new Html5Qrcode('reader');
+
+  const STORAGE_KEY = 'iso_staff_passcode';
+
+  function callValidar(code, passcode) {
+    return fetch('/api/validar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-staff-passcode': passcode },
+      body: JSON.stringify({ code }),
+    });
+  }
+
+  async function tryUnlock(passcode, { silent = false } = {}) {
+    try {
+      const res = await callValidar('__stats_only__', passcode);
+      if (res.status === 401) {
+        if (!silent) gateError.textContent = 'Código incorrecto';
+        localStorage.removeItem(STORAGE_KEY);
+        return false;
+      }
+      const data = await res.json();
+      localStorage.setItem(STORAGE_KEY, passcode);
+      gateEl.hidden = true;
+      appEl.hidden = false;
+      updateStats(data.stats);
+      startScannerOnce();
+      return true;
+    } catch {
+      if (!silent) gateError.textContent = 'Error de red, inténtalo de nuevo';
+      return false;
+    }
+  }
+
+  gateForm?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    gateError.textContent = '';
+    const passcode = gateInput.value.trim();
+    if (passcode) tryUnlock(passcode);
+  });
+
+  // Si ya se desbloqueó antes en este dispositivo, entra directo
+  const savedPasscode = localStorage.getItem(STORAGE_KEY);
+  if (savedPasscode) tryUnlock(savedPasscode, { silent: true });
 
   function updateStats(stats) {
     if (!stats || stats.used == null || stats.total == null) return;
@@ -185,20 +301,6 @@ import Layout from '../layouts/Layout.astro';
     if (remaining <= 10) statRemaining.className = 'stat-value critical';
     else if (remaining <= 30) statRemaining.className = 'stat-value warn';
   }
-
-  async function loadInitialStats() {
-    try {
-      const res = await fetch('/api/validar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: '__stats_only__' }),
-      });
-      const data = await res.json();
-      updateStats(data.stats);
-    } catch {}
-  }
-  loadInitialStats();
-
   function beep(ok) {
     try {
       const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -232,11 +334,17 @@ import Layout from '../layouts/Layout.astro';
     showResult('idle', 'Comprobando...');
 
     try {
-      const res = await fetch('/api/validar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code }),
-      });
+      const passcode = localStorage.getItem(STORAGE_KEY) || '';
+      const res = await callValidar(code, passcode);
+
+      if (res.status === 401) {
+        showResult('invalid', '✕ Sesión caducada', 'Vuelve a introducir el código de staff');
+        localStorage.removeItem(STORAGE_KEY);
+        appEl.hidden = true;
+        gateEl.hidden = false;
+        return;
+      }
+
       const data = await res.json();
 
       if (data.valid) {
@@ -265,14 +373,17 @@ import Layout from '../layouts/Layout.astro';
     validarCodigo(code);
   });
 
-  const scanner = new Html5Qrcode('reader');
-  scanner
-    .start(
-      { facingMode: 'environment' },
-      { fps: 10, qrbox: { width: 250, height: 250 } },
-      (decodedText) => validarCodigo(decodedText)
-    )
-    .catch(() => {
-      showResult('invalid', 'No se pudo abrir la cámara', 'Usa el código manual de abajo');
-    });
+  function startScannerOnce() {
+    if (scannerStarted) return;
+    scannerStarted = true;
+    scanner
+      .start(
+        { facingMode: 'environment' },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        (decodedText) => validarCodigo(decodedText)
+      )
+      .catch(() => {
+        showResult('invalid', 'No se pudo abrir la cámara', 'Usa el código manual de abajo');
+      });
+  }
 </script>

@@ -6,6 +6,7 @@
 // Variables de entorno necesarias (configúralas en Netlify, no aquí):
 //   SUPABASE_URL          -> Project URL de Supabase
 //   SUPABASE_SERVICE_KEY  -> service_role key de Supabase (NUNCA la anon key)
+//   STAFF_PASSCODE        -> código que solo conoce el staff de la puerta
 
 export default async (req) => {
   if (req.method !== 'POST') {
@@ -14,14 +15,19 @@ export default async (req) => {
 
   const SUPABASE_URL = process.env.SUPABASE_URL;
   const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
+  const STAFF_PASSCODE = process.env.STAFF_PASSCODE;
 
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY || !STAFF_PASSCODE) {
     return new Response(
       JSON.stringify({ error: 'Servidor mal configurado (faltan variables de entorno)' }),
       { status: 500 }
     );
   }
 
+  const providedPasscode = req.headers.get('x-staff-passcode') || '';
+  if (providedPasscode !== STAFF_PASSCODE) {
+    return new Response(JSON.stringify({ error: 'unauthorized' }), { status: 401 });
+  }
 
   let code;
   try {
