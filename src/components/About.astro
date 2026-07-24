@@ -8,8 +8,8 @@
       <img src="/rufus.JPEG" alt="Rufus" class="about-photo" />
     </div>
 
-    <!-- Content -->
-    <div class="about-content">
+    <!-- Title block (appears above the photo on mobile) -->
+    <div class="about-top">
       <p class="eyebrow">
         <span class="line" aria-hidden="true"></span>
         ¿Qué es ISO?
@@ -19,7 +19,10 @@
         <span class="outline">take a</span><br />
         <span class="outline">break.</span>
       </h2>
+    </div>
 
+    <!-- Body block (appears below the photo on mobile) -->
+    <div class="about-bottom">
       <div class="about-body">
         <p>
           ISO nace de la cancha. De ese momento en que solo quedas tú y el aro.
@@ -61,6 +64,7 @@
   .about-inner {
     display: grid;
     grid-template-columns: 1fr 1fr;
+    grid-template-areas: "photo top" "photo bottom";
     min-height: 75vh;
     max-width: var(--max-w);
     margin: 0 auto;
@@ -68,6 +72,7 @@
 
   /* Decorative column */
   .about-deco {
+    grid-area: photo;
     background: var(--surface);
     border-right: 1px solid var(--border);
     display: flex;
@@ -91,11 +96,20 @@
   /* big-letter removed; image now fills decorative column */
 
   /* Content */
-  .about-content {
-    padding: clamp(3rem, 6vw, 6rem) var(--pad);
+  .about-top {
+    grid-area: top;
+    padding: clamp(3rem, 6vw, 6rem) var(--pad) 0;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: end;
+  }
+
+  .about-bottom {
+    grid-area: bottom;
+    padding: 0 var(--pad) clamp(3rem, 6vw, 6rem);
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
   }
 
   .eyebrow {
@@ -191,18 +205,32 @@
   @media (max-width: 900px) {
     .about-inner {
       grid-template-columns: 1fr;
+      grid-template-areas:
+        "top"
+        "photo"
+        "bottom";
       min-height: auto;
     }
 
     .about-deco {
-      height: 55vh;
-      min-height: 320px;
+      height: 46vh;
+      min-height: 260px;
       border-right: none;
+      border-top: 1px solid var(--border);
       border-bottom: 1px solid var(--border);
     }
 
-    .about-content {
-      padding: 3rem var(--pad) 4rem;
+    .about-top {
+      padding: 3rem var(--pad) 2rem;
+      justify-content: flex-start;
+    }
+
+    .about-bottom {
+      padding: 2rem var(--pad) 4rem;
+    }
+
+    .about-title {
+      margin-bottom: 0;
     }
 
     .about-body p {
