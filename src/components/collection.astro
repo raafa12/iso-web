@@ -1,0 +1,23 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Products from '../components/Products.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout
+  title="ISO — Colección"
+  description="Compra la ISO Icon Tee. Edición limitada, sin reposición."
+>
+  <Navbar />
+  <main class="collection-main">
+    <Products />
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  .collection-main {
+    padding-top: var(--nav-h);
+  }
+</style>

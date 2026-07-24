@@ -1,13 +1,13 @@
 ---
 const products = [
   {
-    id: "iso-tee-core",
-    name: "ISO Tee Core",
+    id: "iso-icon-tee",
+    name: "ISO Icon Tee",
     category: "Camiseta",
     price: "€24,99",
     priceNum: 2499, // céntimos para Stripe
     tag: "Bestseller",
-    sizes: ["S","M","L","XL"],
+    sizes: ["XS","S","M","L","XL"],
     description: "100% algodón heavyweight. Silueta oversize. Bordado en pecho."
   }
 ];
@@ -55,9 +55,9 @@ const products = [
             <div class="sizes">
               {p.sizes.map((s, i) => (
                 <button
-                  class={`size-btn ${i === 1 ? 'active' : ''}`}
+                  class={`size-btn ${i === 2 ? 'active' : ''}`}
                   data-size={s}
-                  aria-pressed={i === 1 ? "true" : "false"}
+                  aria-pressed={i === 2 ? "true" : "false"}
                 >
                   {s}
                 </button>
@@ -80,7 +80,7 @@ const products = [
 
             <!-- WhatsApp -->
             <a
-              href={`https://wa.me/34600000000?text=${encodeURIComponent(`Hola! Quiero comprar: ${p.name} (Drop 001). Talla: M. ¿Está disponible?`)}`}
+              href={`https://wa.me/34600000000?text=${encodeURIComponent(`Hola! Quiero comprar: ${p.name}. Talla: M. ¿Está disponible?`)}`}
               target="_blank"
               rel="noopener noreferrer"
               class="btn-buy btn-whatsapp"
@@ -532,7 +532,7 @@ const products = [
         // window.location.href = url;
 
         // OPCIÓN B — Demo: abrir WhatsApp como fallback hasta tener Stripe
-        const msg = `Hola! Quiero comprar: ISO Tee Core (Drop 001). Talla: ${size}. ¿Está disponible?`;
+        const msg = `Hola! Quiero comprar: ISO Icon Tee. Talla: ${size}. ¿Está disponible?`;
         const waUrl = `https://wa.me/34600000000?text=${encodeURIComponent(msg)}`;
         window.open(waUrl, '_blank', 'noopener,noreferrer');
 
@@ -559,7 +559,7 @@ const products = [
       btn.addEventListener('click', () => {
         const size = btn.dataset.size || 'M';
         if (waBtn) {
-          const msg = `Hola! Quiero comprar: ${productName} (Drop 001). Talla: ${size}. ¿Está disponible?`;
+          const msg = `Hola! Quiero comprar: ${productName}. Talla: ${size}. ¿Está disponible?`;
           waBtn.href = `https://wa.me/34600000000?text=${encodeURIComponent(msg)}`;
         }
       });
