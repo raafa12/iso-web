@@ -63,7 +63,7 @@ const products = [
                 </button>
               ))}
             </div>
-            <a href="#" class="size-guide-link">Guía de tallas →</a>
+            <button type="button" class="size-guide-link" data-size-guide-open>Guía de tallas →</button>
           </div>
 
           <!-- Buy options -->
@@ -84,21 +84,6 @@ const products = [
               </svg>
               <span class="buy-label">Añadir al carrito</span>
             </button>
-
-            <!-- WhatsApp -->
-            <a
-              href={`https://wa.me/34690342138?text=${encodeURIComponent(`Hola! Quiero comprar: ${p.name}. Talla: M. ¿Está disponible?`)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="btn-buy btn-whatsapp"
-              aria-label="Pedir por WhatsApp"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
-                <path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.116 1.522 5.845L.057 23.57a.5.5 0 0 0 .609.61l5.79-1.518A11.94 11.94 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.877 0-3.647-.48-5.19-1.323l-.37-.217-3.838 1.006 1.024-3.74-.237-.386A9.944 9.944 0 0 1 2 12c0-5.514 4.486-10 10-10s10 4.486 10 10-4.486 10-10 10z"/>
-              </svg>
-              Pedir por WhatsApp
-            </a>
           </div>
 
           <!-- Trust signals -->
@@ -120,6 +105,17 @@ const products = [
   <div class="ticker" aria-hidden="true">
   </div>
 </section>
+
+<!-- Size guide modal -->
+<div id="size-guide-overlay" class="size-guide-overlay" hidden>
+  <div class="size-guide-modal">
+    <button type="button" id="size-guide-close" class="size-guide-close" aria-label="Cerrar guía de tallas">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+    <h3>Guía de tallas</h3>
+    <img src="/tallas.png" alt="Tabla de tallas ISO: ancho y largo en cm para XS, S, M, L, XL y 2XL" />
+  </div>
+</div>
 
 <style>
  
@@ -345,14 +341,18 @@ const products = [
   }
 
   .size-guide-link {
+    background: none;
+    font-family: inherit;
     font-size: 0.6rem;
     font-weight: 600;
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--muted-light);
+    border: none;
     border-bottom: 1px solid var(--border);
     padding-bottom: 1px;
     width: fit-content;
+    cursor: pointer;
     transition: color 0.2s, border-color 0.2s;
   }
   .size-guide-link:hover {
@@ -395,18 +395,6 @@ const products = [
   }
   .btn-add-cart:active {
     transform: translateY(0);
-  }
-
-  .btn-whatsapp {
-    background: transparent;
-    color: var(--muted-light);
-    border: 1px solid var(--border);
-    font-size: 0.8rem;
-    text-decoration: none;
-  }
-  .btn-whatsapp:hover {
-    border-color: #25D366;
-    color: #25D366;
   }
 
   /* Trust signals */
@@ -465,6 +453,64 @@ const products = [
   @keyframes ticker {
     from { transform: translateX(0); }
     to { transform: translateX(-50%); }
+  }
+
+  /* Size guide modal */
+  .size-guide-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(3px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .size-guide-overlay.open {
+    opacity: 1;
+  }
+
+  .size-guide-modal {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 2rem;
+    max-width: 640px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+
+  .size-guide-modal h3 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--white);
+    margin-bottom: 1.25rem;
+  }
+
+  .size-guide-modal img {
+    width: 100%;
+    height: auto;
+    background: #fff;
+  }
+
+  .size-guide-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    color: var(--muted-light);
+    padding: 0.25rem;
+    transition: color 0.2s;
+  }
+  .size-guide-close:hover {
+    color: var(--white);
   }
 
   /* ========== RESPONSIVE ========== */
@@ -547,20 +593,34 @@ const products = [
     });
   });
 
-  // WhatsApp — actualizar talla en el enlace al cambiar
-  document.querySelectorAll('.product-card').forEach(card => {
-    const waBtn = card.querySelector<HTMLAnchorElement>('.btn-whatsapp');
-    const sizeBtns = card.querySelectorAll<HTMLButtonElement>('.size-btn');
-    const productName = card.querySelector('.card-name')?.textContent || 'producto';
+  // Guía de tallas — modal
+  const sizeGuideOverlay = document.getElementById('size-guide-overlay');
+  const sizeGuideClose = document.getElementById('size-guide-close');
 
-    sizeBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const size = btn.dataset.size || 'M';
-        if (waBtn) {
-          const msg = `Hola! Quiero comprar: ${productName}. Talla: ${size}. ¿Está disponible?`;
-          waBtn.href = `https://wa.me/34690342138?text=${encodeURIComponent(msg)}`;
-        }
-      });
-    });
+  function openSizeGuide() {
+    if (!sizeGuideOverlay) return;
+    sizeGuideOverlay.hidden = false;
+    requestAnimationFrame(() => sizeGuideOverlay.classList.add('open'));
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeSizeGuide() {
+    if (!sizeGuideOverlay) return;
+    sizeGuideOverlay.classList.remove('open');
+    document.body.style.overflow = '';
+    setTimeout(() => {
+      sizeGuideOverlay.hidden = true;
+    }, 200);
+  }
+
+  document.querySelectorAll('[data-size-guide-open]').forEach(btn => {
+    btn.addEventListener('click', openSizeGuide);
+  });
+  sizeGuideClose?.addEventListener('click', closeSizeGuide);
+  sizeGuideOverlay?.addEventListener('click', (e) => {
+    if (e.target === sizeGuideOverlay) closeSizeGuide();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeSizeGuide();
   });
 </script>
