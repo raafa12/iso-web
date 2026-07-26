@@ -468,11 +468,17 @@ const products = [
     justify-content: center;
     padding: 1.5rem;
     opacity: 0;
+    pointer-events: none;
     transition: opacity 0.2s;
+  }
+
+  .size-guide-overlay[hidden] {
+    display: none;
   }
 
   .size-guide-overlay.open {
     opacity: 1;
+    pointer-events: auto;
   }
 
   .size-guide-modal {
