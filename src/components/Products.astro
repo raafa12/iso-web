@@ -70,17 +70,24 @@ const products = [
           <div class="buy-options">
             <!-- Stripe checkout -->
             <button
-              class="btn-buy btn-stripe"
+              class="btn-buy btn-add-cart"
               data-product={p.id}
               data-price={p.priceNum}
-              aria-label={`Comprar ${p.name} por ${p.price}`}
+              data-name={p.name}
+              data-price-display={p.price}
+              aria-label={`Añadir ${p.name} al carrito`}
             >
-              Comprar — {p.price}
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="9" cy="21" r="1"/>
+                <circle cx="20" cy="21" r="1"/>
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+              </svg>
+              <span class="buy-label">Añadir al carrito</span>
             </button>
 
             <!-- WhatsApp -->
             <a
-              href={`https://wa.me/34600000000?text=${encodeURIComponent(`Hola! Quiero comprar: ${p.name}. Talla: M. ¿Está disponible?`)}`}
+              href={`https://wa.me/34690342138?text=${encodeURIComponent(`Hola! Quiero comprar: ${p.name}. Talla: M. ¿Está disponible?`)}`}
               target="_blank"
               rel="noopener noreferrer"
               class="btn-buy btn-whatsapp"
@@ -376,17 +383,17 @@ const products = [
     touch-action: manipulation;
   }
 
-  .btn-stripe {
+  .btn-add-cart {
     background: var(--accent);
     color: var(--accent-dark);
     border: 1px solid var(--accent);
   }
-  .btn-stripe:hover {
+  .btn-add-cart:hover {
     background: var(--accent-dim);
     transform: translateY(-1px);
     box-shadow: 0 6px 20px rgba(126, 200, 227, 0.18);
   }
-  .btn-stripe:active {
+  .btn-add-cart:active {
     transform: translateY(0);
   }
 
@@ -485,6 +492,15 @@ const products = [
 </style>
 
 <script>
+  declare global {
+    interface Window {
+      ISOCart?: {
+        add: (item: { id: string; name: string; size: string; price: number; priceDisplay: string; image: string }) => void;
+        open: () => void;
+      };
+    }
+  }
+
   // Size selector — interactive
   document.querySelectorAll('.size-selector').forEach(selector => {
     const btns = selector.querySelectorAll<HTMLButtonElement>('.size-btn');
@@ -501,43 +517,33 @@ const products = [
     });
   });
 
-  // Stripe buy button — conectar con tu backend/Stripe
-  document.querySelectorAll<HTMLButtonElement>('.btn-stripe').forEach(btn => {
-    btn.addEventListener('click', async () => {
+  // Añadir al carrito
+  document.querySelectorAll<HTMLButtonElement>('.btn-add-cart').forEach(btn => {
+    btn.addEventListener('click', () => {
       const card = btn.closest<HTMLElement>('.product-card');
       const activeSize = card?.querySelector<HTMLButtonElement>('.size-btn.active');
       const size = activeSize?.dataset.size || 'M';
-      const productId = card?.dataset.id || '';
+
+      const id = btn.dataset.product || '';
+      const price = Number(btn.dataset.price || 0);
+      const name = btn.dataset.name || 'Producto';
+      const priceDisplay = btn.dataset.priceDisplay || '';
+      const image = card?.querySelector('img')?.getAttribute('src') || '';
+
+      window.ISOCart?.add({ id, name, size, price, priceDisplay, image });
 
       // Feedback visual
-      btn.textContent = 'Redirigiendo...';
+      const label = btn.querySelector<HTMLElement>('.buy-label');
+      if (label) label.textContent = 'Añadido ✓';
       btn.disabled = true;
 
-      try {
-        // OPCIÓN A — Stripe Checkout (necesitas endpoint en tu backend)
-        // const res = await fetch('/api/checkout', {
-        //   method: 'POST',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify({ productId, size })
-        // });
-        // const { url } = await res.json();
-        // window.location.href = url;
+      setTimeout(() => {
+        if (label) label.textContent = 'Añadir al carrito';
+        btn.disabled = false;
+      }, 1200);
 
-        // OPCIÓN B — Demo: abrir WhatsApp como fallback hasta tener Stripe
-        const msg = `Hola! Quiero comprar: ISO Icon Tee. Talla: ${size}. ¿Está disponible?`;
-        const waUrl = `https://wa.me/34600000000?text=${encodeURIComponent(msg)}`;
-        window.open(waUrl, '_blank', 'noopener,noreferrer');
-
-      } catch (err) {
-        console.error('Checkout error:', err);
-        btn.textContent = 'Error — Inténtalo de nuevo';
-      } finally {
-        setTimeout(() => {
-          const price = card?.querySelector('.card-price')?.textContent || '';
-          btn.textContent = `Comprar — ${price}`;
-          btn.disabled = false;
-        }, 2000);
-      }
+      // Abrir el carrito para confirmar visualmente
+      window.ISOCart?.open();
     });
   });
 
@@ -552,7 +558,7 @@ const products = [
         const size = btn.dataset.size || 'M';
         if (waBtn) {
           const msg = `Hola! Quiero comprar: ${productName}. Talla: ${size}. ¿Está disponible?`;
-          waBtn.href = `https://wa.me/34600000000?text=${encodeURIComponent(msg)}`;
+          waBtn.href = `https://wa.me/34690342138?text=${encodeURIComponent(msg)}`;
         }
       });
     });
