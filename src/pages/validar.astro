@@ -301,18 +301,52 @@ import Layout from '../layouts/Layout.astro';
     if (remaining <= 10) statRemaining.className = 'stat-value critical';
     else if (remaining <= 30) statRemaining.className = 'stat-value warn';
   }
-  function beep(ok) {
+  let audioCtx;
+  function getAudioCtx() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  }
+
+  function playTone(ctx, freq, startTime, duration, type = 'sine', peakGain = 0.18) {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    gain.gain.setValueAtTime(0, startTime);
+    gain.gain.linearRampToValueAtTime(peakGain, startTime + 0.015);
+    gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+
+    osc.start(startTime);
+    osc.stop(startTime + duration + 0.02);
+  }
+
+  function playSuccessSound() {
     try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.frequency.value = ok ? 880 : 220;
-      gain.gain.value = 0.15;
-      osc.start();
-      setTimeout(() => { osc.stop(); ctx.close(); }, 180);
+      const ctx = getAudioCtx();
+      const now = ctx.currentTime;
+      // Ding ascendente de dos notas — alegre y corto
+      playTone(ctx, 880, now, 0.13, 'sine', 0.2);
+      playTone(ctx, 1318.5, now + 0.09, 0.22, 'sine', 0.2);
     } catch {}
+  }
+
+  function playErrorSound() {
+    try {
+      const ctx = getAudioCtx();
+      const now = ctx.currentTime;
+      // Doble zumbido grave — claramente "mal"
+      playTone(ctx, 180, now, 0.16, 'square', 0.12);
+      playTone(ctx, 160, now + 0.19, 0.22, 'square', 0.12);
+    } catch {}
+  }
+
+  function beep(ok) {
+    if (ok) playSuccessSound();
+    else playErrorSound();
     if (navigator.vibrate) navigator.vibrate(ok ? 80 : [80, 60, 80]);
   }
 
