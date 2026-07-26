@@ -33,11 +33,13 @@
     backdrop-filter: blur(2px);
     z-index: 299;
     opacity: 0;
+    pointer-events: none;
     transition: opacity 0.25s;
   }
 
   .cart-overlay.open {
     opacity: 1;
+    pointer-events: auto;
   }
 
   .cart-drawer {
@@ -52,11 +54,13 @@
     display: flex;
     flex-direction: column;
     transform: translateX(100%);
+    pointer-events: none;
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .cart-drawer.open {
     transform: translateX(0);
+    pointer-events: auto;
   }
 
   .cart-header {
