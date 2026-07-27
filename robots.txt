@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /validar
+
+Sitemap: https://isowear.es/sitemap-index.xml

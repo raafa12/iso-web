@@ -8,12 +8,29 @@ import Footer from '../components/Footer.astro';
 <Layout
   title="ISO — Colección"
   description="Compra la ISO Icon Tee. Edición limitada, sin reposición."
+  image="/camiseta1.png"
 >
   <Navbar />
   <main class="collection-main">
     <Products />
   </main>
   <Footer />
+
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": "ISO Icon Tee",
+    "description": "100% algodón heavyweight. Silueta oversize. Bordado en pecho.",
+    "image": "https://isowear.es/camiseta1.png",
+    "brand": { "@type": "Brand", "name": "ISO" },
+    "offers": {
+      "@type": "Offer",
+      "url": "https://isowear.es/collection",
+      "priceCurrency": "EUR",
+      "price": "24.99",
+      "availability": "https://schema.org/InStock"
+    }
+  })} />
 </Layout>
 
 <style>

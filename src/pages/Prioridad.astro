@@ -64,6 +64,10 @@ import Layout from '../layouts/Layout.astro';
           <span class="btn-label">Quiero prioridad →</span>
         </button>
 
+        <p class="privacy-note">
+          Al apuntarte, aceptas que usemos tu email solo para avisarte del drop. Nunca lo compartimos ni lo usamos para nada más.
+        </p>
+
         <p id="form-error" class="form-error" hidden></p>
       </form>
 
@@ -301,6 +305,13 @@ import Layout from '../layouts/Layout.astro';
   .form-error {
     font-size: 0.78rem;
     color: #d97757;
+    text-align: center;
+  }
+
+  .privacy-note {
+    font-size: 0.68rem;
+    line-height: 1.5;
+    color: var(--muted-light);
     text-align: center;
   }
 
