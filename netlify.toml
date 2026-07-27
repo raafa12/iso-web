@@ -7,3 +7,8 @@
   from = "/api/validar"
   to = "/.netlify/functions/validar"
   status = 200
+
+[[redirects]]
+  from = "/api/waitlist"
+  to = "/.netlify/functions/waitlist"
+  status = 200
