@@ -286,9 +286,29 @@ import Layout from '../layouts/Layout.astro';
   gateForm?.addEventListener('submit', (e) => {
     e.preventDefault();
     gateError.textContent = '';
+    try { getAudioCtx(); } catch {} // gesto real del usuario: desbloquea el audio en iOS
     const passcode = gateInput.value.trim();
     if (passcode) tryUnlock(passcode);
   });
+
+  // iOS Safari solo permite reproducir audio tras un toque real del usuario.
+  // Como el validador puede desbloquearse solo (código guardado) sin que
+  // haya ningún toque de por medio, nos aseguramos de "despertar" el audio
+  // en el primer toque que se produzca en la página, sea donde sea.
+  document.addEventListener(
+    'touchend',
+    () => {
+      try { getAudioCtx(); } catch {}
+    },
+    { once: true, passive: true }
+  );
+  document.addEventListener(
+    'click',
+    () => {
+      try { getAudioCtx(); } catch {}
+    },
+    { once: true }
+  );
 
   // Si ya se desbloqueó antes en este dispositivo, entra directo
   const savedPasscode = localStorage.getItem(STORAGE_KEY);
