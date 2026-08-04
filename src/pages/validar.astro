@@ -21,6 +21,13 @@ import Layout from '../layouts/Layout.astro';
         <h1>Validar entrada</h1>
       </div>
 
+      <div id="reader"></div>
+
+      <div id="result" class="result idle">
+        <div class="result-icon" aria-hidden="true"></div>
+        <p class="result-main">Apunta al QR de la invitación</p>
+      </div>
+
       <div class="stats-panel" id="stats-panel">
         <div class="stat">
           <span class="stat-value" id="stat-inside">–</span>
@@ -36,12 +43,6 @@ import Layout from '../layouts/Layout.astro';
           <span class="stat-value" id="stat-total">–</span>
           <span class="stat-label">Aforo total</span>
         </div>
-      </div>
-
-      <div id="reader"></div>
-
-      <div id="result" class="result idle">
-        <p class="result-main">Apunta al QR de la invitación</p>
       </div>
 
       <details class="manual-entry">
@@ -146,28 +147,29 @@ import Layout from '../layouts/Layout.astro';
     display: flex;
     align-items: center;
     justify-content: space-around;
-    background: var(--surface);
+    background: transparent;
     border: 1px solid var(--border-light);
-    padding: 0.9rem 0.5rem;
+    padding: 0.6rem 0.5rem;
+    opacity: 0.85;
   }
-  .stat { display: flex; flex-direction: column; align-items: center; gap: 0.15rem; }
+  .stat { display: flex; flex-direction: column; align-items: center; gap: 0.1rem; }
   .stat-value {
     font-family: var(--font-display);
     font-weight: 900;
     font-style: italic;
-    font-size: 1.5rem;
+    font-size: 1.15rem;
     color: var(--white);
   }
   .stat-value.warn { color: #e3b04b; }
   .stat-value.critical { color: #e37e7e; }
   .stat-label {
-    font-size: 0.62rem;
+    font-size: 0.58rem;
     font-weight: 700;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--muted-light);
   }
-  .stat-divider { width: 1px; height: 2rem; background: var(--border-light); }
+  .stat-divider { width: 1px; height: 1.5rem; background: var(--border-light); }
 
   #reader {
     width: 100%;
@@ -179,23 +181,35 @@ import Layout from '../layouts/Layout.astro';
   .result {
     width: 100%;
     max-width: 420px;
-    padding: 1.5rem;
+    padding: 2rem 1.5rem;
     text-align: center;
-    border: 2px solid var(--border-light);
+    border: 3px solid var(--border-light);
+    border-radius: 4px;
     transition: border-color 0.15s, background 0.15s;
   }
+  .result-icon {
+    font-size: 3.75rem;
+    line-height: 1;
+    margin-bottom: 0.6rem;
+    height: 1em;
+  }
+  .result.idle .result-icon { display: none; }
+  .result.valid .result-icon::before { content: '✓'; color: #22c55e; }
+  .result.invalid .result-icon::before { content: '✕'; color: #e37e7e; }
   .result-main {
     font-family: var(--font-display);
     font-weight: 700;
-    font-size: 1.3rem;
+    font-size: 1.6rem;
     text-transform: uppercase;
+    line-height: 1.15;
   }
   .result-sub {
-    font-size: 0.85rem;
+    font-size: 0.95rem;
     color: var(--muted-light);
-    margin-top: 0.4rem;
+    margin-top: 0.5rem;
   }
   .result.idle { border-color: var(--border-light); }
+  .result.idle .result-main { font-size: 1.15rem; color: var(--muted-light); }
   .result.valid { border-color: #22c55e; background: rgba(34, 197, 94, 0.14); }
   .result.valid .result-main { color: #22c55e; }
   .result.invalid { border-color: #e37e7e; background: rgba(227, 126, 126, 0.12); }
@@ -286,9 +300,29 @@ import Layout from '../layouts/Layout.astro';
   gateForm?.addEventListener('submit', (e) => {
     e.preventDefault();
     gateError.textContent = '';
+    try { getAudioCtx(); } catch {} // gesto real del usuario: desbloquea el audio en iOS
     const passcode = gateInput.value.trim();
     if (passcode) tryUnlock(passcode);
   });
+
+  // iOS Safari solo permite reproducir audio tras un toque real del usuario.
+  // Como el validador puede desbloquearse solo (código guardado) sin que
+  // haya ningún toque de por medio, nos aseguramos de "despertar" el audio
+  // en el primer toque que se produzca en la página, sea donde sea.
+  document.addEventListener(
+    'touchend',
+    () => {
+      try { getAudioCtx(); } catch {}
+    },
+    { once: true, passive: true }
+  );
+  document.addEventListener(
+    'click',
+    () => {
+      try { getAudioCtx(); } catch {}
+    },
+    { once: true }
+  );
 
   // Si ya se desbloqueó antes en este dispositivo, entra directo
   const savedPasscode = localStorage.getItem(STORAGE_KEY);
@@ -356,7 +390,7 @@ import Layout from '../layouts/Layout.astro';
 
   function showResult(state, main, sub) {
     resultEl.className = `result ${state}`;
-    resultEl.innerHTML = `<p class="result-main">${main}</p>${sub ? `<p class="result-sub">${sub}</p>` : ''}`;
+    resultEl.innerHTML = `<div class="result-icon" aria-hidden="true"></div><p class="result-main">${main}</p>${sub ? `<p class="result-sub">${sub}</p>` : ''}`;
   }
 
   async function validarCodigo(code) {
@@ -376,7 +410,7 @@ import Layout from '../layouts/Layout.astro';
       const res = await callValidar(code, passcode);
 
       if (res.status === 401) {
-        showResult('invalid', '✕ Sesión caducada', 'Vuelve a introducir el código de staff');
+        showResult('invalid', 'Sesión caducada', 'Vuelve a introducir el código de staff');
         localStorage.removeItem(STORAGE_KEY);
         appEl.hidden = true;
         gateEl.style.display = '';
@@ -386,7 +420,7 @@ import Layout from '../layouts/Layout.astro';
       const data = await res.json();
 
       if (data.valid) {
-        showResult('valid', `✓ Invitación #${data.invite_number}`, data.name || 'Acceso permitido');
+        showResult('valid', `Invitación #${data.invite_number}`, data.name || 'Acceso permitido');
         beep(true);
       } else if (data.reason === 'ya_usada') {
         const hora = data.used_at
@@ -394,17 +428,17 @@ import Layout from '../layouts/Layout.astro';
           : null;
         showResult(
           'invalid',
-          '✕ Ya usada',
+          'Ya usada',
           hora ? `Invitación #${data.invite_number} · entró a las ${hora}` : `Invitación #${data.invite_number}`
         );
         beep(false);
       } else {
-        showResult('invalid', '✕ Código no válido', 'Esta invitación no existe');
+        showResult('invalid', 'Código no válido', 'Esta invitación no existe');
         beep(false);
       }
       updateStats(data.stats);
     } catch (err) {
-      showResult('invalid', '✕ Error de red', 'Reintenta en un momento');
+      showResult('invalid', 'Error de red', 'Reintenta en un momento');
       beep(false);
     } finally {
       setTimeout(() => { busy = false; }, 900);
