@@ -1,0 +1,189 @@
+---
+---
+
+<!-- RECAP DEL TORNEO — sustituye a la cuenta atrás ahora que ya pasó -->
+<section class="recap">
+  <div class="recap-media">
+    <img
+      src="/torneo-recap.jpg"
+      alt="Foto de grupo con todos los asistentes al primer torneo 1v1 de ISO en la cancha"
+      class="recap-photo"
+      loading="lazy"
+      width="2000"
+      height="2126"
+    />
+    <div class="recap-scrim" aria-hidden="true"></div>
+  </div>
+
+  <div class="recap-inner">
+    <p class="recap-eyebrow">Sábado 1 de agosto · Cantabria</p>
+
+    <h2 class="recap-title">
+      <span class="outline-text">Fue la</span><br />
+      <span class="filled-text">hostia.</span>
+    </h2>
+
+    <p class="recap-desc">
+      Historia hecha: el primer torneo 1v1 de la historia de Cantabria, y lo
+      vivisteis <strong>más de 300 personas</strong> en directo desde la
+      grada. Gracias por convertirlo en un hito de verdad.
+    </p>
+
+    <div class="recap-ctas">
+      <a href="/collection" class="cta-primary">Ver colección →</a>
+      <a href="https://instagram.com/isowear_" target="_blank" rel="noopener noreferrer" class="cta-ghost">Revive el torneo en Instagram</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .recap {
+    position: relative;
+    overflow: hidden;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: clamp(32rem, 80vh, 46rem);
+    padding: clamp(3.5rem, 8vw, 6rem) var(--pad);
+    box-sizing: border-box;
+  }
+
+  .recap-media {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .recap-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 30%;
+    display: block;
+  }
+
+  .recap-scrim {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(7, 7, 7, 0.55) 0%, rgba(7, 7, 7, 0.75) 55%, rgba(7, 7, 7, 0.92) 100%);
+  }
+
+  .recap-inner {
+    position: relative;
+    z-index: 1;
+    max-width: var(--max-w);
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .recap-eyebrow {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1rem;
+  }
+
+  .recap-title {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-style: italic;
+    font-size: clamp(3.25rem, 8vw, 6rem);
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    margin-bottom: 1.4rem;
+  }
+  .outline-text {
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--white);
+  }
+  .filled-text {
+    color: var(--accent);
+  }
+
+  .recap-desc {
+    font-size: clamp(0.95rem, 1.6vw, 1.1rem);
+    font-weight: 300;
+    color: var(--white-dim, var(--muted-light));
+    line-height: 1.65;
+    max-width: 46ch;
+    margin-bottom: 2.25rem;
+  }
+  .recap-desc strong {
+    color: var(--white);
+    font-weight: 700;
+  }
+
+  .recap-ctas {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .cta-primary {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent-dark);
+    background: var(--accent);
+    padding: 0.8rem 1.6rem;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    display: inline-block;
+    white-space: nowrap;
+  }
+  .cta-primary:hover {
+    background: var(--accent-dim);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(126, 200, 227, 0.2);
+  }
+
+  .cta-ghost {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted-light);
+    border-bottom: 1px solid var(--muted);
+    padding-bottom: 2px;
+    transition: color 0.2s, border-color 0.2s;
+    white-space: nowrap;
+  }
+  .cta-ghost:hover { color: var(--accent); border-color: var(--accent); }
+
+  /* ========== RESPONSIVE ========== */
+  @media (max-width: 480px) {
+    .recap {
+      min-height: clamp(28rem, 90vh, 38rem);
+    }
+
+    .recap-ctas {
+      flex-direction: column;
+      gap: 1.1rem;
+    }
+
+    .cta-primary {
+      width: auto;
+      padding: 0.85rem 2.4rem;
+      text-align: center;
+    }
+
+    .cta-ghost {
+      white-space: normal;
+      border-bottom: none;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+  }
+</style>
