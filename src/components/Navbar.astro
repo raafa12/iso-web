@@ -1,5 +1,5 @@
 ---
-import CartDrawer from './CartDrawer.astro';
+import CartDrawerReact from './CartDrawerReact.jsx';
 ---
 
 <header class="navbar" id="navbar">
@@ -21,7 +21,7 @@ import CartDrawer from './CartDrawer.astro';
   </div>
 </header>
 
-<CartDrawer />
+<CartDrawerReact client:load />
 
 <style>
   .navbar {
