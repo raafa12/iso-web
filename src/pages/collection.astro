@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Navbar from '../components/Navbar.astro';
-import Products from '../components/Products.astro';
+import ProductsReact from '../components/ProductsReact.jsx';
 import Footer from '../components/Footer.astro';
 ---
 
@@ -12,7 +12,7 @@ import Footer from '../components/Footer.astro';
 >
   <Navbar />
   <main class="collection-main">
-    <Products />
+    <ProductsReact client:load />
   </main>
   <Footer />
 

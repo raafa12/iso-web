@@ -12,4 +12,9 @@ export default defineConfig({
     }),
     react(),
   ],
+  vite: {
+    optimizeDeps: {
+      include: ['react', 'react-dom', 'react-dom/client'],
+    },
+  },
 });
