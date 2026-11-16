@@ -32,7 +32,7 @@ interface SizeGuideModalProps {
   onClose: () => void;
 }
 
-function SizeGuideModal({ open, onClose }: SizeGuideModalProps) {
+export function SizeGuideModal({ open, onClose }: SizeGuideModalProps) {
   return (
     <div
       className={`size-guide-overlay${open ? " open" : ""}`}

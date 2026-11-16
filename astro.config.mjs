@@ -8,7 +8,7 @@ export default defineConfig({
   site: 'https://isowear.es',
   integrations: [
     sitemap({
-      filter: (page) => !page.includes('/validar'),
+      filter: (page) => !page.includes('/validar') && !page.includes('/perchero'),
     }),
     react(),
   ],

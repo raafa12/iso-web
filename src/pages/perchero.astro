@@ -1,0 +1,23 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import RackReact from '../components/RackReact.tsx';
+import Footer from '../components/Footer.astro';
+import { RACK_DEMO } from '../data/rack-demo';
+---
+
+<!-- Preview del perchero con datos de prueba. Cuando los productos tengan
+     image_back_url en Supabase, usar <RackReact client:load /> sin props. -->
+<Layout title="ISO — El Perchero" description="La colección de ISO, colgada." noindex>
+  <Navbar />
+  <main class="rack-main">
+    <RackReact client:load products={RACK_DEMO} />
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  .rack-main {
+    padding-top: var(--nav-h);
+  }
+</style>
