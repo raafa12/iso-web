@@ -24,6 +24,8 @@ interface Props {
   // Si se pasan productos no se consulta Supabase (página de preview)
   products?: RackProduct[];
   title?: string;
+  // Vista previa: el botón no toca el carrito real (productos de prueba)
+  preview?: boolean;
 }
 
 type LoadStatus = "loading" | "error" | "ready";
@@ -71,7 +73,7 @@ function Hanger() {
 
 // --- Componente principal ---
 
-export default function RackReact({ products: initial, title = "El Perchero" }: Props) {
+export default function RackReact({ products: initial, title = "El Perchero", preview = false }: Props) {
   const [products, setProducts] = useState<RackProduct[]>(initial ?? []);
   const [status, setStatus] = useState<LoadStatus>(initial ? "ready" : "loading");
   const [hovered, setHovered] = useState<number | null>(null);
@@ -342,8 +344,12 @@ export default function RackReact({ products: initial, title = "El Perchero" }: 
   function addToCart() {
     if (open == null || !size) return;
     const p = products[open];
-    window.ISOCart?.add({ id: p.id, name: p.name, size, price: p.price_cents, image: p.image_url });
     setAdded(true);
+    if (preview) {
+      setTimeout(() => setAdded(false), 1600);
+      return;
+    }
+    window.ISOCart?.add({ id: p.id, name: p.name, size, price: p.price_cents, image: p.image_url });
     setTimeout(() => {
       setAdded(false);
       closeDetail();
@@ -490,7 +496,7 @@ export default function RackReact({ products: initial, title = "El Perchero" }: 
               </div>
 
               <button type="button" className="rack-cta" disabled={!size || added} onClick={addToCart}>
-                {added ? "Añadido ✓" : size ? `Añadir al carrito · ${formatPrice(current.price_cents)}` : "Elige una talla"}
+                {added ? (preview ? "Vista previa · no se añade" : "Añadido ✓") : size ? `Añadir al carrito · ${formatPrice(current.price_cents)}` : "Elige una talla"}
               </button>
               <button type="button" className="rack-guide" onClick={() => setGuideOpen(true)}>
                 Guía de tallas
