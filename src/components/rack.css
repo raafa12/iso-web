@@ -2,7 +2,8 @@
 .rack {
   --ink: #070707;
   --paper: var(--white, #f2ede5);
-  --gh: clamp(210px, 18.5vw, 310px); /* alto de la prenda colgada */
+  --gh: clamp(240px, 23vw, 360px); /* alto de la prenda colgada */
+  --slot: calc(var(--gh) * 0.42); /* hueco de cada prenda de lado en la barra */
   --hook: calc(var(--gh) * 0.08); /* espacio entre barra y hombros */
   position: relative;
   background: var(--paper);
@@ -42,7 +43,7 @@
   color: #6e6a63;
 }
 .hint-touch { display: none; }
-@media (hover: none) {
+@media (hover: none), (pointer: coarse) {
   .hint-hover { display: none; }
   .hint-touch { display: inline; }
 }
@@ -57,9 +58,10 @@
 /* ---- Barra + escenario ---- */
 .rack-scroller {
   overflow-x: auto;
-  overflow-y: visible;
+  overflow-y: hidden;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
 }
 .rack-scroller::-webkit-scrollbar { display: none; }
 
@@ -68,7 +70,8 @@
   width: max-content;
   min-width: 100%;
   margin: 0 auto;
-  padding: clamp(2.5rem, 5vw, 4rem) clamp(2rem, 6vw, 6rem) 3.5rem;
+  /* sitio a los lados para lo que se apartan las prendas */
+  padding: clamp(2.5rem, 5vw, 4rem) calc(var(--gh) * 0.6) 3.5rem;
   display: flex;
   justify-content: center;
 }
@@ -104,21 +107,29 @@
   margin: 0;
 }
 
+/* Cada <li> es un hueco fijo en la barra; lo que se mueve es su contenido */
 .rack-item {
-  --turn: 0deg;
+  --turn: 72deg;
   --swing: 0deg;
-  --shade: 1;
+  --push: 0px;
+  --shade: 0.69;
   position: relative;
-  margin-inline: calc(var(--gh) * -0.16);
-  perspective: 1100px;
+  flex: none;
+  width: var(--slot);
+  display: flex;
+  justify-content: center;
 }
 
 .rack-garment {
-  display: block;
+  display: flex;
+  justify-content: center;
+  width: var(--slot);
   padding: 0;
   border: 0;
   background: none;
   cursor: pointer;
+  perspective: 1000px;
+  transform: translateX(var(--push));
   -webkit-tap-highlight-color: transparent;
 }
 .rack-garment:focus-visible { outline: none; }
@@ -134,9 +145,8 @@
   transform-style: preserve-3d;
 }
 
-/* ---- Percha ----
-   Escala: la percha mide 0.6·gh de ancho → 1 unidad SVG = 0.003·gh.
-   Gancho por encima de la barra y tallo que se mete por el cuello (detrás de la prenda). */
+/* ---- Gancho ----
+   1 unidad SVG = 0.003·gh. Sale por encima de la barra y se mete por el cuello, detrás de la prenda. */
 .rack-hook {
   position: absolute;
   top: calc(-6px - var(--gh) * 0.012);
@@ -149,7 +159,7 @@
 }
 .rack-hook path { stroke: #8f8f8f; }
 
-/* ---- Prenda (dos caras) ---- */
+/* ---- Prenda ---- */
 .rack-flip {
   position: relative;
   display: block;
@@ -163,7 +173,8 @@
   position: relative;
   display: block;
   height: 100%;
-  transition: opacity 0.3s ease;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   filter: brightness(var(--shade)) drop-shadow(0 16px 14px rgba(0, 0, 0, 0.16));
 }
 .rack-face img {
@@ -172,23 +183,15 @@
   width: auto;
   max-width: none;
   user-select: none;
+  -webkit-user-drag: none;
 }
-/* La espalda va encima, invisible; al girar se funde */
 .rack-face.back {
   position: absolute;
   top: 0;
   left: 50%;
-  transform: translateX(-50%);
-  opacity: 0;
+  transform: translateX(-50%) rotateY(180deg);
 }
-/* La delantera no se funde: se esconde de golpe cuando la espalda ya la tapa entera
-   (y vuelve al instante al regresar), así la prenda nunca se ve transparente */
-.rack-face.front { transition: opacity 0s; }
-.rack-flip[data-side="back"] .rack-face.front,
-.rack-big-flip.show-back .rack-face.front { opacity: 0; transition: opacity 0s linear 0.3s; }
-.rack-flip[data-side="back"] .rack-face.back,
-.rack-big-flip.show-back .rack-face.back { opacity: 1; }
-.rack-item.is-hover .rack-face { filter: brightness(var(--shade)) drop-shadow(0 22px 18px rgba(0, 0, 0, 0.22)); }
+.rack-item.is-near .rack-face { filter: brightness(var(--shade)) drop-shadow(0 22px 18px rgba(0, 0, 0, 0.22)); }
 
 .rack-item.is-picked .rack-flip,
 .rack-item.is-picked .rack-hook { opacity: 0; }
@@ -249,12 +252,18 @@
   flex-direction: column;
   align-items: center;
   perspective: 1400px;
+  cursor: pointer;
+  touch-action: pan-y; /* deslizar en horizontal = cambiar de prenda */
+  user-select: none;
 }
 .rack-big-flip {
   position: relative;
   height: var(--gh);
   margin-top: var(--hook);
+  transform-style: preserve-3d;
+  transition: transform 0.8s cubic-bezier(0.3, 1.35, 0.45, 1);
 }
+.rack-big-flip.show-back { transform: rotateY(180deg); }
 .rack-big .rack-face { --shade: 1; }
 
 /* Etiquetas colgando */
@@ -432,18 +441,25 @@
 .rack-arrow.next { right: clamp(0.6rem, 4vw, 3rem); }
 
 /* ---- Móvil ---- */
-@media (max-width: 760px) {
-  .rack { --gh: 230px; }
+/* ---- Táctil: perchero deslizable, la prenda del centro se pone de frente ---- */
+@media (hover: none), (pointer: coarse) {
   .rack-scroller { scroll-snap-type: x mandatory; }
   .rack-stage {
     justify-content: flex-start;
-    padding-inline: calc(50vw - var(--gh) * 0.5);
+    padding-inline: calc(50vw - var(--slot) / 2); /* scrollLeft = índice · slot */
   }
+  .rack-item { scroll-snap-align: center; }
+  .rack-toggle button { min-height: 44px; padding: 0.6rem 1.4rem; }
+  .rack-sizes button { min-height: 44px; min-width: 48px; }
+}
+
+/* ---- Móvil ---- */
+@media (max-width: 760px) {
+  .rack { --gh: min(300px, 60vw); }
   .rack-bar { left: 1rem; right: 1rem; }
-  .rack-item { scroll-snap-align: center; margin-inline: calc(var(--gh) * -0.06); }
   .rack-big { --gh: min(40vh, 330px); --hook: calc(var(--gh) * 0.08); }
   .rack-tags { left: calc(50% + var(--gh) * 0.3); }
-  .rack-arrow { top: 26vh; width: 40px; height: 40px; background: rgba(242, 237, 229, 0.9); }
+  .rack-arrow { top: calc(4.5rem + min(40vh, 330px) * 0.85); width: 44px; height: 44px; background: rgba(242, 237, 229, 0.9); }
 }
 
 @media (prefers-reduced-motion: reduce) {
