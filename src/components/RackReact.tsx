@@ -56,19 +56,16 @@ function prefersReducedMotion() {
   return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-// --- Percha (SVG) ---
+// --- Percha ---
+// La percha va "dentro" de la prenda: solo se ve el gancho metálico saliendo por el cuello.
 function Hanger() {
   return (
-    <svg className="rack-hanger" viewBox="0 0 200 70" aria-hidden="true">
-      <path
-        className="rack-hanger-hook"
-        d="M100 40 L100 22 C100 14 108 12 108 6 C108 0 100 -2 95 2"
-        fill="none"
-        strokeWidth="3.2"
-        strokeLinecap="round"
-      />
-      <path className="rack-hanger-wood" d="M100 36 C78 44 40 54 10 60 C4 61 4 67 11 67 L189 67 C196 67 196 61 190 60 C160 54 122 44 100 36 Z" />
-    </svg>
+    <>
+      <span className="rack-hook-stem" aria-hidden="true" />
+      <svg className="rack-hook" viewBox="88 -4 24 46" aria-hidden="true">
+        <path d="M100 42 L100 22 C100 14 108 12 108 6 C108 0 100 -2 95 2" fill="none" strokeWidth="3.2" strokeLinecap="round" />
+      </svg>
+    </>
   );
 }
 
