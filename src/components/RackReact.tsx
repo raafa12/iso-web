@@ -29,11 +29,12 @@ interface Props {
 type LoadStatus = "loading" | "error" | "ready";
 
 // --- Cómo se mueve el perchero ---
-// Las prendas cuelgan de lado (REST grados). Hay un "foco" que se mueve por el perchero:
-// en escritorio lo lleva el cursor, en móvil el scroll. La prenda en el foco se gira de
-// frente y aparta a las de al lado. Cada prenda gira con un muelle (con rebote) y se
-// balancea desde el gancho cuando el foco le llega.
-const REST = 72; // grados de giro en reposo (de lado)
+// Las prendas cuelgan de frente. Hay un "foco" que se mueve por el perchero: en escritorio
+// lo lleva el cursor, en móvil el scroll. La prenda en el foco da la vuelta y enseña la
+// espalda (muelle con rebote), se balancea desde el gancho, y al irse el foco se queda un
+// momento de espaldas antes de volver.
+const HOLD_MS = 650; // cuánto se queda de espaldas tras pasar el cursor
+const HOLD_TOUCH_MS = 250;
 const TURN_K = 150; // rigidez del giro
 const TURN_C = 15; // amortiguación (algo por debajo de crítica → pequeño rebote)
 const SWING_K = 38;
@@ -46,6 +47,8 @@ interface Body {
   vTurn: number;
   swing: number;
   vSwing: number;
+  back: boolean;
+  releaseAt: number;
 }
 
 interface Focus {
@@ -171,16 +174,20 @@ export default function RackReact({ products: initial, title = "El Perchero" }: 
         }
       }
 
-      // cuánto hay que apartar a las vecinas: la mitad de lo que crece la prenda del foco
-      const slot = els.current[0]?.offsetWidth ?? 0;
-      const full = garmentEls.current[Math.max(0, Math.min(products.length - 1, n))]?.offsetWidth ?? slot;
-      // en móvil se apartan menos, para que las de los lados se vean en pantalla
-      const extra = Math.max(0, (full - slot) / 2 + slot * 0.08) * (touch.current ? 0.6 : 1);
-
+      const nowMs = performance.now();
       bodies.current.forEach((b, i) => {
-        const d = i - F.c;
-        const w = Math.max(0, 1 - Math.abs(d)); // 1 en el foco, 0 a una prenda de distancia
-        const target = REST * (1 - F.f * w);
+        // de espaldas mientras tenga el foco; al perderlo, espera un poco y vuelve
+        if (i === nearNow) {
+          b.back = Boolean(products[i]?.image_back_url);
+          b.releaseAt = 0;
+        } else if (b.back) {
+          if (!b.releaseAt) b.releaseAt = nowMs + (touch.current ? HOLD_TOUCH_MS : HOLD_MS);
+          else if (nowMs > b.releaseAt) {
+            b.back = false;
+            b.releaseAt = 0;
+          }
+        }
+        const target = b.back ? 180 : 0;
         if (still) {
           b.turn = target;
           b.vTurn = 0;
@@ -190,25 +197,23 @@ export default function RackReact({ products: initial, title = "El Perchero" }: 
           b.vSwing += (-SWING_K * b.swing - SWING_C * b.vSwing) * dt;
           b.swing += b.vSwing * dt;
         }
-        if (Math.abs(target - b.turn) > 0.15 || Math.abs(b.vTurn) > 0.2 || Math.abs(b.swing) > 0.05 || Math.abs(b.vSwing) > 0.05) moving = true;
+        if (b.releaseAt || Math.abs(target - b.turn) > 0.15 || Math.abs(b.vTurn) > 0.2 || Math.abs(b.swing) > 0.05 || Math.abs(b.vSwing) > 0.05) moving = true;
 
         const el = els.current[i];
         if (el) {
-          const pushX = F.f * extra * Math.max(-1, Math.min(1, d));
           el.style.setProperty("--turn", `${b.turn.toFixed(2)}deg`);
           el.style.setProperty("--swing", `${b.swing.toFixed(2)}deg`);
-          el.style.setProperty("--push", `${pushX.toFixed(1)}px`);
-          el.style.setProperty("--shade", (0.55 + 0.45 * Math.cos((b.turn * Math.PI) / 180)).toFixed(3));
-          el.style.zIndex = String(100 - Math.round(Math.abs(d) * 10));
+          el.style.setProperty("--shade", (0.55 + 0.45 * Math.abs(Math.cos((b.turn * Math.PI) / 180))).toFixed(3));
+          el.style.zIndex = i === nearNow ? "100" : String(10 + (i % 2));
         }
       });
       raf.current = moving ? requestAnimationFrame(step) : null;
     };
     raf.current = requestAnimationFrame(step);
-  }, [products.length]);
+  }, [products]);
 
   useEffect(() => {
-    bodies.current = products.map(() => ({ turn: REST, vTurn: 0, swing: 0, vSwing: 0 }));
+    bodies.current = products.map(() => ({ turn: 0, vTurn: 0, swing: 0, vSwing: 0, back: false, releaseAt: 0 }));
     touch.current = isTouchUI();
     const F = focus.current;
     // en móvil siempre hay una prenda de frente: la del centro
@@ -282,7 +287,8 @@ export default function RackReact({ products: initial, title = "El Perchero" }: 
   function openDetail(i: number, e: React.MouseEvent<HTMLElement>) {
     returnFocus.current = e.currentTarget;
     srcRect.current = garmentEls.current[i]?.getBoundingClientRect() ?? null;
-    setSide("front");
+    // en escritorio se abre por el lado que estabas viendo; en móvil siempre por delante
+    setSide(!touch.current && bodies.current[i]?.back ? "back" : "front");
     setSize(null);
     setAdded(false);
     setOpen(i);
@@ -396,7 +402,7 @@ export default function RackReact({ products: initial, title = "El Perchero" }: 
       <div className="rack-head">
         <h2 className="rack-title">{title}</h2>
         <p className="rack-hint">
-          <span className="hint-hover">Pasa el cursor por el perchero · pincha para verla</span>
+          <span className="hint-hover">Pasa el cursor para darles la vuelta · pincha para verla</span>
           <span className="hint-touch">Desliza el perchero · toca la del centro para verla</span>
         </p>
       </div>
@@ -430,6 +436,7 @@ export default function RackReact({ products: initial, title = "El Perchero" }: 
                       <Hanger />
                       <span className="rack-flip" ref={(el) => (garmentEls.current[i] = el)}>
                         <Side src={p.image_url} alt="" />
+                        {p.image_back_url && <Side src={p.image_back_url} alt="" back lazy />}
                       </span>
                     </span>
                   </button>

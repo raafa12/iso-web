@@ -2,8 +2,8 @@
 .rack {
   --ink: #070707;
   --paper: var(--white, #f2ede5);
-  --gh: clamp(240px, 23vw, 360px); /* alto de la prenda colgada */
-  --slot: calc(var(--gh) * 0.42); /* hueco de cada prenda de lado en la barra */
+  --gh: clamp(210px, 18.5vw, 310px); /* alto de la prenda colgada */
+  --slot: calc(var(--gh) * 0.8); /* hueco de cada prenda en la barra (las camisetas se solapan un poco) */
   --hook: calc(var(--gh) * 0.08); /* espacio entre barra y hombros */
   position: relative;
   background: var(--paper);
@@ -70,8 +70,7 @@
   width: max-content;
   min-width: 100%;
   margin: 0 auto;
-  /* sitio a los lados para lo que se apartan las prendas */
-  padding: clamp(2.5rem, 5vw, 4rem) calc(var(--gh) * 0.6) 3.5rem;
+  padding: clamp(2.5rem, 5vw, 4rem) calc(var(--gh) * 0.35) 3.5rem;
   display: flex;
   justify-content: center;
 }
@@ -109,10 +108,10 @@
 
 /* Cada <li> es un hueco fijo en la barra; lo que se mueve es su contenido */
 .rack-item {
-  --turn: 72deg;
+  --turn: 0deg;
   --swing: 0deg;
   --push: 0px;
-  --shade: 0.69;
+  --shade: 1;
   position: relative;
   flex: none;
   width: var(--slot);
