@@ -3,8 +3,7 @@
   --ink: #070707;
   --paper: var(--white, #f2ede5);
   --gh: clamp(210px, 18.5vw, 310px); /* alto de la prenda colgada */
-  --slot: calc(var(--gh) * 0.8); /* hueco de cada prenda en la barra (las camisetas se solapan un poco) */
-  --hook: calc(var(--gh) * 0.08); /* espacio entre barra y hombros */
+  --hook: calc(var(--gh) * 0.125); /* espacio entre barra y cuello */
   position: relative;
   background: var(--paper);
   color: var(--ink);
@@ -58,10 +57,9 @@
 /* ---- Barra + escenario ---- */
 .rack-scroller {
   overflow-x: auto;
-  overflow-y: hidden;
+  overflow-y: visible;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
-  overscroll-behavior-x: contain;
 }
 .rack-scroller::-webkit-scrollbar { display: none; }
 
@@ -70,7 +68,7 @@
   width: max-content;
   min-width: 100%;
   margin: 0 auto;
-  padding: clamp(2.5rem, 5vw, 4rem) calc(var(--gh) * 0.35) 3.5rem;
+  padding: clamp(2.5rem, 5vw, 4rem) clamp(2rem, 6vw, 6rem) 3.5rem;
   display: flex;
   justify-content: center;
 }
@@ -106,29 +104,21 @@
   margin: 0;
 }
 
-/* Cada <li> es un hueco fijo en la barra; lo que se mueve es su contenido */
 .rack-item {
   --turn: 0deg;
   --swing: 0deg;
-  --push: 0px;
   --shade: 1;
   position: relative;
-  flex: none;
-  width: var(--slot);
-  display: flex;
-  justify-content: center;
+  margin-inline: calc(var(--gh) * -0.16);
+  perspective: 1100px;
 }
 
 .rack-garment {
-  display: flex;
-  justify-content: center;
-  width: var(--slot);
+  display: block;
   padding: 0;
   border: 0;
   background: none;
   cursor: pointer;
-  perspective: 1000px;
-  transform: translateX(var(--push));
   -webkit-tap-highlight-color: transparent;
 }
 .rack-garment:focus-visible { outline: none; }
@@ -144,8 +134,9 @@
   transform-style: preserve-3d;
 }
 
-/* ---- Gancho ----
-   1 unidad SVG = 0.003·gh. Sale por encima de la barra y se mete por el cuello, detrás de la prenda. */
+/* ---- Percha ----
+   Escala: la percha mide 0.6·gh de ancho → 1 unidad SVG = 0.003·gh.
+   Gancho por encima de la barra y tallo que se mete por el cuello (detrás de la prenda). */
 .rack-hook {
   position: absolute;
   top: calc(-6px - var(--gh) * 0.012);
@@ -157,8 +148,19 @@
   pointer-events: none;
 }
 .rack-hook path { stroke: #8f8f8f; }
+.rack-hook-stem {
+  position: absolute;
+  top: calc(-6px + var(--gh) * 0.1);
+  left: 50%;
+  width: calc(var(--gh) * 0.0096);
+  height: calc(var(--hook) - var(--gh) * 0.1 + 6px + var(--gh) * 0.05);
+  border-radius: 2px;
+  background: #8f8f8f;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
 
-/* ---- Prenda ---- */
+/* ---- Prenda (dos caras) ---- */
 .rack-flip {
   position: relative;
   display: block;
@@ -169,20 +171,14 @@
   transition: opacity 0.25s;
 }
 .rack-face {
-  position: relative;
-  display: block;
-  height: 100%;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  filter: brightness(var(--shade)) drop-shadow(0 16px 14px rgba(0, 0, 0, 0.16));
-}
-.rack-face img {
   display: block;
   height: 100%;
   width: auto;
   max-width: none;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   user-select: none;
-  -webkit-user-drag: none;
+  filter: brightness(var(--shade)) drop-shadow(0 16px 14px rgba(0, 0, 0, 0.16));
 }
 .rack-face.back {
   position: absolute;
@@ -190,10 +186,9 @@
   left: 50%;
   transform: translateX(-50%) rotateY(180deg);
 }
-.rack-item.is-near .rack-face { filter: brightness(var(--shade)) drop-shadow(0 22px 18px rgba(0, 0, 0, 0.22)); }
-
 .rack-item.is-picked .rack-flip,
-.rack-item.is-picked .rack-hook { opacity: 0; }
+.rack-item.is-picked .rack-hook,
+.rack-item.is-picked .rack-hook-stem { opacity: 0; }
 
 .rack-caption {
   min-height: 1.4em;
@@ -244,7 +239,7 @@
 
 .rack-big {
   --gh: min(46vh, 430px);
-  --hook: calc(var(--gh) * 0.08);
+  --hook: calc(var(--gh) * 0.125);
   --turn: 0deg;
   position: relative;
   display: flex;
@@ -440,25 +435,24 @@
 .rack-arrow.next { right: clamp(0.6rem, 4vw, 3rem); }
 
 /* ---- Móvil ---- */
-/* ---- Táctil: perchero deslizable, la prenda del centro se pone de frente ---- */
-@media (hover: none), (pointer: coarse) {
+@media (max-width: 760px) {
+  .rack { --gh: 230px; }
   .rack-scroller { scroll-snap-type: x mandatory; }
   .rack-stage {
     justify-content: flex-start;
-    padding-inline: calc(50vw - var(--slot) / 2); /* scrollLeft = índice · slot */
+    padding-inline: calc(50vw - var(--gh) * 0.5);
   }
-  .rack-item { scroll-snap-align: center; }
-  .rack-toggle button { min-height: 44px; padding: 0.6rem 1.4rem; }
-  .rack-sizes button { min-height: 44px; min-width: 48px; }
-}
-
-/* ---- Móvil ---- */
-@media (max-width: 760px) {
-  .rack { --gh: min(300px, 60vw); }
   .rack-bar { left: 1rem; right: 1rem; }
-  .rack-big { --gh: min(40vh, 330px); --hook: calc(var(--gh) * 0.08); }
+  .rack-item { scroll-snap-align: center; margin-inline: calc(var(--gh) * -0.06); }
+  .rack-big { --gh: min(40vh, 330px); --hook: calc(var(--gh) * 0.125); }
   .rack-tags { left: calc(50% + var(--gh) * 0.3); }
   .rack-arrow { top: calc(4.5rem + min(40vh, 330px) * 0.85); width: 44px; height: 44px; background: rgba(242, 237, 229, 0.9); }
+}
+
+/* Táctil: botones cómodos para el dedo */
+@media (hover: none), (pointer: coarse) {
+  .rack-toggle button { min-height: 44px; padding: 0.6rem 1.4rem; }
+  .rack-sizes button { min-height: 44px; min-width: 48px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

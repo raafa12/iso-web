@@ -16,7 +16,7 @@ export interface RackProduct {
   sizes: string[];
   description: string;
   image_url: string; // PNG/WebP con fondo transparente
-  image_back_url?: string | null; // espalda (se elige en el detalle)
+  image_back_url?: string | null; // espalda; sin ella la prenda solo se balancea
   color?: string | null;
 }
 
@@ -28,38 +28,22 @@ interface Props {
 
 type LoadStatus = "loading" | "error" | "ready";
 
-// --- Cómo se mueve el perchero ---
-// Las prendas cuelgan de frente. Hay un "foco" que se mueve por el perchero: en escritorio
-// lo lleva el cursor, en móvil el scroll. La prenda en el foco da la vuelta y enseña la
-// espalda (muelle con rebote), se balancea desde el gancho, y al irse el foco se queda un
-// momento de espaldas antes de volver.
-const HOLD_MS = 650; // cuánto se queda de espaldas tras pasar el cursor
-const HOLD_TOUCH_MS = 250;
+// --- Física de cada percha ---
+// turn: giro en Y (0 = delante, 180 = espalda). swing: balanceo en Z desde el gancho.
+interface Body {
+  turn: number;
+  vTurn: number;
+  target: number;
+  swing: number;
+  vSwing: number;
+  releaseAt: number;
+}
+
 const TURN_K = 150; // rigidez del giro
 const TURN_C = 15; // amortiguación (algo por debajo de crítica → pequeño rebote)
 const SWING_K = 38;
 const SWING_C = 2.6;
-const FOCUS_K = 110; // muelle del foco (sin rebote)
-const FOCUS_C = 21;
-
-interface Body {
-  turn: number;
-  vTurn: number;
-  swing: number;
-  vSwing: number;
-  back: boolean;
-  releaseAt: number;
-}
-
-interface Focus {
-  c: number; // posición del foco en índices (puede ser decimal, entre dos prendas)
-  vc: number;
-  cT: number;
-  f: number; // intensidad del foco: 0 = todas de lado, 1 = la del foco de frente
-  vf: number;
-  fT: number;
-  near: number; // prenda más cercana al foco
-}
+const HOLD_MS = 650; // cuánto se queda de espaldas tras pasar el cursor
 
 function formatPrice(cents: number): string {
   return (cents / 100).toLocaleString("es-ES", { style: "currency", currency: "EUR" });
@@ -72,24 +56,16 @@ function prefersReducedMotion() {
   return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-function isTouchUI() {
-  return typeof window !== "undefined" && window.matchMedia("(hover: none), (pointer: coarse)").matches;
-}
-
-// --- Gancho metálico: sale de la barra y se mete por el cuello, detrás de la prenda ---
+// --- Percha ---
+// La percha va "dentro" de la prenda: solo se ve el gancho metálico saliendo por el cuello.
 function Hanger() {
   return (
-    <svg className="rack-hook" viewBox="88 -4 24 46" aria-hidden="true">
-      <path d="M100 42 L100 22 C100 14 108 12 108 6 C108 0 100 -2 95 2" fill="none" strokeWidth="3.2" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function Side({ src, back, alt, lazy }: { src: string; back?: boolean; alt: string; lazy?: boolean }) {
-  return (
-    <span className={`rack-face ${back ? "back" : "front"}`}>
-      <img src={src} alt={alt} draggable={false} loading={lazy ? "lazy" : undefined} />
-    </span>
+    <>
+      <span className="rack-hook-stem" aria-hidden="true" />
+      <svg className="rack-hook" viewBox="88 -4 24 46" aria-hidden="true">
+        <path d="M100 42 L100 22 C100 14 108 12 108 6 C108 0 100 -2 95 2" fill="none" strokeWidth="3.2" strokeLinecap="round" />
+      </svg>
+    </>
   );
 }
 
@@ -98,7 +74,7 @@ function Side({ src, back, alt, lazy }: { src: string; back?: boolean; alt: stri
 export default function RackReact({ products: initial, title = "El Perchero" }: Props) {
   const [products, setProducts] = useState<RackProduct[]>(initial ?? []);
   const [status, setStatus] = useState<LoadStatus>(initial ? "ready" : "loading");
-  const [near, setNear] = useState<number | null>(null); // prenda de frente (para el pie)
+  const [hovered, setHovered] = useState<number | null>(null);
   const [open, setOpen] = useState<number | null>(null);
   const [closing, setClosing] = useState(false);
   const [side, setSide] = useState<"front" | "back">("front");
@@ -107,18 +83,15 @@ export default function RackReact({ products: initial, title = "El Perchero" }: 
   const [guideOpen, setGuideOpen] = useState(false);
 
   const bodies = useRef<Body[]>([]);
-  const focus = useRef<Focus>({ c: 0, vc: 0, cT: 0, f: 0, vf: 0, fT: 0, near: -1 });
-  const els = useRef<(HTMLLIElement | null)[]>([]);
+  const els = useRef<(HTMLElement | null)[]>([]);
   const garmentEls = useRef<(HTMLElement | null)[]>([]);
   const raf = useRef<number | null>(null);
   const last = useRef<{ x: number; t: number; vx: number }>({ x: 0, t: 0, vx: 0 });
-  const scrollerRef = useRef<HTMLDivElement>(null);
+  const railRef = useRef<HTMLDivElement>(null);
   const bigRef = useRef<HTMLDivElement>(null);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
   const srcRect = useRef<DOMRect | null>(null);
   const returnFocus = useRef<HTMLElement | null>(null);
-  const touch = useRef(false);
-  const swipe = useRef<{ x: number; y: number; t: number } | null>(null);
 
   // ---- Carga desde Supabase (solo si no vienen productos por props) ----
   useEffect(() => {
@@ -138,157 +111,162 @@ export default function RackReact({ products: initial, title = "El Perchero" }: 
     })();
   }, [initial]);
 
+  useEffect(() => {
+    bodies.current = products.map(() => ({ turn: 0, vTurn: 0, target: 0, swing: 0, vSwing: 0, releaseAt: 0 }));
+  }, [products]);
+
   // ---- Bucle de animación: se apaga solo cuando todo está quieto ----
   const tick = useCallback(() => {
-    if (raf.current != null) return;
     let prev = performance.now();
     const step = (now: number) => {
       const dt = Math.min(0.033, (now - prev) / 1000);
       prev = now;
-      const F = focus.current;
-      const still = prefersReducedMotion();
-
-      // foco (muelle crítico; en móvil va pegado al scroll)
-      if (touch.current || still) {
-        F.c = F.cT;
-        F.vc = 0;
-      } else {
-        F.vc += (FOCUS_K * (F.cT - F.c) - FOCUS_C * F.vc) * dt;
-        F.c += F.vc * dt;
-      }
-      F.vf += (FOCUS_K * (F.fT - F.f) - FOCUS_C * F.vf) * dt;
-      F.f += F.vf * dt;
-      if (still) F.f = F.fT;
-      let moving = Math.abs(F.cT - F.c) > 0.002 || Math.abs(F.vc) > 0.01 || Math.abs(F.fT - F.f) > 0.002 || Math.abs(F.vf) > 0.01;
-
-      // prenda más cercana: empujón de balanceo al llegarle el foco
-      const n = Math.round(F.c);
-      const nearNow = F.fT > 0.5 ? n : -1;
-      if (nearNow !== F.near) {
-        F.near = nearNow;
-        setNear(nearNow >= 0 ? nearNow : null);
-        const b = bodies.current[nearNow];
-        if (b && !still) {
-          const push = touch.current ? 4 : Math.max(-9, Math.min(9, last.current.vx * 5));
-          b.vSwing += push * 4;
-        }
-      }
-
-      const nowMs = performance.now();
+      let moving = false;
       bodies.current.forEach((b, i) => {
-        // de espaldas mientras tenga el foco; al perderlo, espera un poco y vuelve
-        if (i === nearNow) {
-          b.back = Boolean(products[i]?.image_back_url);
+        if (b.releaseAt && now > b.releaseAt) {
+          b.target = 0;
           b.releaseAt = 0;
-        } else if (b.back) {
-          if (!b.releaseAt) b.releaseAt = nowMs + (touch.current ? HOLD_TOUCH_MS : HOLD_MS);
-          else if (nowMs > b.releaseAt) {
-            b.back = false;
-            b.releaseAt = 0;
-          }
         }
-        const target = b.back ? 180 : 0;
-        if (still) {
-          b.turn = target;
-          b.vTurn = 0;
+        const aT = TURN_K * (b.target - b.turn) - TURN_C * b.vTurn;
+        b.vTurn += aT * dt;
+        b.turn += b.vTurn * dt;
+        const aS = -SWING_K * b.swing - SWING_C * b.vSwing;
+        b.vSwing += aS * dt;
+        b.swing += b.vSwing * dt;
+        if (Math.abs(b.target - b.turn) > 0.2 || Math.abs(b.vTurn) > 0.2 || Math.abs(b.swing) > 0.05 || Math.abs(b.vSwing) > 0.05 || b.releaseAt) {
+          moving = true;
         } else {
-          b.vTurn += (TURN_K * (target - b.turn) - TURN_C * b.vTurn) * dt;
-          b.turn += b.vTurn * dt;
-          b.vSwing += (-SWING_K * b.swing - SWING_C * b.vSwing) * dt;
-          b.swing += b.vSwing * dt;
+          b.turn = b.target;
+          b.vTurn = 0;
+          b.swing = 0;
+          b.vSwing = 0;
         }
-        if (b.releaseAt || Math.abs(target - b.turn) > 0.15 || Math.abs(b.vTurn) > 0.2 || Math.abs(b.swing) > 0.05 || Math.abs(b.vSwing) > 0.05) moving = true;
-
         const el = els.current[i];
         if (el) {
           el.style.setProperty("--turn", `${b.turn.toFixed(2)}deg`);
           el.style.setProperty("--swing", `${b.swing.toFixed(2)}deg`);
-          el.style.setProperty("--shade", (0.55 + 0.45 * Math.abs(Math.cos((b.turn * Math.PI) / 180))).toFixed(3));
-          el.style.zIndex = i === nearNow ? "100" : String(10 + (i % 2));
+          const c = Math.abs(Math.cos((b.turn * Math.PI) / 180));
+          el.style.setProperty("--shade", (0.55 + 0.45 * c).toFixed(3));
         }
       });
       raf.current = moving ? requestAnimationFrame(step) : null;
     };
-    raf.current = requestAnimationFrame(step);
-  }, [products]);
-
-  useEffect(() => {
-    bodies.current = products.map(() => ({ turn: 0, vTurn: 0, swing: 0, vSwing: 0, back: false, releaseAt: 0 }));
-    touch.current = isTouchUI();
-    const F = focus.current;
-    // en móvil siempre hay una prenda de frente: la del centro
-    F.fT = touch.current ? 1 : 0;
-    F.f = F.fT;
-    tick();
-  }, [products, tick]);
+    if (raf.current == null) raf.current = requestAnimationFrame(step);
+  }, []);
 
   useEffect(() => () => { if (raf.current) cancelAnimationFrame(raf.current); }, []);
 
-  // ---- Escritorio: el cursor lleva el foco ----
+  const hasBack = (i: number) => Boolean(products[i]?.image_back_url);
+
+  function turnTo(i: number, back: boolean, holdMs = 0) {
+    const b = bodies.current[i];
+    if (!b) return;
+    if (back && hasBack(i)) {
+      b.target = 180;
+      b.releaseAt = holdMs ? performance.now() + holdMs : 0;
+    } else {
+      b.releaseAt = performance.now() + HOLD_MS;
+    }
+    tick();
+  }
+
+  // Velocidad del cursor sobre el perchero → empujón al balanceo
   function onStageMove(e: React.PointerEvent) {
-    if (e.pointerType === "touch" || touch.current) return;
     const now = performance.now();
     const l = last.current;
-    l.vx = l.t ? (e.clientX - l.x) / Math.max(1, now - l.t) : 0;
+    const dt = Math.max(1, now - l.t);
+    l.vx = l.t ? (e.clientX - l.x) / dt : 0;
     l.x = e.clientX;
     l.t = now;
-    const first = els.current[0];
-    if (!first) return;
-    const r = first.getBoundingClientRect(); // los <li> no se mueven (se aparta su contenido)
-    const slot = first.offsetWidth;
-    const centre0 = r.left + slot / 2;
-    const F = focus.current;
-    F.cT = Math.max(0, Math.min(products.length - 1, (e.clientX - centre0) / slot));
-    F.fT = 1;
+  }
+
+  function onEnter(i: number, e: React.PointerEvent) {
+    if (e.pointerType === "touch") return;
+    setHovered(i);
+    const b = bodies.current[i];
+    if (!b) return;
+    if (!prefersReducedMotion()) {
+      const push = Math.max(-9, Math.min(9, last.current.vx * 5));
+      b.vSwing += push * 6;
+      [i - 1, i + 1].forEach((j) => {
+        const n = bodies.current[j];
+        if (n) n.vSwing += push * 1.6;
+      });
+    }
+    b.target = hasBack(i) ? 180 : 0;
+    b.releaseAt = 0;
     tick();
   }
 
-  function onStageLeave() {
-    if (touch.current) return;
-    focus.current.fT = 0;
+  function onLeave(i: number) {
+    setHovered((h) => (h === i ? null : h));
+    const b = bodies.current[i];
+    if (!b) return;
+    b.releaseAt = performance.now() + HOLD_MS;
     tick();
   }
 
-  // ---- Móvil: el scroll lleva el foco (la prenda del centro se pone de frente) ----
-  function onScroll() {
-    if (!touch.current) return;
-    const sc = scrollerRef.current;
-    const slot = els.current[0]?.offsetWidth;
-    if (!sc || !slot) return;
-    focus.current.cT = Math.max(0, Math.min(products.length - 1, sc.scrollLeft / slot));
+  // ---- Móvil: al deslizar el perchero, gira la prenda que pasa por el centro ----
+  function onRailScroll() {
+    if (window.matchMedia("(hover: hover)").matches) return;
+    const rail = railRef.current;
+    if (!rail) return;
+    const r = rail.getBoundingClientRect();
+    const mid = r.left + r.width / 2;
+    garmentEls.current.forEach((el, i) => {
+      if (!el) return;
+      const g = el.getBoundingClientRect();
+      const inCenter = Math.abs(g.left + g.width / 2 - mid) < g.width * 0.32;
+      const b = bodies.current[i];
+      if (!b) return;
+      if (inCenter && hasBack(i)) {
+        if (b.target !== 180) b.vSwing += 30;
+        b.target = 180;
+        b.releaseAt = 0;
+      } else if (b.target === 180 && !b.releaseAt) {
+        b.releaseAt = performance.now() + 250;
+      }
+    });
     tick();
   }
 
-  function centerOn(i: number) {
-    const sc = scrollerRef.current;
-    const slot = els.current[0]?.offsetWidth;
-    if (!sc || !slot) return;
-    sc.scrollTo({ left: i * slot, behavior: prefersReducedMotion() ? "auto" : "smooth" });
+  // ---- Vista de detalle ----
+  // ---- Móvil: tocar una prenda de un lado la trae al centro; tocar la del centro la abre ----
+  function centeredIndex() {
+    const rail = railRef.current;
+    if (!rail) return -1;
+    const r = rail.getBoundingClientRect();
+    const mid = r.left + r.width / 2;
+    let best = -1;
+    let dist = Infinity;
+    els.current.forEach((el, i) => {
+      if (!el) return;
+      const g = el.getBoundingClientRect();
+      const d = Math.abs(g.left + g.width / 2 - mid);
+      if (d < dist) {
+        dist = d;
+        best = i;
+      }
+    });
+    return best;
   }
 
   function onGarmentClick(i: number, e: React.MouseEvent<HTMLElement>) {
-    // en móvil, tocar una prenda de lado la trae al centro; tocar la del centro la abre
-    if (touch.current && Math.round(focus.current.c) !== i) {
-      centerOn(i);
+    const touchUI = window.matchMedia("(hover: none), (pointer: coarse)").matches;
+    if (touchUI && centeredIndex() !== i) {
+      els.current[i]?.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", inline: "center", block: "nearest" });
       return;
     }
     openDetail(i, e);
   }
 
-  function onGarmentFocus(i: number) {
-    const F = focus.current;
-    F.cT = i;
-    F.fT = 1;
-    if (touch.current) centerOn(i);
-    tick();
-  }
-
-  // ---- Vista de detalle ----
   function openDetail(i: number, e: React.MouseEvent<HTMLElement>) {
     returnFocus.current = e.currentTarget;
     srcRect.current = garmentEls.current[i]?.getBoundingClientRect() ?? null;
-    // en escritorio se abre por el lado que estabas viendo; en móvil siempre por delante
-    setSide(!touch.current && bodies.current[i]?.back ? "back" : "front");
+    const b = bodies.current[i];
+    // En escritorio se abre por el lado que estabas viendo; en móvil siempre por delante
+    const hover = window.matchMedia("(hover: hover)").matches;
+    setSide(hover && b && b.turn > 90 ? "back" : "front");
     setSize(null);
     setAdded(false);
     setOpen(i);
@@ -359,27 +337,6 @@ export default function RackReact({ products: initial, title = "El Perchero" }: 
     setSide("front");
     setSize(null);
     setAdded(false);
-    // el perchero de debajo sigue a la prenda que estás viendo
-    focus.current.cT = n;
-    if (touch.current) centerOn(n);
-    tick();
-  }
-
-  // En el detalle: tocar la prenda le da la vuelta; deslizar pasa a la siguiente
-  function onBigPointerDown(e: React.PointerEvent) {
-    swipe.current = { x: e.clientX, y: e.clientY, t: performance.now() };
-  }
-  function onBigPointerUp(e: React.PointerEvent) {
-    const s = swipe.current;
-    swipe.current = null;
-    if (!s) return;
-    const dx = e.clientX - s.x;
-    const dy = e.clientY - s.y;
-    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
-      go(dx < 0 ? 1 : -1);
-    } else if (Math.abs(dx) < 10 && Math.abs(dy) < 10 && current?.image_back_url) {
-      setSide((v) => (v === "front" ? "back" : "front"));
-    }
   }
 
   function addToCart() {
@@ -394,8 +351,23 @@ export default function RackReact({ products: initial, title = "El Perchero" }: 
     }, 700);
   }
 
+  // En el detalle: tocar la prenda le da la vuelta; deslizar en horizontal pasa a la siguiente
+  const swipe = useRef<{ x: number; y: number } | null>(null);
+  function onBigPointerDown(e: React.PointerEvent) {
+    swipe.current = { x: e.clientX, y: e.clientY };
+  }
+  function onBigPointerUp(e: React.PointerEvent) {
+    const s0 = swipe.current;
+    swipe.current = null;
+    if (!s0) return;
+    const dx = e.clientX - s0.x;
+    const dy = e.clientY - s0.y;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) go(dx < 0 ? 1 : -1);
+    else if (Math.abs(dx) < 10 && Math.abs(dy) < 10 && current?.image_back_url) setSide((v) => (v === "front" ? "back" : "front"));
+  }
+
   const current = open != null ? products[open] : null;
-  const caption = near != null ? products[near] : null;
+  const caption = hovered != null ? products[hovered] : null;
 
   return (
     <section className={`rack${open != null ? " is-open" : ""}`} aria-label={title}>
@@ -411,8 +383,8 @@ export default function RackReact({ products: initial, title = "El Perchero" }: 
       {status === "error" && <p className="rack-status error">No hemos podido cargar la colección. Prueba a recargar.</p>}
 
       {status === "ready" && (
-        <div className="rack-scroller" ref={scrollerRef} onScroll={onScroll}>
-          <div className="rack-stage" onPointerMove={onStageMove} onPointerLeave={onStageLeave}>
+        <div className="rack-scroller" ref={railRef} onScroll={onRailScroll}>
+          <div className="rack-stage" onPointerMove={onStageMove}>
             <div className="rack-bar" aria-hidden="true">
               <span className="rack-knob" />
               <span className="rack-knob" />
@@ -421,22 +393,27 @@ export default function RackReact({ products: initial, title = "El Perchero" }: 
               {products.map((p, i) => (
                 <li
                   key={p.id}
-                  className={`rack-item${near === i ? " is-near" : ""}${open === i ? " is-picked" : ""}`}
+                  className={`rack-item${hovered === i ? " is-hover" : ""}${open === i ? " is-picked" : ""}`}
                   ref={(el) => (els.current[i] = el)}
+                  style={{ zIndex: hovered === i ? 50 : 10 + (i % 2) }}
                 >
                   <button
                     type="button"
                     className="rack-garment"
                     aria-label={`Ver ${p.name}, ${formatPrice(p.price_cents)}`}
-                    onFocus={() => onGarmentFocus(i)}
-                    onBlur={onStageLeave}
+                    onPointerEnter={(e) => onEnter(i, e)}
+                    onPointerLeave={() => onLeave(i)}
+                    onFocus={() => { setHovered(i); turnTo(i, true); }}
+                    onBlur={() => onLeave(i)}
                     onClick={(e) => onGarmentClick(i, e)}
                   >
                     <span className="rack-swing">
                       <Hanger />
                       <span className="rack-flip" ref={(el) => (garmentEls.current[i] = el)}>
-                        <Side src={p.image_url} alt="" />
-                        {p.image_back_url && <Side src={p.image_back_url} alt="" back lazy />}
+                        <img className="rack-face front" src={p.image_url} alt="" draggable={false} />
+                        {p.image_back_url && (
+                          <img className="rack-face back" src={p.image_back_url} alt="" draggable={false} loading="lazy" />
+                        )}
                       </span>
                     </span>
                   </button>
@@ -481,9 +458,9 @@ export default function RackReact({ products: initial, title = "El Perchero" }: 
             <div className="rack-big" ref={bigRef} onPointerDown={onBigPointerDown} onPointerUp={onBigPointerUp}>
               <Hanger />
               <div className={`rack-big-flip${side === "back" ? " show-back" : ""}`}>
-                <Side src={current.image_url} alt={`${current.name}, delante`} />
+                <img className="rack-face front" src={current.image_url} alt={`${current.name}, delante`} />
                 {current.image_back_url && (
-                  <Side src={current.image_back_url} alt={`${current.name}, espalda`} back />
+                  <img className="rack-face back" src={current.image_back_url} alt={`${current.name}, espalda`} />
                 )}
               </div>
               <div className="rack-tags" aria-hidden="true">
