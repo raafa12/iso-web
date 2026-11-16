@@ -29,21 +29,24 @@ interface Props {
 type LoadStatus = "loading" | "error" | "ready";
 
 // --- Física de cada percha ---
-// turn: giro en Y (0 = delante, 180 = espalda). swing: balanceo en Z desde el gancho.
+// Versión sutil: la prenda no da la vuelta entera. Al pasar el cursor se tuerce un poco
+// (turn, giro en Y con rebote), se balancea desde el gancho (swing) y en el punto de giro
+// se funde con la foto de la espalda.
 interface Body {
   turn: number;
   vTurn: number;
-  target: number;
   swing: number;
   vSwing: number;
+  back: boolean;
   releaseAt: number;
 }
 
-const TURN_K = 150; // rigidez del giro
-const TURN_C = 15; // amortiguación (algo por debajo de crítica → pequeño rebote)
+const TWIST_K = 90; // rigidez del giro (vuelve siempre a 0)
+const TWIST_C = 9; // amortiguación: un rebote suave
+const TWIST_KICK = 170; // empujón al girar (°/s) → pico de unos 15°
 const SWING_K = 38;
 const SWING_C = 2.6;
-const HOLD_MS = 650; // cuánto se queda de espaldas tras pasar el cursor
+const HOLD_MS = 500; // cuánto se queda enseñando la espalda tras pasar el cursor
 
 function formatPrice(cents: number): string {
   return (cents / 100).toLocaleString("es-ES", { style: "currency", currency: "EUR" });
@@ -57,74 +60,19 @@ function prefersReducedMotion() {
 }
 
 // --- Percha ---
-// La percha va "dentro" de la prenda: solo se ve el gancho metálico saliendo por el cuello.
+// Solo el gancho metálico: sale de la barra y se mete por el cuello, detrás de la prenda.
 function Hanger() {
   return (
-    <>
-      <svg className="rack-hook" viewBox="88 -4 24 46" aria-hidden="true">
-        <path d="M100 42 L100 22 C100 14 108 12 108 6 C108 0 100 -2 95 2" fill="none" strokeWidth="3.2" strokeLinecap="round" />
-      </svg>
-    </>
+    <svg className="rack-hook" viewBox="88 -4 24 46" aria-hidden="true">
+      <path d="M100 42 L100 22 C100 14 108 12 108 6 C108 0 100 -2 95 2" fill="none" strokeWidth="3.2" strokeLinecap="round" />
+    </svg>
   );
 }
 
-// Percha asomando por el cuello. Coordenadas en % de la foto (ancho, alto), medidas sobre
-// las fotos de ISO: camiseta (foto apaisada) y sudadera (foto vertical, hueco de la capucha).
-// clip = hueco por el que se ve; la madera va por delante de la tela de detrás y por
-// detrás del cuello / solapas de la capucha. El gancho sale de la madera hacia la barra.
-const NECKS = {
-  tee: {
-    clip: "M39.6 4.6 Q50 5.4 60.4 4.6 Q59 8.3 50 8.3 Q41 8.3 39.6 4.6 Z",
-    shadow: "M36 6.1 Q50 4.2 64 6.1 L64 9 L36 9 Z",
-    wood: "M36 6.6 Q50 4.9 64 6.6 L64 8.4 Q50 6.8 36 8.4 Z",
-    cx: 50, top: 5.6, stem: 0.9,
-  },
-  hoodie: {
-    // más abajo que en la camiseta: la percha va en el cuello, por debajo de la capucha
-    clip: "M32.5 3.2 L67.5 3.2 L63.5 6 L61 8 L59 10 L53 15 L44 10 L40.5 8 L37 6 Z",
-    shadow: "M30 8.4 Q50 6.8 70 8.4 L70 11.4 L30 11.4 Z",
-    wood: "M30 9.1 Q50 7.6 70 9.1 L70 10.8 Q50 9.4 30 10.8 Z",
-    cx: 50, top: 8.2, stem: 1.34,
-  },
-} as const;
-
-// Una cara de la prenda. Camiseta: percha en las dos caras (las espaldas de la demo salen de
-// la foto delantera). Sudadera: solo delante; detrás la capucha tapa el cuello.
 function Side({ src, back, alt, lazy }: { src: string; back?: boolean; alt: string; lazy?: boolean }) {
-  const [kind, setKind] = useState<keyof typeof NECKS | null>(null);
-  const detect = (el: HTMLImageElement) => setKind(el.naturalWidth > el.naturalHeight ? "tee" : "hoodie");
-  const n = kind === "tee" || (kind === "hoodie" && !back) ? NECKS[kind] : null;
-  const id = `neck-${kind}-${back ? "b" : "f"}`;
   return (
     <span className={`rack-face ${back ? "back" : "front"}`}>
-      <img
-        src={src}
-        alt={alt}
-        draggable={false}
-        loading={lazy ? "lazy" : undefined}
-        onLoad={(e) => detect(e.currentTarget)}
-        ref={(el) => { if (el?.complete && el.naturalWidth) detect(el); }}
-      />
-      {n && (
-        <svg className="rack-neck" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-          <defs>
-            <clipPath id={id}>
-              <path d={n.clip} />
-            </clipPath>
-            <linearGradient id="rack-wood" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stopColor="#c8925f" />
-              <stop offset="0.55" stopColor="#a8703f" />
-              <stop offset="1" stopColor="#7d4f2a" />
-            </linearGradient>
-          </defs>
-          <g clipPath={`url(#${id})`}>
-            <path className="rack-neck-shadow" d={n.shadow} />
-            <path d={n.wood} fill="url(#rack-wood)" />
-          </g>
-          <rect className="rack-neck-stem" x={n.cx - n.stem / 2} y="-1" width={n.stem} height={n.top + 1} rx={n.stem / 2} />
-          <ellipse className="rack-neck-nut" cx={n.cx} cy={n.top} rx={n.stem * 1.2} ry="0.55" />
-        </svg>
-      )}
+      <img src={src} alt={alt} draggable={false} loading={lazy ? "lazy" : undefined} />
     </span>
   );
 }
@@ -149,6 +97,8 @@ export default function RackReact({ products: initial, title = "El Perchero" }: 
   const last = useRef<{ x: number; t: number; vx: number }>({ x: 0, t: 0, vx: 0 });
   const railRef = useRef<HTMLDivElement>(null);
   const bigRef = useRef<HTMLDivElement>(null);
+  const bigFlipRef = useRef<HTMLDivElement>(null);
+  const firstSide = useRef(true);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
   const srcRect = useRef<DOMRect | null>(null);
   const returnFocus = useRef<HTMLElement | null>(null);
@@ -172,7 +122,7 @@ export default function RackReact({ products: initial, title = "El Perchero" }: 
   }, [initial]);
 
   useEffect(() => {
-    bodies.current = products.map(() => ({ turn: 0, vTurn: 0, target: 0, swing: 0, vSwing: 0, releaseAt: 0 }));
+    bodies.current = products.map(() => ({ turn: 0, vTurn: 0, swing: 0, vSwing: 0, back: false, releaseAt: 0 }));
   }, [products]);
 
   // ---- Bucle de animación: se apaga solo cuando todo está quieto ----
@@ -184,19 +134,19 @@ export default function RackReact({ products: initial, title = "El Perchero" }: 
       let moving = false;
       bodies.current.forEach((b, i) => {
         if (b.releaseAt && now > b.releaseAt) {
-          b.target = 0;
           b.releaseAt = 0;
+          showBack(i, false, -1);
         }
-        const aT = TURN_K * (b.target - b.turn) - TURN_C * b.vTurn;
+        const aT = -TWIST_K * b.turn - TWIST_C * b.vTurn;
         b.vTurn += aT * dt;
         b.turn += b.vTurn * dt;
         const aS = -SWING_K * b.swing - SWING_C * b.vSwing;
         b.vSwing += aS * dt;
         b.swing += b.vSwing * dt;
-        if (Math.abs(b.target - b.turn) > 0.2 || Math.abs(b.vTurn) > 0.2 || Math.abs(b.swing) > 0.05 || Math.abs(b.vSwing) > 0.05 || b.releaseAt) {
+        if (Math.abs(b.turn) > 0.1 || Math.abs(b.vTurn) > 0.2 || Math.abs(b.swing) > 0.05 || Math.abs(b.vSwing) > 0.05 || b.releaseAt) {
           moving = true;
         } else {
-          b.turn = b.target;
+          b.turn = 0;
           b.vTurn = 0;
           b.swing = 0;
           b.vSwing = 0;
@@ -205,8 +155,7 @@ export default function RackReact({ products: initial, title = "El Perchero" }: 
         if (el) {
           el.style.setProperty("--turn", `${b.turn.toFixed(2)}deg`);
           el.style.setProperty("--swing", `${b.swing.toFixed(2)}deg`);
-          const c = Math.abs(Math.cos((b.turn * Math.PI) / 180));
-          el.style.setProperty("--shade", (0.55 + 0.45 * c).toFixed(3));
+          el.style.setProperty("--shade", (1 - Math.min(0.25, Math.abs(b.turn) / 70)).toFixed(3));
         }
       });
       raf.current = moving ? requestAnimationFrame(step) : null;
@@ -218,16 +167,23 @@ export default function RackReact({ products: initial, title = "El Perchero" }: 
 
   const hasBack = (i: number) => Boolean(products[i]?.image_back_url);
 
-  function turnTo(i: number, back: boolean, holdMs = 0) {
+  // Cambia de cara con un pequeño giro en la dirección del cursor
+  function showBack(i: number, val: boolean, dir: number) {
     const b = bodies.current[i];
     if (!b) return;
-    if (back && hasBack(i)) {
-      b.target = 180;
-      b.releaseAt = holdMs ? performance.now() + holdMs : 0;
-    } else {
-      b.releaseAt = performance.now() + HOLD_MS;
+    const want = val && hasBack(i);
+    if (!prefersReducedMotion()) b.vTurn += (dir || 1) * TWIST_KICK * (want === b.back ? 0.4 : 1);
+    if (want !== b.back) {
+      b.back = want;
+      // atributo propio (no className) para que los re-render de React no lo borren
+      const g = garmentEls.current[i];
+      if (g) g.dataset.side = want ? "back" : "front";
     }
     tick();
+  }
+
+  function cursorDir() {
+    return Math.sign(last.current.vx) || 1;
   }
 
   // Velocidad del cursor sobre el perchero → empujón al balanceo
@@ -247,15 +203,14 @@ export default function RackReact({ products: initial, title = "El Perchero" }: 
     if (!b) return;
     if (!prefersReducedMotion()) {
       const push = Math.max(-9, Math.min(9, last.current.vx * 5));
-      b.vSwing += push * 6;
+      b.vSwing += push * 3.5;
       [i - 1, i + 1].forEach((j) => {
         const n = bodies.current[j];
-        if (n) n.vSwing += push * 1.6;
+        if (n) n.vSwing += push * 1;
       });
     }
-    b.target = hasBack(i) ? 180 : 0;
     b.releaseAt = 0;
-    tick();
+    showBack(i, true, cursorDir());
   }
 
   function onLeave(i: number) {
@@ -279,11 +234,13 @@ export default function RackReact({ products: initial, title = "El Perchero" }: 
       const inCenter = Math.abs(g.left + g.width / 2 - mid) < g.width * 0.32;
       const b = bodies.current[i];
       if (!b) return;
-      if (inCenter && hasBack(i)) {
-        if (b.target !== 180) b.vSwing += 30;
-        b.target = 180;
+      if (inCenter) {
         b.releaseAt = 0;
-      } else if (b.target === 180 && !b.releaseAt) {
+        if (!b.back) {
+          b.vSwing += 30;
+          showBack(i, true, 1);
+        }
+      } else if (b.back && !b.releaseAt) {
         b.releaseAt = performance.now() + 250;
       }
     });
@@ -297,7 +254,7 @@ export default function RackReact({ products: initial, title = "El Perchero" }: 
     const b = bodies.current[i];
     // En escritorio se abre por el lado que estabas viendo; en móvil siempre por delante
     const hover = window.matchMedia("(hover: hover)").matches;
-    setSide(hover && b && b.turn > 90 ? "back" : "front");
+    setSide(hover && b?.back ? "back" : "front");
     setSize(null);
     setAdded(false);
     setOpen(i);
@@ -339,6 +296,25 @@ export default function RackReact({ products: initial, title = "El Perchero" }: 
     );
     srcRect.current = null;
   }, [open]);
+
+  // Delante/Espalda en el detalle: fundido con un pequeño giro
+  useEffect(() => {
+    if (firstSide.current) {
+      firstSide.current = false;
+      return;
+    }
+    if (prefersReducedMotion()) return;
+    const dir = side === "back" ? 1 : -1;
+    bigFlipRef.current?.animate(
+      [
+        { transform: "rotateY(0deg)" },
+        { transform: `rotateY(${18 * dir}deg)`, offset: 0.4 },
+        { transform: `rotateY(${-5 * dir}deg)`, offset: 0.75 },
+        { transform: "rotateY(0deg)" },
+      ],
+      { duration: 700, easing: "ease-out" },
+    );
+  }, [side]);
 
   useEffect(() => {
     if (open == null) return;
@@ -419,7 +395,7 @@ export default function RackReact({ products: initial, title = "El Perchero" }: 
                     aria-label={`Ver ${p.name}, ${formatPrice(p.price_cents)}`}
                     onPointerEnter={(e) => onEnter(i, e)}
                     onPointerLeave={() => onLeave(i)}
-                    onFocus={() => { setHovered(i); turnTo(i, true); }}
+                    onFocus={() => { setHovered(i); showBack(i, true, 1); }}
                     onBlur={() => onLeave(i)}
                     onClick={(e) => openDetail(i, e)}
                   >
@@ -473,7 +449,7 @@ export default function RackReact({ products: initial, title = "El Perchero" }: 
           <div className="rack-detail-inner" key={current.id}>
             <div className="rack-big" ref={bigRef}>
               <Hanger />
-              <div className={`rack-big-flip${side === "back" ? " show-back" : ""}`}>
+              <div className={`rack-big-flip${side === "back" ? " show-back" : ""}`} ref={bigFlipRef}>
                 <Side src={current.image_url} alt={`${current.name}, delante`} />
                 {current.image_back_url && (
                   <Side src={current.image_back_url} alt={`${current.name}, espalda`} back />
