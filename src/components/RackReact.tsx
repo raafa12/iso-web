@@ -68,12 +68,32 @@ function Hanger() {
   );
 }
 
-// Una cara de la prenda. En camisetas (foto más ancha que alta) se dibuja la percha de
-// madera asomando por el hueco del cuello y el gancho saliendo de ella, por delante de la
-// tela de detrás y por detrás del cuello delantero. En sudaderas la capucha la tapa entera.
-// Coordenadas en % de la foto, medidas sobre el cuello de las camisetas de ISO.
+// Percha asomando por el cuello. Coordenadas en % de la foto (ancho, alto), medidas sobre
+// las fotos de ISO: camiseta (foto apaisada) y sudadera (foto vertical, hueco de la capucha).
+// clip = hueco por el que se ve; la madera va por delante de la tela de detrás y por
+// detrás del cuello / solapas de la capucha. El gancho sale de la madera hacia la barra.
+const NECKS = {
+  tee: {
+    clip: "M39.6 4.6 Q50 5.4 60.4 4.6 Q59 8.3 50 8.3 Q41 8.3 39.6 4.6 Z",
+    shadow: "M36 6.1 Q50 4.2 64 6.1 L64 9 L36 9 Z",
+    wood: "M36 6.6 Q50 4.9 64 6.6 L64 8.4 Q50 6.8 36 8.4 Z",
+    cx: 50, top: 5.6, stem: 0.9,
+  },
+  hoodie: {
+    clip: "M32.5 3.2 L67.5 3.2 L63.5 6 L61 8 L59 10 L53 15 L44 10 L40.5 8 L37 6 Z",
+    shadow: "M30 5.6 Q50 3.8 70 5.6 L70 8.6 L30 8.6 Z",
+    wood: "M30 6.2 Q50 4.5 70 6.2 L70 7.9 Q50 6.3 30 7.9 Z",
+    cx: 50, top: 5.2, stem: 1.34,
+  },
+} as const;
+
+// Una cara de la prenda. Camiseta: percha en las dos caras (las espaldas de la demo salen de
+// la foto delantera). Sudadera: solo delante; detrás la capucha tapa el cuello.
 function Side({ src, back, alt, lazy }: { src: string; back?: boolean; alt: string; lazy?: boolean }) {
-  const [tee, setTee] = useState(false);
+  const [kind, setKind] = useState<keyof typeof NECKS | null>(null);
+  const detect = (el: HTMLImageElement) => setKind(el.naturalWidth > el.naturalHeight ? "tee" : "hoodie");
+  const n = kind === "tee" || (kind === "hoodie" && !back) ? NECKS[kind] : null;
+  const id = `neck-${kind}-${back ? "b" : "f"}`;
   return (
     <span className={`rack-face ${back ? "back" : "front"}`}>
       <img
@@ -81,14 +101,14 @@ function Side({ src, back, alt, lazy }: { src: string; back?: boolean; alt: stri
         alt={alt}
         draggable={false}
         loading={lazy ? "lazy" : undefined}
-        onLoad={(e) => setTee(e.currentTarget.naturalWidth > e.currentTarget.naturalHeight)}
-        ref={(el) => { if (el?.complete && el.naturalWidth) setTee(el.naturalWidth > el.naturalHeight); }}
+        onLoad={(e) => detect(e.currentTarget)}
+        ref={(el) => { if (el?.complete && el.naturalWidth) detect(el); }}
       />
-      {tee && (
+      {n && (
         <svg className="rack-neck" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
           <defs>
-            <clipPath id={`neck-${back ? "b" : "f"}`}>
-              <path d="M39.6 4.6 Q50 5.4 60.4 4.6 Q59 8.3 50 8.3 Q41 8.3 39.6 4.6 Z" />
+            <clipPath id={id}>
+              <path d={n.clip} />
             </clipPath>
             <linearGradient id="rack-wood" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0" stopColor="#c8925f" />
@@ -96,12 +116,12 @@ function Side({ src, back, alt, lazy }: { src: string; back?: boolean; alt: stri
               <stop offset="1" stopColor="#7d4f2a" />
             </linearGradient>
           </defs>
-          <g clipPath={`url(#neck-${back ? "b" : "f"})`}>
-            <path className="rack-neck-shadow" d="M36 6.1 Q50 4.2 64 6.1 L64 9 L36 9 Z" />
-            <path d="M36 6.6 Q50 4.9 64 6.6 L64 8.4 Q50 6.8 36 8.4 Z" fill="url(#rack-wood)" />
+          <g clipPath={`url(#${id})`}>
+            <path className="rack-neck-shadow" d={n.shadow} />
+            <path d={n.wood} fill="url(#rack-wood)" />
           </g>
-          <rect className="rack-neck-stem" x="49.55" y="-1" width="0.9" height="6.6" rx="0.4" />
-          <ellipse className="rack-neck-nut" cx="50" cy="5.6" rx="1.1" ry="0.55" />
+          <rect className="rack-neck-stem" x={n.cx - n.stem / 2} y="-1" width={n.stem} height={n.top + 1} rx={n.stem / 2} />
+          <ellipse className="rack-neck-nut" cx={n.cx} cy={n.top} rx={n.stem * 1.2} ry="0.55" />
         </svg>
       )}
     </span>
