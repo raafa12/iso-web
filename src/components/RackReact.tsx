@@ -80,10 +80,11 @@ const NECKS = {
     cx: 50, top: 5.6, stem: 0.9,
   },
   hoodie: {
+    // más abajo que en la camiseta: la percha va en el cuello, por debajo de la capucha
     clip: "M32.5 3.2 L67.5 3.2 L63.5 6 L61 8 L59 10 L53 15 L44 10 L40.5 8 L37 6 Z",
-    shadow: "M30 5.6 Q50 3.8 70 5.6 L70 8.6 L30 8.6 Z",
-    wood: "M30 6.2 Q50 4.5 70 6.2 L70 7.9 Q50 6.3 30 7.9 Z",
-    cx: 50, top: 5.2, stem: 1.34,
+    shadow: "M30 8.4 Q50 6.8 70 8.4 L70 11.4 L30 11.4 Z",
+    wood: "M30 9.1 Q50 7.6 70 9.1 L70 10.8 Q50 9.4 30 10.8 Z",
+    cx: 50, top: 8.2, stem: 1.34,
   },
 } as const;
 
