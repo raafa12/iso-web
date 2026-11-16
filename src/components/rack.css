@@ -3,7 +3,7 @@
   --ink: #070707;
   --paper: var(--white, #f2ede5);
   --gh: clamp(210px, 18.5vw, 310px); /* alto de la prenda colgada */
-  --hook: calc(var(--gh) * 0.125); /* espacio entre barra y cuello */
+  --hook: calc(var(--gh) * 0.08); /* espacio entre barra y hombros */
   position: relative;
   background: var(--paper);
   color: var(--ink);
@@ -148,17 +148,6 @@
   pointer-events: none;
 }
 .rack-hook path { stroke: #8f8f8f; }
-.rack-hook-stem {
-  position: absolute;
-  top: calc(-6px + var(--gh) * 0.1);
-  left: 50%;
-  width: calc(var(--gh) * 0.0096);
-  height: calc(var(--hook) - var(--gh) * 0.1 + 6px + var(--gh) * 0.05);
-  border-radius: 2px;
-  background: #8f8f8f;
-  transform: translateX(-50%);
-  pointer-events: none;
-}
 
 /* ---- Prenda (dos caras) ---- */
 .rack-flip {
@@ -171,14 +160,19 @@
   transition: opacity 0.25s;
 }
 .rack-face {
+  position: relative;
+  display: block;
+  height: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  filter: brightness(var(--shade)) drop-shadow(0 16px 14px rgba(0, 0, 0, 0.16));
+}
+.rack-face img {
   display: block;
   height: 100%;
   width: auto;
   max-width: none;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
   user-select: none;
-  filter: brightness(var(--shade)) drop-shadow(0 16px 14px rgba(0, 0, 0, 0.16));
 }
 .rack-face.back {
   position: absolute;
@@ -186,9 +180,22 @@
   left: 50%;
   transform: translateX(-50%) rotateY(180deg);
 }
+
+/* Percha asomando por el cuello de las camisetas */
+.rack-neck {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.rack-neck-shadow { fill: rgba(0, 0, 0, 0.55); }
+.rack-neck-stem,
+.rack-neck-nut { fill: #8f8f8f; }
+
 .rack-item.is-picked .rack-flip,
-.rack-item.is-picked .rack-hook,
-.rack-item.is-picked .rack-hook-stem { opacity: 0; }
+.rack-item.is-picked .rack-hook { opacity: 0; }
 
 .rack-caption {
   min-height: 1.4em;
@@ -239,7 +246,7 @@
 
 .rack-big {
   --gh: min(46vh, 430px);
-  --hook: calc(var(--gh) * 0.125);
+  --hook: calc(var(--gh) * 0.08);
   --turn: 0deg;
   position: relative;
   display: flex;
@@ -441,7 +448,7 @@
   }
   .rack-bar { left: 1rem; right: 1rem; }
   .rack-item { scroll-snap-align: center; margin-inline: calc(var(--gh) * -0.06); }
-  .rack-big { --gh: min(40vh, 330px); --hook: calc(var(--gh) * 0.125); }
+  .rack-big { --gh: min(40vh, 330px); --hook: calc(var(--gh) * 0.08); }
   .rack-tags { left: calc(50% + var(--gh) * 0.3); }
   .rack-arrow { top: 26vh; width: 40px; height: 40px; background: rgba(242, 237, 229, 0.9); }
 }

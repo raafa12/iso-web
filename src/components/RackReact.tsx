@@ -61,11 +61,50 @@ function prefersReducedMotion() {
 function Hanger() {
   return (
     <>
-      <span className="rack-hook-stem" aria-hidden="true" />
       <svg className="rack-hook" viewBox="88 -4 24 46" aria-hidden="true">
         <path d="M100 42 L100 22 C100 14 108 12 108 6 C108 0 100 -2 95 2" fill="none" strokeWidth="3.2" strokeLinecap="round" />
       </svg>
     </>
+  );
+}
+
+// Una cara de la prenda. En camisetas (foto más ancha que alta) se dibuja la percha de
+// madera asomando por el hueco del cuello y el gancho saliendo de ella, por delante de la
+// tela de detrás y por detrás del cuello delantero. En sudaderas la capucha la tapa entera.
+// Coordenadas en % de la foto, medidas sobre el cuello de las camisetas de ISO.
+function Side({ src, back, alt, lazy }: { src: string; back?: boolean; alt: string; lazy?: boolean }) {
+  const [tee, setTee] = useState(false);
+  return (
+    <span className={`rack-face ${back ? "back" : "front"}`}>
+      <img
+        src={src}
+        alt={alt}
+        draggable={false}
+        loading={lazy ? "lazy" : undefined}
+        onLoad={(e) => setTee(e.currentTarget.naturalWidth > e.currentTarget.naturalHeight)}
+        ref={(el) => { if (el?.complete && el.naturalWidth) setTee(el.naturalWidth > el.naturalHeight); }}
+      />
+      {tee && (
+        <svg className="rack-neck" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <clipPath id={`neck-${back ? "b" : "f"}`}>
+              <path d="M39.6 4.6 Q50 5.4 60.4 4.6 Q59 8.3 50 8.3 Q41 8.3 39.6 4.6 Z" />
+            </clipPath>
+            <linearGradient id="rack-wood" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="#c8925f" />
+              <stop offset="0.55" stopColor="#a8703f" />
+              <stop offset="1" stopColor="#7d4f2a" />
+            </linearGradient>
+          </defs>
+          <g clipPath={`url(#neck-${back ? "b" : "f"})`}>
+            <path className="rack-neck-shadow" d="M36 6.1 Q50 4.2 64 6.1 L64 9 L36 9 Z" />
+            <path d="M36 6.6 Q50 4.9 64 6.6 L64 8.4 Q50 6.8 36 8.4 Z" fill="url(#rack-wood)" />
+          </g>
+          <rect className="rack-neck-stem" x="49.55" y="-1" width="0.9" height="6.6" rx="0.4" />
+          <ellipse className="rack-neck-nut" cx="50" cy="5.6" rx="1.1" ry="0.55" />
+        </svg>
+      )}
+    </span>
   );
 }
 
@@ -366,9 +405,9 @@ export default function RackReact({ products: initial, title = "El Perchero" }: 
                     <span className="rack-swing">
                       <Hanger />
                       <span className="rack-flip" ref={(el) => (garmentEls.current[i] = el)}>
-                        <img className="rack-face front" src={p.image_url} alt="" draggable={false} />
+                        <Side src={p.image_url} alt="" />
                         {p.image_back_url && (
-                          <img className="rack-face back" src={p.image_back_url} alt="" draggable={false} loading="lazy" />
+                          <Side src={p.image_back_url} alt="" back lazy />
                         )}
                       </span>
                     </span>
@@ -414,9 +453,9 @@ export default function RackReact({ products: initial, title = "El Perchero" }: 
             <div className="rack-big" ref={bigRef}>
               <Hanger />
               <div className={`rack-big-flip${side === "back" ? " show-back" : ""}`}>
-                <img className="rack-face front" src={current.image_url} alt={`${current.name}, delante`} />
+                <Side src={current.image_url} alt={`${current.name}, delante`} />
                 {current.image_back_url && (
-                  <img className="rack-face back" src={current.image_back_url} alt={`${current.name}, espalda`} />
+                  <Side src={current.image_back_url} alt={`${current.name}, espalda`} back />
                 )}
               </div>
               <div className="rack-tags" aria-hidden="true">
