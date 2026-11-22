@@ -1,0 +1,641 @@
+---
+// HERO de la home. Secuencia de entrada: se dibuja la media pista, suben las palabras
+// "CALL FOR AN", entra "IS" y el balón cae botando hasta encajar en el logo.
+// El cursor ilumina las líneas de la pista. Cuenta atrás de la preventa tipo reloj de posesión.
+//
+// Fechas de la preventa (hora de Madrid). Cámbialas aquí:
+const PRESALE_OPEN = "2026-11-26T20:00:00+01:00";
+const PRESALE_CLOSE = "2026-12-02T23:59:00+01:00";
+
+const ticker = ["Drop 001", "Preventa 26.11", "Take a break", "Call for an ISO", "Santander", "Basketball clothing brand"];
+---
+
+<section class="hx" id="inicio" data-open={PRESALE_OPEN} data-close={PRESALE_CLOSE}>
+  <!-- Media pista: capa tenue + capa iluminada por el cursor -->
+  <div class="hx-court" aria-hidden="true">
+    {[0, 1].map((layer) => (
+      <svg class={`court ${layer ? "court-lit" : "court-base"}`} viewBox="0 0 1500 1410" preserveAspectRatio="xMidYMid slice">
+        <g fill="none" stroke-width={layer ? 3 : 2}>
+          <path pathLength="1" d="M0 1400 H1500" />
+          <path pathLength="1" d="M570 1400 V820 H930 V1400" />
+          <path pathLength="1" d="M630 1400 V820 M870 1400 V820" />
+          <path pathLength="1" d="M570 820 A180 180 0 0 1 930 820" />
+          <path class="dash" d="M570 820 A180 180 0 0 0 930 820" stroke-dasharray="14 14" />
+          <path pathLength="1" d="M90 1400 V1120 A660 660 0 0 1 1410 1120 V1400" />
+          <path pathLength="1" d="M690 1250 A60 60 0 0 1 810 1250" />
+          <path pathLength="1" d="M0 0 H1500" />
+          <path pathLength="1" d="M570 0 A180 180 0 0 0 930 0" />
+        </g>
+      </svg>
+    ))}
+  </div>
+  <div class="hx-grain" aria-hidden="true"></div>
+
+  <!-- Prenda del drop: flota y se da la vuelta al pasar el cursor -->
+  <a href="/collection" class="hx-piece" aria-label="Ver la sudadera Take a Break del Drop 001">
+    <span class="hx-piece-float">
+      <span class="hx-piece-flip">
+        <img class="hx-face hx-back" src="/hero/hoodie-back.webp" alt="" width="910" height="1300" />
+        <img class="hx-face hx-front" src="/hero/hoodie-front.webp" alt="" width="933" height="1300" />
+      </span>
+    </span>
+    <span class="hx-piece-tag">Drop 001 · Take a Break Hoodie</span>
+  </a>
+
+  <div class="hx-inner">
+    <p class="hx-eyebrow"><span class="hx-live" aria-hidden="true"></span>Drop 001 · Preventa</p>
+
+    <h1 class="hx-title" aria-label="Call for an ISO">
+      <span class="hx-words" aria-hidden="true">
+        <span class="hx-w"><span>Call</span></span>
+        <span class="hx-w"><span>for</span></span>
+        <span class="hx-w"><span>an</span></span>
+      </span>
+      <span class="hx-logo" aria-hidden="true">
+        <img class="hx-letters" src="/hero/iso-letters.webp" alt="" width="1600" height="369" />
+        <span class="hx-ball-wrap">
+          <span class="hx-ball-drop">
+            <img class="hx-ball" src="/hero/iso-ball.webp" alt="" width="632" height="369" />
+          </span>
+          <span class="hx-shock"></span>
+        </span>
+      </span>
+    </h1>
+
+    <p class="hx-sub">Basketball clothing brand · Santander</p>
+
+    <div class="hx-bottom">
+      <div class="hx-ctas">
+        <a href="/collection" class="hx-cta">Ver colección <span aria-hidden="true">→</span></a>
+        <a href="#about" class="hx-ghost">¿Qué es ISO?</a>
+      </div>
+
+      <div class="hx-clock" data-clock hidden>
+        <p class="hx-clock-label" data-clock-label>La preventa abre en</p>
+        <div class="hx-clock-digits" role="timer" aria-live="off">
+          <span><b data-d>00</b><i>días</i></span>
+          <span><b data-h>00</b><i>horas</i></span>
+          <span><b data-m>00</b><i>min</i></span>
+          <span><b data-s>00</b><i>seg</i></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hx-ticker" aria-hidden="true">
+    <div class="hx-track">
+      {[0, 1].map(() => (
+        <div class="hx-run">
+          {ticker.map((t) => (
+            <>
+              <span>{t}</span>
+              <svg class="hx-dot" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8.5" fill="none" stroke="currentColor" stroke-width="2.2" /><path d="M10 1.5v17M1.5 10h17M4 4c3 3 3 9 0 12M16 4c-3 3-3 9 0 12" fill="none" stroke="currentColor" stroke-width="1.6" /></svg>
+            </>
+          ))}
+        </div>
+      ))}
+    </div>
+  </div>
+
+  <a href="#recap" class="hx-scroll" aria-label="Bajar"><span></span></a>
+</section>
+
+<script>
+  const hx = document.querySelector<HTMLElement>(".hx");
+  if (hx) {
+    // --- Foco del cursor sobre la pista ---
+    const fine = window.matchMedia("(pointer: fine)").matches;
+    if (fine) {
+      let raf = 0, tx = 0, ty = 0;
+      hx.addEventListener("pointermove", (e) => {
+        const r = hx.getBoundingClientRect();
+        tx = e.clientX - r.left;
+        ty = e.clientY - r.top;
+        if (!raf) raf = requestAnimationFrame(() => {
+          hx.style.setProperty("--mx", `${tx}px`);
+          hx.style.setProperty("--my", `${ty}px`);
+          hx.classList.add("is-lit");
+          raf = 0;
+        });
+      });
+      hx.addEventListener("pointerleave", () => hx.classList.remove("is-lit"));
+    }
+
+    // --- Balón: vuelve a botar al pasar el cursor / tocar el logo ---
+    const logo = hx.querySelector<HTMLElement>(".hx-logo");
+    const drop = hx.querySelector<HTMLElement>(".hx-ball-drop");
+    const replay = () => {
+      if (!drop || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      if (drop.classList.contains("is-dribble")) return;
+      drop.classList.add("is-dribble");
+      drop.addEventListener("animationend", () => drop.classList.remove("is-dribble"), { once: true });
+    };
+    logo?.addEventListener("pointerenter", replay);
+    logo?.addEventListener("click", replay);
+
+    // --- Reloj de la preventa ---
+    const clock = hx.querySelector<HTMLElement>("[data-clock]");
+    const label = hx.querySelector<HTMLElement>("[data-clock-label]");
+    const open = Date.parse(hx.dataset.open || "");
+    const close = Date.parse(hx.dataset.close || "");
+    const el = (k: string) => hx.querySelector<HTMLElement>(`[data-${k}]`);
+    const D = el("d"), H = el("h"), M = el("m"), S = el("s");
+    const pad = (n: number) => String(n).padStart(2, "0");
+    const tick = () => {
+      if (!clock || !label || isNaN(open)) return;
+      const now = Date.now();
+      let target = open;
+      if (now >= open && now < close) {
+        target = close;
+        label.textContent = "Preventa abierta · cierra en";
+        clock.classList.add("is-open");
+      } else if (now >= close) {
+        clock.hidden = true;
+        return;
+      }
+      const t = Math.max(0, Math.floor((target - now) / 1000));
+      if (D) D.textContent = pad(Math.floor(t / 86400));
+      if (H) H.textContent = pad(Math.floor((t % 86400) / 3600));
+      if (M) M.textContent = pad(Math.floor((t % 3600) / 60));
+      if (S) S.textContent = pad(t % 60);
+      clock.hidden = false;
+    };
+    tick();
+    setInterval(tick, 1000);
+  }
+</script>
+
+<style>
+  .hx {
+    --mx: 50%;
+    --my: 50%;
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    padding-top: var(--nav-h);
+    overflow: hidden;
+    background: var(--bg);
+    isolation: isolate;
+  }
+
+  /* ---------- Pista ---------- */
+  .hx-court {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+  }
+  .court {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .court path,
+  .court circle {
+    stroke-dasharray: 1 1;
+    stroke-dashoffset: 1;
+    animation: hx-draw 2.4s var(--ease-out) forwards;
+  }
+  .court path.dash { stroke-dasharray: 14 14; stroke-dashoffset: 0; animation: hx-fade 1s 1.2s both; }
+  .court path:nth-child(2n) { animation-delay: 0.15s; }
+  .court path:nth-child(3n) { animation-delay: 0.3s; }
+  .court-base g { stroke: var(--white); opacity: 0.07; }
+  .court-lit g { stroke: var(--accent); }
+  .court-lit {
+    opacity: 0;
+    transition: opacity 0.4s;
+    -webkit-mask-image: radial-gradient(circle 280px at var(--mx) var(--my), #000 0%, transparent 70%);
+    mask-image: radial-gradient(circle 280px at var(--mx) var(--my), #000 0%, transparent 70%);
+  }
+  .hx.is-lit .court-lit { opacity: 0.55; }
+  .hx::before {
+    /* halo suave que sigue al cursor */
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(520px circle at var(--mx) var(--my), rgba(126, 200, 227, 0.07), transparent 60%);
+    opacity: 0;
+    transition: opacity 0.4s;
+    pointer-events: none;
+  }
+  .hx.is-lit::before { opacity: 1; }
+
+  .hx-grain {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+
+  /* ---------- Contenido ---------- */
+  .hx-inner {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    width: 100%;
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: clamp(2rem, 6vh, 4rem) var(--pad) clamp(5.5rem, 12vh, 7rem);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+
+  .hx-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.2rem;
+    animation: hx-fade 0.8s var(--ease-out) 0.2s both;
+  }
+  .hx-live {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 0 rgba(126, 200, 227, 0.6);
+    animation: hx-pulse 2s infinite;
+  }
+
+  .hx-title {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-style: italic;
+    text-transform: uppercase;
+    font-size: clamp(4.2rem, 11vw, 10.5rem);
+    line-height: 0.92;
+    letter-spacing: -0.02em;
+  }
+  .hx-words {
+    display: flex;
+    gap: 0.22em;
+    flex-wrap: wrap;
+  }
+  .hx-w {
+    display: inline-block;
+    overflow: hidden;
+    padding: 0 0.06em 0.04em 0;
+  }
+  .hx-w > span {
+    display: inline-block;
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--white);
+    transform: translateY(105%);
+    animation: hx-rise 0.9s var(--ease-out) forwards;
+    transition: color 0.25s, -webkit-text-stroke-color 0.25s;
+  }
+  .hx-w:nth-child(1) > span { animation-delay: 0.3s; }
+  .hx-w:nth-child(2) > span { animation-delay: 0.4s; }
+  .hx-w:nth-child(3) > span { animation-delay: 0.5s; }
+  .hx-w:hover > span { color: var(--white); }
+
+  /* Logo partido: letras + balón */
+  .hx-logo {
+    position: relative;
+    display: block;
+    width: min(88vw, 6.2em);
+    aspect-ratio: 1600 / 369;
+    margin-top: 0.18em;
+    cursor: pointer;
+  }
+  .hx-letters {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: auto;
+    animation: hx-slide 0.9s var(--ease-out) 0.75s both;
+  }
+  .hx-ball-wrap {
+    position: absolute;
+    left: 60.5%;
+    top: 0;
+    width: 39.5%;
+    height: 100%;
+  }
+  .hx-ball-drop {
+    position: absolute;
+    inset: 0;
+    transform-origin: 50% 100%;
+    animation: hx-bounce 1.25s 1.05s both;
+  }
+  .hx-ball-drop.is-dribble { animation: hx-dribble 0.9s both; }
+  .hx-ball {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .hx-shock {
+    position: absolute;
+    left: 50%;
+    bottom: -4%;
+    width: 120%;
+    height: 22%;
+    border: 2px solid var(--accent);
+    border-radius: 50%;
+    transform: translateX(-50%) scale(0.2);
+    opacity: 0;
+    animation: hx-shock 0.7s var(--ease-out) 1.62s both;
+    pointer-events: none;
+  }
+
+  .hx-sub {
+    margin-top: 1.4rem;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(0.8rem, 1.2vw, 0.95rem);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--white-dim);
+    animation: hx-fade 0.8s var(--ease-out) 2s both;
+  }
+
+  .hx-bottom {
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+    gap: 2rem clamp(2rem, 5vw, 4.5rem);
+    flex-wrap: wrap;
+    margin-top: clamp(1.8rem, 5vh, 3rem);
+    animation: hx-fade 0.8s var(--ease-out) 2.15s both;
+  }
+
+  .hx-ctas {
+    display: flex;
+    align-items: center;
+    gap: 1.6rem;
+    flex-wrap: wrap;
+  }
+  .hx-cta {
+    position: relative;
+    display: inline-flex;
+    gap: 0.6rem;
+    align-items: center;
+    padding: 0.95rem 1.8rem;
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-style: italic;
+    font-size: 1rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent-dark);
+    background: var(--accent);
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .hx-cta::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.45) 50%, transparent 70%);
+    transform: translateX(-120%);
+    animation: hx-shine 4s 3s infinite;
+  }
+  .hx-cta span { transition: transform 0.2s; }
+  .hx-cta:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(126, 200, 227, 0.25); }
+  .hx-cta:hover span { transform: translateX(4px); }
+  .hx-ghost {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted-light);
+    border-bottom: 1px solid var(--muted);
+    padding-bottom: 2px;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .hx-ghost:hover { color: var(--accent); border-color: var(--accent); }
+
+  /* Reloj de posesión */
+  .hx-clock-label {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted-light);
+    margin-bottom: 0.5rem;
+  }
+  .hx-clock.is-open .hx-clock-label { color: var(--accent); }
+  .hx-clock-digits {
+    display: flex;
+    gap: 0.4rem;
+  }
+  .hx-clock-digits span {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 3.6rem;
+    padding: 0.45rem 0.5rem 0.35rem;
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+  }
+  .hx-clock-digits b {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 2rem;
+    line-height: 1;
+    color: var(--white);
+    font-variant-numeric: tabular-nums;
+  }
+  .hx-clock-digits i {
+    font-style: normal;
+    font-size: 0.58rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted-light);
+    margin-top: 0.2rem;
+  }
+
+  /* ---------- Prenda ---------- */
+  .hx-piece {
+    position: absolute;
+    z-index: 0;
+    right: clamp(1rem, 5vw, 5rem);
+    top: calc(var(--nav-h) + 4vh);
+    height: min(68vh, 640px);
+    aspect-ratio: 910 / 1300;
+    perspective: 1400px;
+    animation: hx-piece-in 1.2s var(--ease-out) 1.7s both;
+  }
+  .hx-piece-float {
+    display: block;
+    width: 100%;
+    height: 100%;
+    animation: hx-float 6s ease-in-out 3s infinite;
+  }
+  .hx-piece-flip {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.9s cubic-bezier(0.3, 1.35, 0.45, 1);
+  }
+  .hx-piece:hover .hx-piece-flip,
+  .hx-piece:focus-visible .hx-piece-flip { transform: rotateY(180deg); }
+  .hx-face {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    filter: drop-shadow(0 30px 40px rgba(0, 0, 0, 0.55));
+  }
+  .hx-front { transform: rotateY(180deg); }
+  .hx-piece-tag {
+    position: absolute;
+    left: 50%;
+    bottom: -0.4rem;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.7rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted-light);
+    transition: color 0.2s;
+  }
+  .hx-piece:hover .hx-piece-tag { color: var(--accent); }
+
+  /* ---------- Cinta inferior ---------- */
+  .hx-ticker {
+    position: absolute;
+    left: -2%;
+    right: -2%;
+    bottom: clamp(1.2rem, 4vh, 2rem);
+    transform: rotate(-1.6deg);
+    background: var(--accent);
+    color: var(--accent-dark);
+    padding: 0.55rem 0;
+    overflow: hidden;
+    animation: hx-fade 0.8s var(--ease-out) 2.3s both;
+  }
+  .hx-track {
+    display: flex;
+    width: max-content;
+    animation: hx-marquee 32s linear infinite;
+  }
+  .hx-run {
+    display: flex;
+    align-items: center;
+    gap: 1.4rem;
+    padding-right: 1.4rem;
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-style: italic;
+    font-size: clamp(0.95rem, 1.6vw, 1.2rem);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .hx-dot { width: 1em; height: 1em; flex: none; }
+  .hx-ticker:hover .hx-track { animation-play-state: paused; }
+
+  .hx-scroll {
+    position: absolute;
+    right: var(--pad);
+    bottom: calc(clamp(1.2rem, 4vh, 2rem) + 3.6rem);
+    width: 1px;
+    height: 3rem;
+    background: var(--border-light);
+    overflow: hidden;
+    animation: hx-fade 0.8s 2.5s both;
+  }
+  .hx-scroll span {
+    position: absolute;
+    left: 0;
+    top: -40%;
+    width: 1px;
+    height: 40%;
+    background: var(--accent);
+    animation: hx-scroll 1.8s ease-in-out infinite;
+  }
+
+  /* ---------- Animaciones ---------- */
+  @keyframes hx-draw { to { stroke-dashoffset: 0; } }
+  @keyframes hx-fade { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  @keyframes hx-rise { to { transform: translateY(0); } }
+  @keyframes hx-slide { from { opacity: 0; transform: translateX(-12%) skewX(-8deg); } to { opacity: 1; transform: none; } }
+  @keyframes hx-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(126, 200, 227, 0.6); }
+    70% { box-shadow: 0 0 0 10px rgba(126, 200, 227, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(126, 200, 227, 0); }
+  }
+  /* Caída con botes: cada tramo acelera al bajar y frena al subir */
+  @keyframes hx-bounce {
+    0% { transform: translateY(-340%) rotate(-24deg); opacity: 0; animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45); }
+    8% { opacity: 1; }
+    46% { transform: translateY(0) rotate(-6deg) scale(1.08, 0.84); animation-timing-function: cubic-bezier(0, 0.55, 0.45, 1); }
+    64% { transform: translateY(-48%) rotate(4deg) scale(0.97, 1.04); animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45); }
+    80% { transform: translateY(0) rotate(-2deg) scale(1.04, 0.92); animation-timing-function: cubic-bezier(0, 0.55, 0.45, 1); }
+    90% { transform: translateY(-14%) rotate(0) scale(1); animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45); }
+    100% { transform: translateY(0) rotate(0) scale(1); opacity: 1; }
+  }
+  @keyframes hx-dribble {
+    0% { transform: none; animation-timing-function: cubic-bezier(0, 0.55, 0.45, 1); }
+    30% { transform: translateY(-38%); animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45); }
+    60% { transform: translateY(0) scale(1.06, 0.9); animation-timing-function: cubic-bezier(0, 0.55, 0.45, 1); }
+    80% { transform: translateY(-10%); animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45); }
+    100% { transform: none; }
+  }
+  @keyframes hx-shock {
+    0% { opacity: 0.9; transform: translateX(-50%) scale(0.2); }
+    100% { opacity: 0; transform: translateX(-50%) scale(1.2); }
+  }
+  @keyframes hx-shine { 0%, 70% { transform: translateX(-120%); } 100% { transform: translateX(120%); } }
+  @keyframes hx-marquee { to { transform: translateX(-50%); } }
+  @keyframes hx-scroll { to { top: 100%; } }
+  @keyframes hx-piece-in { from { opacity: 0; transform: translateY(40px) rotate(4deg); } to { opacity: 1; transform: none; } }
+  @keyframes hx-float { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-12px) rotate(-1deg); } }
+
+  /* ---------- Responsive ---------- */
+  @media (min-width: 1001px) {
+    .hx-title { font-size: clamp(4.2rem, 8.6vw, 9.5rem); }
+  }
+  @media (max-width: 1000px) {
+    .hx-piece {
+      position: relative;
+      right: auto;
+      top: auto;
+      order: 2;
+      align-self: center;
+      height: min(52vh, 460px);
+      margin: 0 auto 6.5rem;
+    }
+    .hx-piece-tag { bottom: -1.4rem; }
+  }
+  @media (max-width: 760px) {
+    .hx-title { font-size: clamp(3.6rem, 19vw, 6rem); }
+    .hx-logo { width: min(86vw, 5.6em); }
+    .hx-bottom { flex-direction: column; align-items: flex-start; gap: 1.6rem; }
+    .hx-clock-digits span { min-width: 3.2rem; }
+    .hx-clock-digits b { font-size: 1.7rem; }
+    .hx-scroll { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hx *, .hx *::before, .hx *::after {
+      animation-duration: 0.01ms !important;
+      animation-delay: 0s !important;
+      animation-iteration-count: 1 !important;
+    }
+    .hx-track { animation: none !important; }
+    .hx-shock { display: none; }
+  }
+</style>
