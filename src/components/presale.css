@@ -20,7 +20,7 @@
   aspect-ratio: 4 / 5;
   display: grid;
   place-items: center;
-  background: radial-gradient(85% 75% at 50% 42%, #2a2a29 0%, #1b1b1a 55%, #141413 100%);
+  background: #f4f4f2;
   overflow: hidden;
 }
 /* Fotos apiladas: la activa entra con fundido y un zoom muy suave */
@@ -33,7 +33,7 @@
   opacity: 0;
   transform: scale(1.06);
   transition: opacity 0.6s ease, transform 1.4s cubic-bezier(0.16, 1, 0.3, 1);
-  filter: drop-shadow(0 18px 18px rgba(0, 0, 0, 0.5));
+  filter: drop-shadow(0 14px 16px rgba(0, 0, 0, 0.16));
   user-select: none;
 }
 .ps-img.on { opacity: 1; transform: scale(1); }
@@ -48,8 +48,8 @@
   opacity: 0;
   transition: opacity 0.3s;
 }
-.ps-dots i { flex: 1; height: 2px; background: rgba(242, 237, 229, 0.2); transition: background 0.3s; }
-.ps-dots i.on { background: var(--white); }
+.ps-dots i { flex: 1; height: 2px; background: rgba(13, 13, 13, 0.15); transition: background 0.3s; }
+.ps-dots i.on { background: #0d0d0d; }
 .ps-card.is-hover .ps-dots { opacity: 1; }
 
 /* Tallas rápidas */
@@ -104,7 +104,7 @@
   font-size: 0.72rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--white-dim);
+  color: #8a8a86;
   opacity: 0.6;
 }
 .ps-hover {
@@ -196,7 +196,7 @@
   place-items: center;
   padding: 3rem 2rem 4.5rem;
   background:
-    radial-gradient(60% 60% at 50% 45%, #2b2b2b 0%, #161616 60%, #0d0d0d 100%);
+    #f4f4f2;
   overflow: hidden;
   perspective: 1400px;
   touch-action: pan-y;
@@ -232,7 +232,7 @@
   object-fit: contain;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  filter: drop-shadow(0 24px 24px rgba(0, 0, 0, 0.55));
+  filter: drop-shadow(0 18px 20px rgba(0, 0, 0, 0.18));
 }
 .ps-face.back { transform: rotateY(180deg); }
 .ps-face.back.only { transform: none; }
@@ -281,11 +281,11 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  border: 1px solid rgba(242, 237, 229, 0.18);
-  color: var(--white);
+  border: 1px solid rgba(13, 13, 13, 0.18);
+  color: #0d0d0d;
   font-size: 1rem;
 }
-.ps-nav:hover { border-color: var(--accent); color: var(--accent); }
+.ps-nav:hover { border-color: #0d0d0d; background: #0d0d0d; color: #f4f4f2; }
 .ps-nav.prev { left: 1rem; }
 .ps-nav.next { right: 1rem; }
 
