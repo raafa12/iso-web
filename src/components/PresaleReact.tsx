@@ -170,12 +170,20 @@ export default function PresaleReact({ items, opensAt, closesAt }: Props) {
       <ul className="ps-grid" ref={listRef}>
         {items.map((p, i) => {
           const thumb = p.cover === "front" ? p.front ?? p.back : p.back ?? p.front;
+          const other = thumb === p.front ? p.back : p.front; // la otra cara, al pasar el ratón
           return (
             <li key={p.id} className={`ps-item${shown[i] ? " is-in" : ""}`} style={{ transitionDelay: `${i * 0.08}s` }}>
               <button type="button" className="ps-card" onClick={(e) => openItem(i, e)} aria-label={`${p.name}, ${eur(p.price_cents)}. Ver y precomprar`}>
                 <span className="ps-thumb">
                   <span className="ps-num">{p.num}</span>
-                  {thumb ? <img src={thumb} alt="" loading="lazy" /> : <span className="ps-soon">Foto pronto</span>}
+                  {thumb ? (
+                    <span className={`ps-flipcard${other ? " has-other" : ""}`}>
+                      <img className="ps-side" src={thumb} alt="" loading="lazy" />
+                      {other && <img className="ps-side other" src={other} alt="" loading="lazy" />}
+                    </span>
+                  ) : (
+                    <span className="ps-soon">Foto pronto</span>
+                  )}
                   <span className="ps-hover">Precomprar →</span>
                 </span>
                 <span className="ps-cat">{p.category}</span>
