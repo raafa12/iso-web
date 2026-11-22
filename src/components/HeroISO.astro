@@ -14,6 +14,7 @@ const SHOW_PIECE = false;
 ---
 
 <section class="hx" id="inicio" data-open={PRESALE_OPEN} data-close={PRESALE_CLOSE}>
+  <script is:inline>document.currentScript.parentElement.classList.add("hx-wait");</script>
   <!-- Media pista: capa tenue + capa iluminada por el cursor -->
   <div class="hx-court" aria-hidden="true">
     {[0, 1].map((layer) => (
@@ -48,7 +49,7 @@ const SHOW_PIECE = false;
   )}
 
   <div class="hx-inner">
-    <p class="hx-eyebrow"><span class="hx-live" aria-hidden="true"></span>Isolation drop · Preventa</p>
+    <p class="hx-eyebrow"><span class="hx-live" aria-hidden="true"></span>Drop 001 · Isolation</p>
 
     <h1 class="hx-title" aria-label="Call for an ISO">
       <span class="hx-words" aria-hidden="true">
@@ -57,10 +58,10 @@ const SHOW_PIECE = false;
         <span class="hx-w"><span>an</span></span>
       </span>
       <span class="hx-logo" aria-hidden="true">
-        <img class="hx-letters" src="/hero/iso-letters.webp" alt="" width="1600" height="369" />
+        <img class="hx-letters" src="/hero/iso-letters.webp" alt="" width="1600" height="369" fetchpriority="high" />
         <span class="hx-ball-wrap">
           <span class="hx-ball-drop">
-            <img class="hx-ball" src="/hero/iso-ball.webp" alt="" width="632" height="369" />
+            <img class="hx-ball" src="/hero/iso-ball.webp" alt="" width="632" height="369" fetchpriority="high" />
           </span>
           <span class="hx-shock"></span>
         </span>
@@ -108,6 +109,14 @@ const SHOW_PIECE = false;
 <script>
   const hx = document.querySelector<HTMLElement>(".hx");
   if (hx) {
+    // --- Arranca la entrada cuando el logo y el balón ya están cargados (máx. 2,5 s de espera) ---
+    const go = () => hx.classList.remove("hx-wait");
+    const imgs = Array.from(hx.querySelectorAll<HTMLImageElement>(".hx-letters, .hx-ball"));
+    Promise.all(imgs.map((i) => (i.complete ? Promise.resolve() : i.decode().catch(() => {})))).then(() =>
+      requestAnimationFrame(go),
+    );
+    setTimeout(go, 2500);
+
     // --- Foco del cursor sobre la pista ---
     const fine = window.matchMedia("(pointer: fine)").matches;
     if (fine) {
@@ -130,7 +139,7 @@ const SHOW_PIECE = false;
     const logo = hx.querySelector<HTMLElement>(".hx-logo");
     const drop = hx.querySelector<HTMLElement>(".hx-ball-drop");
     const replay = () => {
-      if (!drop || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      if (!drop) return;
       if (drop.classList.contains("is-dribble")) return;
       drop.classList.add("is-dribble");
       drop.addEventListener("animationend", () => drop.classList.remove("is-dribble"), { once: true });
@@ -634,13 +643,20 @@ const SHOW_PIECE = false;
     .hx-scroll { display: none; }
   }
 
+  /* Mientras cargan el logo y el balón, la secuencia de entrada espera (la clase la pone el JS;
+     sin JS no hay pausa y todo se anima igual) */
+  .hx.hx-wait *,
+  .hx.hx-wait *::before,
+  .hx.hx-wait *::after { animation-play-state: paused !important; }
+
+  /* Movimiento reducido (Windows "Efectos de animación" desactivado, macOS "Reducir movimiento"):
+     se mantiene la entrada, que es corta, pero se quitan los bucles */
   @media (prefers-reduced-motion: reduce) {
-    .hx *, .hx *::before, .hx *::after {
-      animation-duration: 0.01ms !important;
-      animation-delay: 0s !important;
-      animation-iteration-count: 1 !important;
-    }
-    .hx-track { animation: none !important; }
+    .hx-track,
+    .hx-piece-float,
+    .hx-live,
+    .hx-cta::after,
+    .hx-scroll span { animation: none !important; }
     .hx-shock { display: none; }
   }
 </style>

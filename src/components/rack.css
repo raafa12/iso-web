@@ -2,7 +2,7 @@
 .rack {
   --ink: #070707;
   --paper: var(--white, #f2ede5);
-  --gh: clamp(210px, 18.5vw, 310px); /* alto de la prenda colgada */
+  --gh: clamp(260px, 24vw, 400px); /* alto de la prenda colgada (fotos reales en percha) */
   --hook: calc(var(--gh) * 0.125); /* espacio entre barra y cuello */
   position: relative;
   background: var(--paper);
@@ -109,7 +109,7 @@
   --swing: 0deg;
   --shade: 1;
   position: relative;
-  margin-inline: calc(var(--gh) * -0.16);
+  margin-inline: calc(var(--gh) * -0.05);
   perspective: 1100px;
 }
 
@@ -443,7 +443,7 @@
     padding-inline: calc(50vw - var(--gh) * 0.5);
   }
   .rack-bar { left: 1rem; right: 1rem; }
-  .rack-item { scroll-snap-align: center; margin-inline: calc(var(--gh) * -0.06); }
+  .rack-item { scroll-snap-align: center; margin-inline: calc(var(--gh) * -0.02); }
   .rack-big { --gh: min(40vh, 330px); --hook: calc(var(--gh) * 0.125); }
   .rack-tags { left: calc(50% + var(--gh) * 0.3); }
   .rack-arrow { top: calc(4.5rem + min(40vh, 330px) * 0.85); width: 44px; height: 44px; background: rgba(242, 237, 229, 0.9); }
