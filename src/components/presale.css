@@ -5,7 +5,7 @@
   margin: 0;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: clamp(0.8rem, 2vw, 1.5rem);
+  gap: clamp(1rem, 2.4vw, 2rem) clamp(0.8rem, 1.6vw, 1.4rem);
 }
 .ps-item {
   opacity: 0;
@@ -29,11 +29,9 @@
   aspect-ratio: 4 / 5;
   display: grid;
   place-items: center;
-  background: radial-gradient(70% 70% at 50% 45%, #232323, #121212);
-  border: 1px solid rgba(242, 237, 229, 0.08);
-  margin-bottom: 0.8rem;
+  background: radial-gradient(85% 75% at 50% 42%, #2a2a29 0%, #1b1b1a 55%, #141413 100%);
+  margin-bottom: 1rem;
   overflow: hidden;
-  transition: border-color 0.3s;
 }
 /* Cara visible + la otra detrás: al pasar el ratón la prenda se da la vuelta */
 .ps-flipcard {
@@ -55,7 +53,6 @@
   filter: drop-shadow(0 18px 18px rgba(0, 0, 0, 0.5));
 }
 .ps-side.other { transform: rotateY(180deg); }
-.ps-card:hover .ps-thumb { border-color: rgba(126, 200, 227, 0.5); }
 .ps-card:hover .ps-flipcard.has-other,
 .ps-card:focus-visible .ps-flipcard.has-other { transform: rotateY(180deg); }
 .ps-card:hover .ps-flipcard:not(.has-other) { transform: scale(1.04); }
@@ -101,23 +98,27 @@
 .ps-card:hover .ps-hover,
 .ps-card:focus-visible .ps-hover { transform: none; }
 .ps-cat {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 0.7rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--accent);
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: var(--white-dim);
+  opacity: 0.75;
+}
+.ps-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  margin-bottom: 0.25rem;
 }
 .ps-name {
-  font-family: var(--font-display);
-  font-weight: 900;
-  font-style: italic;
+  font-family: var(--font-body);
+  font-weight: 600;
   text-transform: uppercase;
-  font-size: clamp(1.05rem, 1.8vw, 1.35rem);
-  line-height: 1;
-  margin: 0.3rem 0;
+  letter-spacing: 0.08em;
+  font-size: 0.82rem;
 }
-.ps-price { font-family: var(--font-display); font-weight: 700; color: var(--white-dim); }
+.ps-price { font-family: var(--font-body); font-size: 0.85rem; color: var(--white-dim); white-space: nowrap; }
 
 /* ---- Ficha ---- */
 .ps-modal {

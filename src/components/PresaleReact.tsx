@@ -175,7 +175,6 @@ export default function PresaleReact({ items, opensAt, closesAt }: Props) {
             <li key={p.id} className={`ps-item${shown[i] ? " is-in" : ""}`} style={{ transitionDelay: `${i * 0.08}s` }}>
               <button type="button" className="ps-card" onClick={(e) => openItem(i, e)} aria-label={`${p.name}, ${eur(p.price_cents)}. Ver y precomprar`}>
                 <span className="ps-thumb">
-                  <span className="ps-num">{p.num}</span>
                   {thumb ? (
                     <span className={`ps-flipcard${other ? " has-other" : ""}`}>
                       <img className="ps-side" src={thumb} alt="" loading="lazy" />
@@ -184,11 +183,12 @@ export default function PresaleReact({ items, opensAt, closesAt }: Props) {
                   ) : (
                     <span className="ps-soon">Foto pronto</span>
                   )}
-                  <span className="ps-hover">Precomprar →</span>
                 </span>
-                <span className="ps-cat">{p.category}</span>
-                <span className="ps-name">{p.name}</span>
-                <span className="ps-price">{eur(p.price_cents)}</span>
+                <span className="ps-meta">
+                  <span className="ps-name">{p.name}</span>
+                  <span className="ps-price">{eur(p.price_cents)}</span>
+                </span>
+                <span className="ps-cat">{p.category} · Isolation</span>
               </button>
             </li>
           );
@@ -213,7 +213,6 @@ export default function PresaleReact({ items, opensAt, closesAt }: Props) {
             </button>
 
             <div className="ps-media" onPointerDown={onDown} onPointerUp={onUp}>
-              <span className="ps-media-num" aria-hidden="true">{item.num}</span>
               {item.front || item.back ? (
                 <div className={`ps-flip${side === "back" ? " show-back" : ""}`}>
                   {item.front && <img className="ps-face" src={item.front} alt={`${item.name}, delante`} draggable={false} />}
