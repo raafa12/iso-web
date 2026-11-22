@@ -40,17 +40,25 @@ const ticker = ['Call for an ISO', 'Out of my waaay', 'Isolate yourself', 'If yo
   <main class="pv" data-open={PRESALE.open} data-close={PRESALE.close}>
     <!-- ============ HERO ============ -->
     <section class="pv-hero">
-      <svg class="pv-court" viewBox="0 0 500 470" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-        <g fill="none" stroke="currentColor" stroke-width="1.4">
-          <path d="M0 0 H500 M220 40 H280" />
-          <rect x="170" y="0" width="160" height="190" />
-          <circle cx="250" cy="52" r="9" />
-          <path d="M190 190 A60 60 0 0 0 310 190" />
-          <path d="M190 190 A60 60 0 0 1 310 190" stroke-dasharray="8 8" />
-          <path d="M30 0 V141.5 A237.5 237.5 0 0 0 470 141.5 V0" />
-          <path d="M190 470 A60 60 0 0 1 310 470" />
-        </g>
-      </svg>
+      <!-- Media pista: capa tenue + capa iluminada por el cursor (como en la home) -->
+      <div class="pv-court" aria-hidden="true">
+        {[0, 1].map((layer) => (
+          <svg class={`pvc ${layer ? "pvc-lit" : "pvc-base"}`} viewBox="0 0 1500 1410" preserveAspectRatio="xMidYMid slice">
+            <g fill="none" stroke-width={layer ? 3 : 2}>
+              <path pathLength="1" d="M0 1400 H1500" />
+              <path pathLength="1" d="M570 1400 V820 H930 V1400" />
+              <path pathLength="1" d="M630 1400 V820 M870 1400 V820" />
+              <path pathLength="1" d="M570 820 A180 180 0 0 1 930 820" />
+              <path class="dash" d="M570 820 A180 180 0 0 0 930 820" stroke-dasharray="14 14" />
+              <path pathLength="1" d="M90 1400 V1120 A660 660 0 0 1 1410 1120 V1400" />
+              <path pathLength="1" d="M690 1250 A60 60 0 0 1 810 1250" />
+              <path pathLength="1" d="M0 0 H1500" />
+              <path pathLength="1" d="M570 0 A180 180 0 0 0 930 0" />
+            </g>
+          </svg>
+        ))}
+      </div>
+      <div class="pv-grain" aria-hidden="true"></div>
 
       <div class="pv-hero-inner">
         <p class="pv-eyebrow"><span class="pv-dot" aria-hidden="true"></span>Drop 001 · Preventa</p>
@@ -104,7 +112,7 @@ const ticker = ['Call for an ISO', 'Out of my waaay', 'Isolate yourself', 'If yo
     <section class="pv-play" data-reveal>
       <figure class="pv-board" aria-label="Pizarra: jugada de aislamiento">
         <svg viewBox="-10 -10 520 330" role="img" aria-labelledby="pv-board-t" data-play>
-          <title id="pv-board-t">Jugada de aislamiento: el 3 y el 5 se abren al lado débil y el 1 ataca a su defensor y anota</title>
+          <title id="pv-board-t">Jugada de aislamiento: el 3 y el 5 se abren al lado débil y el 1 ataca el aro</title>
           <defs>
             <marker id="pv-arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
               <path d="M0 0 L10 5 L0 10 z" fill="currentColor" />
@@ -148,11 +156,6 @@ const ticker = ['Call for an ISO', 'Out of my waaay', 'Isolate yourself', 'If yo
           <!-- aro: destello al anotar -->
           <circle class="pv-flash" data-flash cx="250" cy="52" r="9" fill="none" stroke="#7ec8e3" stroke-width="3" />
 
-          <!-- defensor -->
-          <g class="pv-x" data-x transform="translate(385 235)" stroke="currentColor" stroke-width="3" stroke-linecap="round">
-            <path d="M-7 -7 L7 7 M7 -7 L-7 7" />
-          </g>
-
           <!-- jugadores -->
           <g class="pv-o" font-family="var(--font-display)" font-weight="900" font-style="italic" font-size="22" text-anchor="middle">
             <g class="p" data-p="2" transform="translate(85 250)"><circle r="15" /><text y="8">2</text></g>
@@ -171,8 +174,7 @@ const ticker = ['Call for an ISO', 'Out of my waaay', 'Isolate yourself', 'If yo
             </g>
           </g>
 
-          <text class="pv-onev" data-onev x="436" y="232" font-family="var(--font-display)" font-weight="900" font-style="italic" font-size="26" fill="#7ec8e3">1v1</text>
-          <text class="pv-score" data-score x="250" y="104" text-anchor="middle" font-family="var(--font-display)" font-weight="900" font-style="italic" font-size="34" fill="#7ec8e3">+2</text>
+          <text class="pv-onev" data-onev x="436" y="232" font-family="var(--font-display)" font-weight="900" font-style="italic" font-size="26" fill="#7ec8e3">ISO</text>
         </svg>
         <figcaption><span>Isolation</span> 4 se abren al lado débil · el 1 se la juega</figcaption>
       </figure>
@@ -251,14 +253,12 @@ const ticker = ['Call for an ISO', 'Out of my waaay', 'Isolate yourself', 'If yo
     svg.querySelectorAll<SVGGElement>('[data-p]').forEach((g) => (P[g.dataset.p!] = g));
     const T: Record<string, SVGPathElement> = {};
     svg.querySelectorAll<SVGPathElement>('[data-trail]').forEach((p) => (T[p.dataset.trail!] = p));
-    const X = $<SVGGElement>('[data-x]');
     const ball = $<SVGGElement>('[data-ball]');
     const body = $<SVGGElement>('[data-ball-body]');
     const shadow = $<SVGCircleElement>('[data-ball-shadow]');
     const spot = $<SVGCircleElement>('[data-spot]');
     const flash = $<SVGCircleElement>('[data-flash]');
     const onev = $<SVGTextElement>('[data-onev]');
-    const score = $<SVGTextElement>('[data-score]');
     const len: Record<string, number> = {};
     for (const k in T) {
       len[k] = T[k].getTotalLength();
@@ -289,7 +289,6 @@ const ticker = ['Call for an ISO', 'Out of my waaay', 'Isolate yourself', 'If yo
         const e = outBack(seg(t, i * 90, i * 90 + 420));
         show(P[k], clamp(e) * fade);
       });
-      show(X, seg(t, 450, 800) * fade);
 
       // el 3, el 5 y el 2 se abren (con rastro)
       const c = io3(seg(t, 900, 2200));
@@ -319,13 +318,6 @@ const ticker = ['Call for an ISO', 'Out of my waaay', 'Isolate yourself', 'If yo
       show(onev, clamp(outBack(seg(t, 2300, 2650))) * (1 - seg(t, 3400, 3700)) * fade);
       onev.setAttribute('transform', `translate(${(1 - outBack(seg(t, 2300, 2650))) * 10} 0)`);
 
-      // defensor: aguanta, se queda atrás en la penetración
-      const lag = io3(seg(t, 3250, 4500));
-      const px = d > 0 ? at('1', lag * 0.8) : { x: 410, y: 268 };
-      const off = 1 - lag * 0.35;
-      const xj = d > 0 ? 0 : -jabX * 0.6;
-      place(X, px.x - 25 * off + xj, px.y - 33 * off, 1);
-
       // balón: bota al lado del 1, cruza en los zigzags, tiro en parábola
       const shot = seg(t, 4350, 5000);
       const dribble = Math.abs(Math.sin(t / 95));
@@ -350,9 +342,6 @@ const ticker = ['Call for an ISO', 'Out of my waaay', 'Isolate yourself', 'If yo
       const hit = seg(t, 4980, 5700);
       flash.setAttribute('r', String(9 + out3(hit) * 34));
       show(flash, hit > 0 ? (1 - hit) * fade : 0);
-      const sc = seg(t, 5000, 5400);
-      show(score, clamp(outBack(sc)) * fade);
-      score.setAttribute('transform', `translate(0 ${(1 - out3(sc)) * 14})`);
 
       // foco sobre el 1
       place(spot as unknown as SVGGraphicsElement, p1.x, p1.y, 1);
@@ -379,6 +368,27 @@ const ticker = ['Call for an ISO', 'Out of my waaay', 'Isolate yourself', 'If yo
     }, { threshold: 0.3 });
     io.observe(svg);
     frame(0);
+  }
+</script>
+
+
+<script>
+  // Foco del cursor sobre la pista del título (igual que en la home)
+  const hero = document.querySelector<HTMLElement>('.pv-hero');
+  if (hero && window.matchMedia('(pointer: fine)').matches) {
+    let raf = 0, tx = 0, ty = 0;
+    hero.addEventListener('pointermove', (e) => {
+      const r = hero.getBoundingClientRect();
+      tx = e.clientX - r.left;
+      ty = e.clientY - r.top;
+      if (!raf) raf = requestAnimationFrame(() => {
+        hero.style.setProperty('--mx', `${tx}px`);
+        hero.style.setProperty('--my', `${ty}px`);
+        hero.classList.add('is-lit');
+        raf = 0;
+      });
+    });
+    hero.addEventListener('pointerleave', () => hero.classList.remove('is-lit'));
   }
 </script>
 
@@ -512,16 +522,41 @@ const ticker = ['Call for an ISO', 'Out of my waaay', 'Isolate yourself', 'If yo
     margin: 0 auto;
     padding: clamp(3rem, 9vh, 6rem) var(--pad) clamp(2.5rem, 6vh, 4rem);
   }
-  .pv-court {
+  .pv-hero { --mx: 50%; --my: 50%; isolation: isolate; }
+  .pv-court { position: absolute; inset: 0; z-index: -2; pointer-events: none; }
+  .pvc { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .pvc path { stroke-dasharray: 1 1; stroke-dashoffset: 1; animation: pv-draw 2.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  .pvc path.dash { stroke-dasharray: 14 14; stroke-dashoffset: 0; animation: pv-fadein 1s 1.2s both; }
+  .pvc path:nth-child(2n) { animation-delay: 0.15s; }
+  .pvc path:nth-child(3n) { animation-delay: 0.3s; }
+  .pvc-base g { stroke: var(--white); opacity: 0.07; }
+  .pvc-lit g { stroke: var(--accent); }
+  .pvc-lit {
+    opacity: 0;
+    transition: opacity 0.4s;
+    -webkit-mask-image: radial-gradient(circle 280px at var(--mx) var(--my), #000 0%, transparent 70%);
+    mask-image: radial-gradient(circle 280px at var(--mx) var(--my), #000 0%, transparent 70%);
+  }
+  .pv-hero.is-lit .pvc-lit { opacity: 0.55; }
+  .pv-hero::before {
+    content: "";
     position: absolute;
-    right: -8%;
-    top: -6%;
-    width: min(70vw, 900px);
-    height: 120%;
-    color: var(--accent);
-    opacity: 0.09;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(520px circle at var(--mx) var(--my), rgba(126, 200, 227, 0.07), transparent 60%);
+    opacity: 0;
+    transition: opacity 0.4s;
     pointer-events: none;
   }
+  .pv-hero.is-lit::before { opacity: 1; }
+  .pv-grain {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+  @keyframes pv-fadein { from { opacity: 0; } }
   .pv-def {
     margin-top: 1.4rem;
     max-width: 38rem;
@@ -630,7 +665,7 @@ const ticker = ['Call for an ISO', 'Out of my waaay', 'Isolate yourself', 'If yo
   .pv-rim { opacity: 0.6; }
   .pv-trail { opacity: 0.7; }
   .pv-trail.drive { opacity: 1; }
-  .pv-o .p, .pv-x, .pv-ballg, .pv-onev, .pv-score, .pv-flash, .pv-spot, .pv-trail { opacity: 0; }
+  .pv-o .p, .pv-ballg, .pv-onev, .pv-flash, .pv-spot, .pv-trail { opacity: 0; }
   .pv-board figcaption span { color: var(--accent); margin-right: 0.6em; }
 
   /* ---------- Piezas ---------- */
@@ -680,7 +715,6 @@ const ticker = ['Call for an ISO', 'Out of my waaay', 'Isolate yourself', 'If yo
 
   @media (max-width: 900px) {
     .pv-play { grid-template-columns: 1fr; }
-    .pv-court { width: 140vw; right: -50%; opacity: 0.07; }
   }
   @media (prefers-reduced-motion: reduce) {
     }
