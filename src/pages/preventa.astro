@@ -2,62 +2,152 @@
 import Layout from '../layouts/Layout.astro';
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
-import RackReact from '../components/RackReact.tsx';
 import { ISOLATION_DROP, PRESALE } from '../data/isolation-drop';
 import { existsSync } from 'node:fs';
 
-// Prendas con foto → perchero; el resto sale en la lista con "Foto pronto"
 const hasPhoto = (url: string) => existsSync(`public${url}`);
-const onRack = ISOLATION_DROP.filter((p) => hasPhoto(p.image_url));
 const eur = (c: number) => (c / 100).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
+
+// Lo que cuenta cada prenda (por id)
+const STORY: Record<string, { n: string; line: string }> = {
+  'isolation-isolate-yourself': { n: '01', line: 'El que espera su balón. Apártate del ruido, trabaja callado y, cuando te llegue, decides tú.' },
+  'isolation-out-of-my-way': { n: '02', line: 'Lo que piensas cuando recibes en el codo y ves el lado vacío. Escrito a pincel, sin pedir permiso.' },
+  'isolation-if-you-miss-her': { n: '03', line: 'If you miss her… call for an ISO. Hay cosas que solo se arreglan en la pista.' },
+  'isolation-drip-hoodie': { n: '04', line: 'El logo de siempre, derritiéndose. Para cuando el partido aprieta y hay que seguir.' },
+};
+const pieces = [...ISOLATION_DROP].sort((a, b) => (STORY[a.id]?.n ?? '9').localeCompare(STORY[b.id]?.n ?? '9'));
+const ticker = ['Call for an ISO', 'Out of my waaay', 'Isolate yourself', 'If you miss her', 'Drop 001', 'Clear the side'];
 ---
 
 <Layout
   title="ISO — Preventa Isolation · Drop 001"
-  description="Preventa del Isolation drop de ISO: 3 camisetas y una sudadera. Del 13 al 20 de diciembre. Envío gratis en Santander."
+  description="Isolation, el Drop 001 de ISO: 3 camisetas y una sudadera. Preventa del 13 al 20 de diciembre. Envío gratis en Santander."
 >
   <Navbar />
   <main class="pv" data-open={PRESALE.open} data-close={PRESALE.close}>
+    <!-- ============ HERO ============ -->
     <section class="pv-hero">
-      <p class="pv-eyebrow"><span class="pv-dot" aria-hidden="true"></span>Drop 001 · Preventa</p>
-      <h1 class="pv-title">
-        <span class="pv-outline">Isola</span><span class="pv-fill">tion.</span>
-      </h1>
-      <p class="pv-sub">3 camisetas y una sudadera. Solo en preventa, del 13 al 20 de diciembre.</p>
+      <svg class="pv-court" viewBox="0 0 500 470" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <g fill="none" stroke="currentColor" stroke-width="1.4">
+          <path d="M0 0 H500 M220 40 H280" />
+          <rect x="170" y="0" width="160" height="190" />
+          <circle cx="250" cy="52" r="9" />
+          <path d="M190 190 A60 60 0 0 0 310 190" />
+          <path d="M190 190 A60 60 0 0 1 310 190" stroke-dasharray="8 8" />
+          <path d="M30 0 V141.5 A237.5 237.5 0 0 0 470 141.5 V0" />
+          <path d="M190 470 A60 60 0 0 1 310 470" />
+        </g>
+      </svg>
 
-      <div class="pv-clock" data-clock>
-        <p class="pv-clock-label" data-clock-label>La preventa abre en</p>
-        <div class="pv-clock-nums">
-          <span><b data-d>--</b>días</span>
-          <span><b data-h>--</b>horas</span>
-          <span><b data-m>--</b>min</span>
-          <span><b data-s>--</b>seg</span>
+      <div class="pv-hero-inner">
+        <p class="pv-eyebrow"><span class="pv-dot" aria-hidden="true"></span>Drop 001 · Preventa</p>
+        <h1 class="pv-title">
+          <span class="pv-outline">Isola</span><span class="pv-fill">tion.</span>
+        </h1>
+        <p class="pv-def">
+          <b>iso</b> <i>/ˈaɪ.soʊ/</i> <em>abrev. de isolation</em> — jugada en la que el equipo despeja un lado
+          de la pista para que un jugador ataque a su defensor <strong>uno contra uno</strong>.
+        </p>
+
+        <div class="pv-clock" data-clock>
+          <p class="pv-clock-label" data-clock-label>La preventa abre en</p>
+          <div class="pv-clock-nums">
+            <span><b data-d>--</b>días</span>
+            <span><b data-h>--</b>horas</span>
+            <span><b data-m>--</b>min</span>
+            <span><b data-s>--</b>seg</span>
+          </div>
         </div>
-      </div>
 
-      <ul class="pv-facts">
-        <li><b>13 → 20 dic</b><span>Abre el domingo 13 a las 20:00</span></li>
-        <li><b>Envío gratis</b><span>En Santander</span></li>
-        <li><b>S · M · L · XL</b><span>Corte oversize</span></li>
-      </ul>
+        <ul class="pv-facts">
+          <li><b>13 → 20 dic</b><span>Abre el domingo 13 a las 20:00</span></li>
+          <li><b>Envío gratis</b><span>En Santander</span></li>
+          <li><b>S · M · L · XL</b><span>Corte oversize</span></li>
+        </ul>
+      </div>
     </section>
 
-    {onRack.length > 0 && (
-      <RackReact
-        client:visible
-        products={onRack}
-        title="El drop"
-        soon="Preventa · 13 dic"
-        opensAt={PRESALE.open}
-      />
-    )}
+    <!-- ============ CINTA ============ -->
+    <div class="pv-ticker" aria-hidden="true">
+      <div class="pv-ticker-track">
+        {[0, 1].map(() => (
+          <span class="pv-ticker-set">
+            {ticker.map((t) => (<><span>{t}</span><img src="/hero/iso-ball.webp" alt="" width="632" height="369" /></>))}
+          </span>
+        ))}
+      </div>
+    </div>
 
+    <!-- ============ LA JUGADA ============ -->
+    <section class="pv-play" data-reveal>
+      <div class="pv-play-text">
+        <p class="pv-kicker">La filosofía</p>
+        <h2 class="pv-h2">Despeja<br />el lado.</h2>
+        <p>
+          El aislamiento es la jugada más simple del baloncesto y la más honesta. Cuatro se abren,
+          el lado se queda vacío y ahí estás tú contra tu par. Sin bloqueos. Sin ayudas. Sin excusas.
+        </p>
+        <p>
+          <strong>Isolation</strong> va de eso: de pedir el balón cuando quema. De apartarte del ruido
+          para currártelo solo, en la pista y fuera de ella. Cuatro prendas para los que piden el ISO.
+        </p>
+        <p class="pv-sign">Call for an ISO.</p>
+      </div>
+
+      <figure class="pv-board" aria-label="Pizarra: jugada de aislamiento">
+        <svg viewBox="-10 -10 520 330" role="img" aria-labelledby="pv-board-t">
+          <title id="pv-board-t">Jugada de aislamiento: cuatro jugadores se abren al lado débil y el 1 ataca a su defensor</title>
+          <defs>
+            <marker id="pv-arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M0 0 L10 5 L0 10 z" fill="currentColor" />
+            </marker>
+            <marker id="pv-arr-b" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+              <path d="M0 0 L10 5 L0 10 z" fill="#7ec8e3" />
+            </marker>
+          </defs>
+          <g class="pv-lines" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M0 0 H500" />
+            <path d="M220 40 H280" />
+            <rect x="170" y="0" width="160" height="190" />
+            <circle cx="250" cy="52" r="9" />
+            <path d="M190 190 A60 60 0 0 0 310 190" />
+            <path d="M30 0 V141.5 A237.5 237.5 0 0 0 470 141.5 V0" />
+          </g>
+          <!-- se abren -->
+          <g class="pv-cuts" fill="none" stroke="currentColor" stroke-width="2" marker-end="url(#pv-arr)">
+            <path class="c1" pathLength="1" d="M286 168 C250 186 205 180 176 160" />
+            <path class="c2" pathLength="1" d="M437 32 C360 16 190 16 112 84" />
+          </g>
+          <!-- el 1 ataca -->
+          <path class="pv-drive" pathLength="1" fill="none" stroke="#7ec8e3" stroke-width="3" marker-end="url(#pv-arr-b)"
+            d="M395 255 l-14 -16 l18 -10 l-16 -16 l18 -10 l-16 -16 C362 140 312 82 268 62" />
+          <g class="pv-o" font-family="var(--font-display)" font-weight="900" font-style="italic" font-size="22" text-anchor="middle">
+            <g class="p"><circle cx="410" cy="268" r="15" /><text x="410" y="276">1</text></g>
+            <g class="p"><circle cx="85" cy="250" r="15" /><text x="85" y="258">2</text></g>
+            <g class="p"><circle cx="452" cy="40" r="15" /><text x="452" y="48">3</text></g>
+            <g class="p"><circle cx="45" cy="55" r="15" /><text x="45" y="63">4</text></g>
+            <g class="p"><circle cx="300" cy="170" r="15" /><text x="300" y="178">5</text></g>
+          </g>
+          <g class="pv-x" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+            <path d="M378 228 l14 14 M392 228 l-14 14" />
+          </g>
+          <text class="pv-onev" x="430" y="228" font-family="var(--font-display)" font-weight="900" font-style="italic" font-size="26" fill="#7ec8e3">1v1</text>
+        </svg>
+        <figcaption>4 se abren al lado débil · el 1 se la juega</figcaption>
+      </figure>
+    </section>
+
+    <!-- ============ LAS PIEZAS ============ -->
     <section class="pv-list" aria-label="Prendas del drop">
-      <h2 class="pv-h2">Las 4 piezas</h2>
+      <div class="pv-list-head">
+        <h2 class="pv-h2">Las 4 piezas</h2>
+        <p class="pv-kicker">Solo en preventa · sin reposición</p>
+      </div>
       <ul>
-        {ISOLATION_DROP.map((p) => (
-          <li class="pv-item">
+        {pieces.map((p) => (
+          <li class="pv-item" data-reveal>
             <div class="pv-thumb">
+              <span class="pv-num">{STORY[p.id]?.n}</span>
               {hasPhoto(p.image_back_url ?? p.image_url) ? (
                 <img src={p.image_back_url ?? p.image_url} alt={p.name} loading="lazy" />
               ) : (
@@ -66,10 +156,22 @@ const eur = (c: number) => (c / 100).toLocaleString('es-ES', { style: 'currency'
             </div>
             <p class="pv-cat">{p.category.replace(' · Isolation drop', '')}</p>
             <p class="pv-name">{p.name}</p>
+            <p class="pv-line">{STORY[p.id]?.line}</p>
             <p class="pv-price">{eur(p.price_cents)}</p>
           </li>
         ))}
       </ul>
+    </section>
+
+    <!-- ============ CIERRE ============ -->
+    <section class="pv-end">
+      <span class="pv-logo" aria-hidden="true">
+        <img class="pv-letters" src="/hero/iso-letters.webp" alt="" width="1600" height="369" loading="lazy" />
+        <img class="pv-ball" src="/hero/iso-ball.webp" alt="" width="632" height="369" loading="lazy" />
+      </span>
+      <p class="pv-end-title">Pide el balón.</p>
+      <p class="pv-end-sub">Preventa del 13 al 20 de diciembre · Diseñado en Santander</p>
+      <a href="/" class="pv-back">← Volver a ISO</a>
     </section>
   </main>
   <Footer />
@@ -106,17 +208,29 @@ const eur = (c: number) => (c / 100).toLocaleString('es-ES', { style: 'currency'
     };
     tick();
     setInterval(tick, 1000);
+
+    // Aparecen al entrar en pantalla (la pizarra se dibuja)
+    const els = root.querySelectorAll<HTMLElement>('[data-reveal]');
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add('is-in');
+            io.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.25 });
+      els.forEach((el) => io.observe(el));
+    } else {
+      els.forEach((el) => el.classList.add('is-in'));
+    }
   }
 </script>
 
 <style>
   .pv { padding-top: var(--nav-h); }
 
-  .pv-hero {
-    max-width: var(--max-w);
-    margin: 0 auto;
-    padding: clamp(3rem, 9vh, 6rem) var(--pad) clamp(2.5rem, 6vh, 4rem);
-  }
+
   .pv-eyebrow {
     display: flex;
     align-items: center;
@@ -141,7 +255,7 @@ const eur = (c: number) => (c / 100).toLocaleString('es-ES', { style: 'currency'
     font-weight: 900;
     font-style: italic;
     text-transform: uppercase;
-    font-size: clamp(4.5rem, 15vw, 12rem);
+    font-size: clamp(3rem, 14vw, 12rem);
     line-height: 0.86;
     letter-spacing: -0.02em;
   }
@@ -280,5 +394,215 @@ const eur = (c: number) => (c / 100).toLocaleString('es-ES', { style: 'currency'
   }
   @media (prefers-reduced-motion: reduce) {
     .pv-dot { animation: none; }
+  }
+  /* ---------- Hero: pista de fondo ---------- */
+  .pv-hero { position: relative; overflow: hidden; max-width: none; padding: 0; }
+  .pv-hero-inner {
+    position: relative;
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: clamp(3rem, 9vh, 6rem) var(--pad) clamp(2.5rem, 6vh, 4rem);
+  }
+  .pv-court {
+    position: absolute;
+    right: -8%;
+    top: -6%;
+    width: min(70vw, 900px);
+    height: 120%;
+    color: var(--accent);
+    opacity: 0.09;
+    pointer-events: none;
+  }
+  .pv-def {
+    margin-top: 1.4rem;
+    max-width: 38rem;
+    padding-left: 1rem;
+    border-left: 2px solid var(--accent);
+    font-size: clamp(0.98rem, 1.5vw, 1.1rem);
+    line-height: 1.55;
+    color: var(--white-dim);
+  }
+  .pv-def b { font-family: var(--font-display); font-weight: 900; font-style: italic; font-size: 1.25em; color: var(--white); text-transform: uppercase; }
+  .pv-def i { font-style: normal; opacity: 0.7; }
+  .pv-def em { font-style: italic; color: var(--accent); }
+  .pv-def strong { color: var(--white); }
+
+  /* ---------- Cinta ---------- */
+  .pv-ticker {
+    overflow: hidden;
+    border-block: 1px solid rgba(242, 237, 229, 0.1);
+    background: var(--accent);
+    color: #071820;
+    transform: rotate(-1.2deg);
+    margin: 1rem -1rem;
+  }
+  .pv-ticker-track { display: flex; width: max-content; animation: pv-marquee 26s linear infinite; }
+  .pv-ticker-set { display: flex; align-items: center; }
+  .pv-ticker-set span {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-style: italic;
+    text-transform: uppercase;
+    font-size: clamp(1rem, 2vw, 1.4rem);
+    letter-spacing: 0.04em;
+    padding: 0.65rem 1.1rem;
+    white-space: nowrap;
+  }
+  .pv-ticker-set img { height: 1.2rem; width: auto; filter: brightness(0) saturate(100%); opacity: 0.85; }
+
+  /* ---------- La jugada ---------- */
+  .pv-play {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: clamp(4rem, 9vw, 7rem) var(--pad) clamp(2rem, 5vw, 4rem);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    gap: clamp(2rem, 5vw, 5rem);
+    align-items: center;
+  }
+  .pv-kicker {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.8rem;
+  }
+  .pv-play-text .pv-h2 { margin-bottom: 1.4rem; font-size: clamp(2.6rem, 6vw, 4.6rem); }
+  .pv-play-text p:not(.pv-kicker):not(.pv-sign) {
+    color: var(--white-dim);
+    font-size: clamp(1rem, 1.4vw, 1.1rem);
+    line-height: 1.65;
+    margin-bottom: 1rem;
+    max-width: 34rem;
+  }
+  .pv-play-text strong { color: var(--white); }
+  .pv-sign {
+    margin-top: 1.6rem;
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-style: italic;
+    text-transform: uppercase;
+    font-size: clamp(1.4rem, 2.6vw, 2rem);
+    color: var(--accent);
+  }
+
+  .pv-board {
+    margin: 0;
+    padding: clamp(1rem, 2.5vw, 1.8rem);
+    background:
+      radial-gradient(80% 80% at 50% 30%, rgba(126, 200, 227, 0.06), transparent 70%),
+      #0f1214;
+    border: 1px solid rgba(242, 237, 229, 0.1);
+    border-radius: 6px;
+    color: var(--white);
+  }
+  .pv-board svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .pv-board figcaption {
+    margin-top: 0.9rem;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--white-dim);
+  }
+  .pv-lines { opacity: 0.28; }
+  .pv-o circle { fill: #0f1214; stroke: var(--white); stroke-width: 2.2; }
+  .pv-o text { fill: var(--white); }
+  .pv-o .p:first-child circle { stroke: var(--accent); }
+  .pv-o .p:first-child text { fill: var(--accent); }
+  .pv-cuts { opacity: 0.75; }
+  .pv-cuts path, .pv-drive { stroke-dasharray: 1; stroke-dashoffset: 1; }
+  .pv-onev, .pv-x, .pv-o .p { opacity: 0; }
+  .pv-play.is-in .pv-o .p { animation: pv-pop 0.45s var(--ease-out, ease) both; }
+  .pv-play.is-in .pv-o .p:nth-child(2) { animation-delay: 0.08s; }
+  .pv-play.is-in .pv-o .p:nth-child(3) { animation-delay: 0.16s; }
+  .pv-play.is-in .pv-o .p:nth-child(4) { animation-delay: 0.24s; }
+  .pv-play.is-in .pv-o .p:nth-child(5) { animation-delay: 0.32s; }
+  .pv-play.is-in .pv-x { animation: pv-pop 0.45s 0.4s both; }
+  .pv-play.is-in .pv-cuts .c1 { animation: pv-draw 0.8s 0.7s ease-out forwards; }
+  .pv-play.is-in .pv-cuts .c2 { animation: pv-draw 1.1s 0.85s ease-out forwards; }
+  .pv-play.is-in .pv-drive { animation: pv-draw 1.1s 2s cubic-bezier(0.5, 0, 0.2, 1) forwards; }
+  .pv-play.is-in .pv-onev { animation: pv-pop 0.5s 3s both; }
+  .pv-o .p, .pv-x { transform-box: fill-box; transform-origin: center; }
+
+  /* ---------- Piezas ---------- */
+  .pv-list-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.8rem; }
+  .pv-list-head .pv-h2 { margin-bottom: 0; }
+  .pv-thumb { position: relative; }
+  .pv-num {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.7rem;
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-style: italic;
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    line-height: 1;
+    color: transparent;
+    -webkit-text-stroke: 1px var(--accent);
+  }
+  .pv-thumb img { transition: transform 0.5s var(--ease-out, ease); }
+  .pv-item:hover .pv-thumb img { transform: scale(1.04) rotate(-1deg); }
+  .pv-line { font-size: 0.9rem; line-height: 1.5; color: var(--white-dim); margin: 0.2rem 0 0.6rem; }
+  .pv-item { opacity: 0; transform: translateY(24px); transition: opacity 0.7s, transform 0.7s var(--ease-out, ease); }
+  .pv-item.is-in { opacity: 1; transform: none; }
+  .pv-item:nth-child(2) { transition-delay: 0.08s; }
+  .pv-item:nth-child(3) { transition-delay: 0.16s; }
+  .pv-item:nth-child(4) { transition-delay: 0.24s; }
+
+  /* ---------- Cierre ---------- */
+  .pv-end {
+    text-align: center;
+    padding: clamp(4rem, 9vw, 7rem) var(--pad) clamp(4rem, 8vw, 6rem);
+    border-top: 1px solid rgba(242, 237, 229, 0.08);
+    background: radial-gradient(50% 60% at 50% 40%, rgba(126, 200, 227, 0.08), transparent 70%);
+  }
+  .pv-logo { position: relative; display: block; width: min(70vw, 420px); aspect-ratio: 1600 / 369; margin: 0 auto 1.8rem; }
+  .pv-letters { position: absolute; inset: 0; width: 100%; height: auto; }
+  .pv-ball { position: absolute; left: 60.5%; top: 0; width: 39.5%; height: 100%; animation: pv-dribble 1.6s cubic-bezier(0.5, 0, 0.5, 1) infinite; transform-origin: 50% 100%; }
+  .pv-end-title {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-style: italic;
+    text-transform: uppercase;
+    font-size: clamp(2.6rem, 8vw, 6rem);
+    line-height: 0.9;
+  }
+  .pv-end-sub { margin-top: 0.8rem; color: var(--white-dim); font-size: 0.95rem; }
+  .pv-back {
+    display: inline-block;
+    margin-top: 2rem;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border-bottom: 1px solid currentColor;
+    padding-bottom: 2px;
+  }
+
+  @keyframes pv-marquee { to { transform: translateX(-50%); } }
+  @keyframes pv-draw { to { stroke-dashoffset: 0; } }
+  @keyframes pv-pop { from { opacity: 0; transform: scale(0.4); } to { opacity: 1; transform: none; } }
+  @keyframes pv-dribble {
+    0%, 100% { transform: translateY(-22%); }
+    45% { transform: translateY(0) scale(1.05, 0.92); }
+    55% { transform: translateY(0) scale(1.05, 0.92); }
+  }
+
+  @media (max-width: 900px) {
+    .pv-play { grid-template-columns: 1fr; }
+    .pv-court { width: 140vw; right: -50%; opacity: 0.07; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pv-ticker-track, .pv-ball { animation: none; }
+    .pv-cuts path, .pv-drive { stroke-dashoffset: 0; }
+    .pv-onev, .pv-x, .pv-o .p { opacity: 1; animation: none !important; }
+    .pv-play.is-in .pv-cuts path, .pv-play.is-in .pv-drive { animation: none; }
+    .pv-item { opacity: 1; transform: none; transition: none; }
   }
 </style>
