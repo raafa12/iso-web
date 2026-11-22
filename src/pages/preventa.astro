@@ -27,13 +27,14 @@ const items = [...ISOLATION_DROP]
     description: p.description,
     front: hasPhoto(p.image_url) ? p.image_url : null,
     back: p.image_back_url && hasPhoto(p.image_back_url) ? p.image_back_url : null,
+    cover: (p.id === 'isolation-if-you-miss-her' ? 'front' : 'back') as 'front' | 'back',
   }));
 const ticker = ['Call for an ISO', 'Out of my waaay', 'Isolate yourself', 'If you miss her', 'Drop 001', 'Clear the side'];
 ---
 
 <Layout
   title="ISO — Preventa Isolation · Drop 001"
-  description="Isolation, el Drop 001 de ISO: 3 camisetas y una sudadera. Preventa de 5 días desde el 13 de diciembre, hasta agotar existencias. Envío gratis en Santander."
+  description="Isolation, el Drop 001 de ISO: 3 camisetas y una sudadera. Preventa de una semana desde el 13 de diciembre o hasta agotar existencias. Envío gratis en Santander."
 >
   <Navbar />
   <main class="pv" data-open={PRESALE.open} data-close={PRESALE.close}>
@@ -54,7 +55,7 @@ const ticker = ['Call for an ISO', 'Out of my waaay', 'Isolate yourself', 'If yo
       <div class="pv-hero-inner">
         <p class="pv-eyebrow"><span class="pv-dot" aria-hidden="true"></span>Drop 001 · Preventa</p>
         <h1 class="pv-title">
-          <span class="pv-outline">Isola</span><span class="pv-fill">tion.</span>
+          <span class="pv-outline">Iso</span><span class="pv-fill">lation.</span>
         </h1>
         <p class="pv-def">
           <b>iso</b> <i>/ˈaɪ.soʊ/</i> <em>abrev. de isolation</em> — jugada en la que el equipo despeja un lado
@@ -72,7 +73,7 @@ const ticker = ['Call for an ISO', 'Out of my waaay', 'Isolate yourself', 'If yo
         </div>
 
         <ul class="pv-facts">
-          <li><b>5 días</b><span>Hasta agotar existencias</span></li>
+          <li><b>1 semana</b><span>O hasta agotar existencias</span></li>
           <li><b>Envío gratis</b><span>En Santander</span></li>
           <li><b>S · M · L · XL</b><span>Corte oversize</span></li>
         </ul>
@@ -101,20 +102,6 @@ const ticker = ['Call for an ISO', 'Out of my waaay', 'Isolate yourself', 'If yo
 
     <!-- ============ LA JUGADA ============ -->
     <section class="pv-play" data-reveal>
-      <div class="pv-play-text">
-        <p class="pv-kicker">La filosofía</p>
-        <h2 class="pv-h2">Despeja<br />el lado.</h2>
-        <p>
-          El aislamiento es la jugada más simple del baloncesto y la más honesta. Cuatro se abren,
-          el lado se queda vacío y ahí estás tú contra tu par. Sin bloqueos. Sin ayudas. Sin excusas.
-        </p>
-        <p>
-          <strong>Isolation</strong> va de eso: de pedir el balón cuando quema. De apartarte del ruido
-          para currártelo solo, en la pista y fuera de ella. Cuatro prendas para los que piden el ISO.
-        </p>
-        <p class="pv-sign">Call for an ISO.</p>
-      </div>
-
       <figure class="pv-board" aria-label="Pizarra: jugada de aislamiento">
         <svg viewBox="-10 -10 520 330" role="img" aria-labelledby="pv-board-t">
           <title id="pv-board-t">Jugada de aislamiento: cuatro jugadores se abren al lado débil y el 1 ataca a su defensor</title>
@@ -164,8 +151,7 @@ const ticker = ['Call for an ISO', 'Out of my waaay', 'Isolate yourself', 'If yo
         <img class="pv-letters" src="/hero/iso-letters.webp" alt="" width="1600" height="369" loading="lazy" />
         <img class="pv-ball" src="/hero/iso-ball.webp" alt="" width="632" height="369" loading="lazy" />
       </span>
-      <p class="pv-end-title">Pide el balón.</p>
-      <p class="pv-end-sub">Preventa de 5 días · Diseñado en Santander</p>
+      <p class="pv-end-sub">Preventa de 1 semana · Diseñado en Santander</p>
       <a href="/" class="pv-back">← Volver a ISO</a>
     </section>
   </main>
@@ -404,7 +390,8 @@ const ticker = ['Call for an ISO', 'Out of my waaay', 'Isolate yourself', 'If yo
     margin: 0 auto;
     padding: clamp(4rem, 9vw, 7rem) var(--pad) clamp(2rem, 5vw, 4rem);
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    grid-template-columns: minmax(0, 860px);
+    justify-content: center;
     gap: clamp(2rem, 5vw, 5rem);
     align-items: center;
   }
@@ -525,7 +512,6 @@ const ticker = ['Call for an ISO', 'Out of my waaay', 'Isolate yourself', 'If yo
     .pv-court { width: 140vw; right: -50%; opacity: 0.07; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .pv-ticker-track, .pv-ball { animation: none; }
     .pv-cuts path, .pv-drive { stroke-dashoffset: 0; }
     .pv-onev, .pv-x, .pv-o .p { opacity: 1; animation: none !important; }
     .pv-play.is-in .pv-cuts path, .pv-play.is-in .pv-drive { animation: none; }

@@ -97,6 +97,6 @@ export const ISO_CLASSICS: DropProduct[] = [
 
 export const PRESALE = {
   open: "2026-12-13T20:00:00+01:00",
-  close: "2026-12-18T20:00:00+01:00",
+  close: "2026-12-20T20:00:00+01:00",
   shipping: "Envío gratis en Santander",
 };

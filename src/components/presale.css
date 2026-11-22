@@ -171,8 +171,8 @@
 }
 .ps-flip {
   position: relative;
-  height: min(56vh, 520px);
-  aspect-ratio: 0.73;
+  width: min(100%, 60vh, 560px);
+  aspect-ratio: 1;
   transform-style: preserve-3d;
   transition: transform 0.8s cubic-bezier(0.3, 1.35, 0.45, 1);
 }
@@ -373,7 +373,7 @@
   .ps-modal { padding: 0; place-items: end stretch; }
   .ps-sheet { grid-template-columns: 1fr; max-height: 100dvh; overflow-y: auto; border: 0; }
   .ps-media { min-height: 0; padding: 3.2rem 1rem 4.2rem; }
-  .ps-flip { height: min(44vh, 380px); }
+  .ps-flip { width: min(100%, 46vh); }
   .ps-close { position: fixed; }
 }
 

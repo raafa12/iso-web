@@ -13,6 +13,7 @@ export interface PresaleItem {
   description: string;
   front: string | null;
   back: string | null;
+  cover?: "front" | "back"; // qué cara se ve primero
 }
 
 interface Props {
@@ -24,6 +25,11 @@ interface Props {
 type Phase = "soon" | "open" | "closed";
 
 const eur = (c: number) => (c / 100).toLocaleString("es-ES", { style: "currency", currency: "EUR" });
+
+function firstSide(p: PresaleItem): "front" | "back" {
+  if (p.cover === "front" && p.front) return "front";
+  return p.back ? "back" : "front";
+}
 
 function phaseAt(now: number, open: number, close: number): Phase {
   if (now < open) return "soon";
@@ -78,7 +84,7 @@ export default function PresaleReact({ items, opensAt, closesAt }: Props) {
   function openItem(i: number, e: React.MouseEvent<HTMLElement>) {
     returnFocus.current = e.currentTarget;
     setCurrent(i);
-    setSide(items[i].back ? "back" : "front");
+    setSide(firstSide(items[i]));
     setSize(null);
     setQty(1);
     setAdded(false);
@@ -92,7 +98,7 @@ export default function PresaleReact({ items, opensAt, closesAt }: Props) {
     if (current == null) return;
     const n = (current + d + items.length) % items.length;
     setCurrent(n);
-    setSide(items[n].back ? "back" : "front");
+    setSide(firstSide(items[n]));
     setSize(null);
     setQty(1);
     setAdded(false);
@@ -163,7 +169,7 @@ export default function PresaleReact({ items, opensAt, closesAt }: Props) {
     <>
       <ul className="ps-grid" ref={listRef}>
         {items.map((p, i) => {
-          const thumb = p.back ?? p.front;
+          const thumb = p.cover === "front" ? p.front ?? p.back : p.back ?? p.front;
           return (
             <li key={p.id} className={`ps-item${shown[i] ? " is-in" : ""}`} style={{ transitionDelay: `${i * 0.08}s` }}>
               <button type="button" className="ps-card" onClick={(e) => openItem(i, e)} aria-label={`${p.name}, ${eur(p.price_cents)}. Ver y precomprar`}>
@@ -263,7 +269,7 @@ export default function PresaleReact({ items, opensAt, closesAt }: Props) {
               </button>
 
               <ul className="ps-notes">
-                <li><b>5 días</b> de preventa, hasta agotar existencias</li>
+                <li><b>1 semana</b> de preventa o hasta agotar existencias</li>
                 <li><b>Envío gratis</b> en Santander</li>
                 <li>Cierras el pedido por <b>WhatsApp</b> desde el carrito</li>
               </ul>
