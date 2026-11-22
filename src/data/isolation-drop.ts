@@ -66,18 +66,34 @@ export const ISOLATION_DROP: DropProduct[] = [
   },
 ];
 
-// Siempre a la venta
-export const ISO_CLASSICS: DropProduct[] = ["Black", "White", "Grey"].map((c) => ({
-  id: `iso-classic-${c.toLowerCase()}`,
+// Siempre a la venta (perchero de la home). Fotos provisionales hasta tener las reales.
+const classicTee = (color: string, front: string, back: string): DropProduct => ({
+  id: `iso-classic-tee-${color.toLowerCase()}`,
   name: "ISO Classic Tee",
-  category: "Camiseta · Básicos",
+  category: "Camiseta · Siempre disponible",
   price_cents: 1999,
   sizes: SIZES,
-  description: "El logo de ISO grande en el pecho. Basketball clothing brand.",
-  image_url: `/drop/classic-${c.toLowerCase()}-front.webp`,
-  image_back_url: `/drop/classic-${c.toLowerCase()}-back.webp`,
-  color: c,
-}));
+  description: "El logo de ISO en grande en el pecho. Basketball clothing brand. Oversize.",
+  image_url: front,
+  image_back_url: back,
+  color,
+});
+
+export const ISO_CLASSICS: DropProduct[] = [
+  classicTee("Black", "/rack/tee-icon-front.webp", "/rack/tee-icon-back.webp"),
+  classicTee("White", "/rack/classic-white-front.webp", "/rack/classic-white-back.webp"),
+  {
+    id: "iso-classic-hoodie-black",
+    name: "ISO Classic Hoodie",
+    category: "Sudadera · Siempre disponible",
+    price_cents: 4000,
+    sizes: SIZES,
+    description: "Sudadera oversize con el logo de ISO en el pecho.",
+    image_url: "/rack/classic-hoodie-front.webp",
+    image_back_url: "/rack/classic-hoodie-back.webp",
+    color: "Black",
+  },
+];
 
 export const PRESALE = {
   open: "2026-12-13T20:00:00+01:00",

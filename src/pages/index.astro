@@ -5,12 +5,7 @@ import HeroISO from '../components/HeroISO.astro';
 import TournamentRecap from '../components/TournamentRecap.astro';
 import About from '../components/About.astro';
 import RackReact from '../components/RackReact.tsx';
-import { ISOLATION_DROP } from '../data/isolation-drop';
-import { existsSync } from 'node:fs';
-
-// En el perchero solo salen las prendas que ya tienen foto
-const rack = ISOLATION_DROP.filter((p) => existsSync(`public${p.image_url}`));
-const presaleOpen = Date.now() >= Date.parse('2026-12-13T20:00:00+01:00');
+import { ISO_CLASSICS } from '../data/isolation-drop';
 import Footer from '../components/Footer.astro';
 ---
 
@@ -19,11 +14,9 @@ import Footer from '../components/Footer.astro';
   <main>
     <HeroISO />
     <TournamentRecap />
-    {rack.length > 0 && (
-      <div id="perchero">
-        <RackReact client:visible products={rack} title="Isolation drop" soon={presaleOpen ? undefined : 'Preventa · 13 dic'} />
-      </div>
-    )}
+    <div id="perchero">
+      <RackReact client:visible products={ISO_CLASSICS} title="El perchero" />
+    </div>
     <About />
   </main>
   <Footer />

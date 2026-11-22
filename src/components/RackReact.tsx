@@ -28,6 +28,8 @@ interface Props {
   preview?: boolean;
   // Antes de abrir la venta: el botón queda desactivado con este texto (p. ej. "Preventa · 13 dic")
   soon?: string;
+  // Fecha ISO a partir de la cual se puede comprar (se comprueba en el navegador)
+  opensAt?: string;
 }
 
 type LoadStatus = "loading" | "error" | "ready";
@@ -75,7 +77,7 @@ function Hanger() {
 
 // --- Componente principal ---
 
-export default function RackReact({ products: initial, title = "El Perchero", preview = false, soon }: Props) {
+export default function RackReact({ products: initial, title = "El Perchero", preview = false, soon: soonLabel, opensAt }: Props) {
   const [products, setProducts] = useState<RackProduct[]>(initial ?? []);
   const [status, setStatus] = useState<LoadStatus>(initial ? "ready" : "loading");
   const [hovered, setHovered] = useState<number | null>(null);
@@ -85,6 +87,13 @@ export default function RackReact({ products: initial, title = "El Perchero", pr
   const [size, setSize] = useState<string | null>(null);
   const [added, setAdded] = useState(false);
   const [guideOpen, setGuideOpen] = useState(false);
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!opensAt) return;
+    const id = window.setInterval(() => setNow(Date.now()), 30000);
+    return () => window.clearInterval(id);
+  }, [opensAt]);
+  const soon = soonLabel && (!opensAt || now < Date.parse(opensAt)) ? soonLabel : undefined;
 
   const bodies = useRef<Body[]>([]);
   const els = useRef<(HTMLElement | null)[]>([]);

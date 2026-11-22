@@ -1,0 +1,284 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import RackReact from '../components/RackReact.tsx';
+import { ISOLATION_DROP, PRESALE } from '../data/isolation-drop';
+import { existsSync } from 'node:fs';
+
+// Prendas con foto → perchero; el resto sale en la lista con "Foto pronto"
+const hasPhoto = (url: string) => existsSync(`public${url}`);
+const onRack = ISOLATION_DROP.filter((p) => hasPhoto(p.image_url));
+const eur = (c: number) => (c / 100).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
+---
+
+<Layout
+  title="ISO — Preventa Isolation · Drop 001"
+  description="Preventa del Isolation drop de ISO: 3 camisetas y una sudadera. Del 13 al 20 de diciembre. Envío gratis en Santander."
+>
+  <Navbar />
+  <main class="pv" data-open={PRESALE.open} data-close={PRESALE.close}>
+    <section class="pv-hero">
+      <p class="pv-eyebrow"><span class="pv-dot" aria-hidden="true"></span>Drop 001 · Preventa</p>
+      <h1 class="pv-title">
+        <span class="pv-outline">Isola</span><span class="pv-fill">tion.</span>
+      </h1>
+      <p class="pv-sub">3 camisetas y una sudadera. Solo en preventa, del 13 al 20 de diciembre.</p>
+
+      <div class="pv-clock" data-clock>
+        <p class="pv-clock-label" data-clock-label>La preventa abre en</p>
+        <div class="pv-clock-nums">
+          <span><b data-d>--</b>días</span>
+          <span><b data-h>--</b>horas</span>
+          <span><b data-m>--</b>min</span>
+          <span><b data-s>--</b>seg</span>
+        </div>
+      </div>
+
+      <ul class="pv-facts">
+        <li><b>13 → 20 dic</b><span>Abre el domingo 13 a las 20:00</span></li>
+        <li><b>Envío gratis</b><span>En Santander</span></li>
+        <li><b>S · M · L · XL</b><span>Corte oversize</span></li>
+      </ul>
+    </section>
+
+    {onRack.length > 0 && (
+      <RackReact
+        client:visible
+        products={onRack}
+        title="El drop"
+        soon="Preventa · 13 dic"
+        opensAt={PRESALE.open}
+      />
+    )}
+
+    <section class="pv-list" aria-label="Prendas del drop">
+      <h2 class="pv-h2">Las 4 piezas</h2>
+      <ul>
+        {ISOLATION_DROP.map((p) => (
+          <li class="pv-item">
+            <div class="pv-thumb">
+              {hasPhoto(p.image_back_url ?? p.image_url) ? (
+                <img src={p.image_back_url ?? p.image_url} alt={p.name} loading="lazy" />
+              ) : (
+                <span class="pv-soon">Foto pronto</span>
+              )}
+            </div>
+            <p class="pv-cat">{p.category.replace(' · Isolation drop', '')}</p>
+            <p class="pv-name">{p.name}</p>
+            <p class="pv-price">{eur(p.price_cents)}</p>
+          </li>
+        ))}
+      </ul>
+    </section>
+  </main>
+  <Footer />
+</Layout>
+
+<script>
+  const root = document.querySelector<HTMLElement>('.pv');
+  if (root) {
+    const open = Date.parse(root.dataset.open || '');
+    const close = Date.parse(root.dataset.close || '');
+    const clock = root.querySelector<HTMLElement>('[data-clock]');
+    const label = root.querySelector<HTMLElement>('[data-clock-label]');
+    const q = (k: string) => root.querySelector<HTMLElement>(`[data-${k}]`);
+    const D = q('d'), H = q('h'), M = q('m'), S = q('s');
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const tick = () => {
+      if (!clock || !label) return;
+      const now = Date.now();
+      let target = open;
+      if (now >= open && now < close) {
+        target = close;
+        label.textContent = 'Preventa abierta · cierra en';
+        clock.classList.add('is-open');
+      } else if (now >= close) {
+        label.textContent = 'La preventa ha terminado';
+        clock.querySelector('.pv-clock-nums')?.remove();
+        return;
+      }
+      const t = Math.max(0, Math.floor((target - now) / 1000));
+      if (D) D.textContent = pad(Math.floor(t / 86400));
+      if (H) H.textContent = pad(Math.floor((t % 86400) / 3600));
+      if (M) M.textContent = pad(Math.floor((t % 3600) / 60));
+      if (S) S.textContent = pad(t % 60);
+    };
+    tick();
+    setInterval(tick, 1000);
+  }
+</script>
+
+<style>
+  .pv { padding-top: var(--nav-h); }
+
+  .pv-hero {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: clamp(3rem, 9vh, 6rem) var(--pad) clamp(2.5rem, 6vh, 4rem);
+  }
+  .pv-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1rem;
+  }
+  .pv-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pv-pulse 2s infinite;
+  }
+  .pv-title {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-style: italic;
+    text-transform: uppercase;
+    font-size: clamp(4.5rem, 15vw, 12rem);
+    line-height: 0.86;
+    letter-spacing: -0.02em;
+  }
+  .pv-outline { color: transparent; -webkit-text-stroke: 1.5px var(--white); }
+  .pv-fill { color: var(--white); }
+  .pv-sub {
+    margin-top: 1.2rem;
+    max-width: 34rem;
+    font-size: clamp(1rem, 1.6vw, 1.15rem);
+    color: var(--white-dim);
+  }
+
+  .pv-clock { margin-top: 2.2rem; }
+  .pv-clock-label {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--white-dim);
+    margin-bottom: 0.6rem;
+  }
+  .pv-clock.is-open .pv-clock-label { color: var(--accent); }
+  .pv-clock-nums { display: flex; gap: clamp(1rem, 3vw, 2rem); }
+  .pv-clock-nums span {
+    display: flex;
+    flex-direction: column;
+    font-family: var(--font-display);
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--white-dim);
+  }
+  .pv-clock-nums b {
+    font-weight: 900;
+    font-style: italic;
+    font-size: clamp(2.2rem, 5vw, 3.4rem);
+    line-height: 1;
+    color: var(--white);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .pv-facts {
+    list-style: none;
+    padding: 0;
+    margin: 2.6rem 0 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    border-top: 1px solid rgba(242, 237, 229, 0.12);
+  }
+  .pv-facts li {
+    padding: 1.1rem 1rem 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .pv-facts b {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-style: italic;
+    text-transform: uppercase;
+    font-size: clamp(1.1rem, 2.2vw, 1.5rem);
+  }
+  .pv-facts span { font-size: 0.85rem; color: var(--white-dim); }
+
+  .pv-list {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: clamp(3rem, 7vw, 5rem) var(--pad) clamp(4rem, 8vw, 6rem);
+  }
+  .pv-h2 {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-style: italic;
+    text-transform: uppercase;
+    font-size: clamp(2rem, 5vw, 3.4rem);
+    line-height: 0.9;
+    margin-bottom: 1.8rem;
+  }
+  .pv-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(0.8rem, 2vw, 1.5rem);
+  }
+  .pv-thumb {
+    aspect-ratio: 4 / 5;
+    display: grid;
+    place-items: center;
+    background: radial-gradient(70% 70% at 50% 45%, #232323, #121212);
+    border: 1px solid rgba(242, 237, 229, 0.08);
+    margin-bottom: 0.8rem;
+    overflow: hidden;
+  }
+  .pv-thumb img { width: 86%; height: 86%; object-fit: contain; }
+  .pv-soon {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--white-dim);
+    opacity: 0.6;
+  }
+  .pv-cat {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .pv-name {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-style: italic;
+    text-transform: uppercase;
+    font-size: clamp(1.05rem, 1.8vw, 1.35rem);
+    line-height: 1;
+    margin: 0.3rem 0;
+  }
+  .pv-price { font-family: var(--font-display); font-weight: 700; color: var(--white-dim); }
+
+  @keyframes pv-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(126, 200, 227, 0.6); }
+    70% { box-shadow: 0 0 0 10px rgba(126, 200, 227, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(126, 200, 227, 0); }
+  }
+
+  @media (max-width: 760px) {
+    .pv-facts { grid-template-columns: 1fr; }
+    .pv-facts li { padding: 0.9rem 0; border-bottom: 1px solid rgba(242, 237, 229, 0.08); }
+    .pv-list ul { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pv-dot { animation: none; }
+  }
+</style>
