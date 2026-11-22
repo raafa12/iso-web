@@ -7,7 +7,10 @@
 const PRESALE_OPEN = "2026-11-26T20:00:00+01:00";
 const PRESALE_CLOSE = "2026-12-02T23:59:00+01:00";
 
-const ticker = ["Drop 001", "Preventa 26.11", "Take a break", "Call for an ISO", "Santander", "Basketball clothing brand"];
+const ticker = ["Isolation drop", "Preventa 26.11", "Isolate yourself", "Out of my waaay", "Call for an ISO", "Santander"];
+// Prenda del drop flotando a la derecha. Pon a true cuando estén las fotos de la sudadera del logo goteando
+// (public/hero/hoodie-back.webp y hoodie-front.webp, fondo transparente).
+const SHOW_PIECE = false;
 ---
 
 <section class="hx" id="inicio" data-open={PRESALE_OPEN} data-close={PRESALE_CLOSE}>
@@ -32,18 +35,20 @@ const ticker = ["Drop 001", "Preventa 26.11", "Take a break", "Call for an ISO",
   <div class="hx-grain" aria-hidden="true"></div>
 
   <!-- Prenda del drop: flota y se da la vuelta al pasar el cursor -->
-  <a href="/collection" class="hx-piece" aria-label="Ver la sudadera Take a Break del Drop 001">
+  {SHOW_PIECE && (
+  <a href="/collection" class="hx-piece" aria-label="Ver la sudadera del Isolation drop">
     <span class="hx-piece-float">
       <span class="hx-piece-flip">
         <img class="hx-face hx-back" src="/hero/hoodie-back.webp" alt="" width="910" height="1300" />
         <img class="hx-face hx-front" src="/hero/hoodie-front.webp" alt="" width="933" height="1300" />
       </span>
     </span>
-    <span class="hx-piece-tag">Drop 001 · Take a Break Hoodie</span>
+    <span class="hx-piece-tag">Isolation drop · Hoodie</span>
   </a>
+  )}
 
   <div class="hx-inner">
-    <p class="hx-eyebrow"><span class="hx-live" aria-hidden="true"></span>Drop 001 · Preventa</p>
+    <p class="hx-eyebrow"><span class="hx-live" aria-hidden="true"></span>Isolation drop · Preventa</p>
 
     <h1 class="hx-title" aria-label="Call for an ISO">
       <span class="hx-words" aria-hidden="true">
