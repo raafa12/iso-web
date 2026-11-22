@@ -81,11 +81,11 @@ export default function PresaleReact({ items, opensAt, closesAt }: Props) {
 
   const item = current != null ? items[current] : null;
 
-  function openItem(i: number, e: React.MouseEvent<HTMLElement>) {
+  function openItem(i: number, e: React.MouseEvent<HTMLElement>, presetSize: string | null = null) {
     returnFocus.current = e.currentTarget;
     setCurrent(i);
     setSide(firstSide(items[i]));
-    setSize(null);
+    setSize(presetSize);
     setQty(1);
     setAdded(false);
   }
@@ -168,31 +168,11 @@ export default function PresaleReact({ items, opensAt, closesAt }: Props) {
   return (
     <>
       <ul className="ps-grid" ref={listRef}>
-        {items.map((p, i) => {
-          const thumb = p.cover === "front" ? p.front ?? p.back : p.back ?? p.front;
-          const other = thumb === p.front ? p.back : p.front; // la otra cara, al pasar el ratón
-          return (
-            <li key={p.id} className={`ps-item${shown[i] ? " is-in" : ""}`} style={{ transitionDelay: `${i * 0.08}s` }}>
-              <button type="button" className="ps-card" onClick={(e) => openItem(i, e)} aria-label={`${p.name}, ${eur(p.price_cents)}. Ver y precomprar`}>
-                <span className="ps-thumb">
-                  {thumb ? (
-                    <span className={`ps-flipcard${other ? " has-other" : ""}`}>
-                      <img className="ps-side" src={thumb} alt="" loading="lazy" />
-                      {other && <img className="ps-side other" src={other} alt="" loading="lazy" />}
-                    </span>
-                  ) : (
-                    <span className="ps-soon">Foto pronto</span>
-                  )}
-                </span>
-                <span className="ps-meta">
-                  <span className="ps-name">{p.name}</span>
-                  <span className="ps-price">{eur(p.price_cents)}</span>
-                </span>
-                <span className="ps-cat">{p.category} · Isolation</span>
-              </button>
-            </li>
-          );
-        })}
+        {items.map((p, i) => (
+          <li key={p.id} className={`ps-item${shown[i] ? " is-in" : ""}`} style={{ transitionDelay: `${i * 0.08}s` }}>
+            <Card item={p} onOpen={(e, sz) => openItem(i, e, sz)} />
+          </li>
+        ))}
       </ul>
 
       {item && (
@@ -287,5 +267,71 @@ export default function PresaleReact({ items, opensAt, closesAt }: Props) {
 
       <SizeGuideModal open={guideOpen} onClose={() => setGuideOpen(false)} />
     </>
+  );
+}
+
+// ---- Tarjeta: al pasar el ratón cambia de foto (fundido + zoom suave) y aparecen las tallas ----
+function Card({ item: p, onOpen }: { item: PresaleItem; onOpen: (e: React.MouseEvent<HTMLElement>, size: string | null) => void }) {
+  const first = p.cover === "front" ? p.front ?? p.back : p.back ?? p.front;
+  const imgs = [first, first === p.front ? p.back : p.front].filter(Boolean) as string[];
+  const [idx, setIdx] = useState(0);
+  const [hover, setHover] = useState(false);
+  const media = useRef<HTMLSpanElement>(null);
+
+  function onMove(e: React.PointerEvent) {
+    if (e.pointerType !== "mouse" || imgs.length < 3 || !media.current) return;
+    const r = media.current.getBoundingClientRect();
+    setIdx(Math.min(imgs.length - 1, Math.max(0, Math.floor(((e.clientX - r.left) / r.width) * imgs.length))));
+  }
+
+  return (
+    <div
+      className={`ps-card${hover ? " is-hover" : ""}`}
+      onPointerEnter={(e) => {
+        if (e.pointerType !== "mouse") return;
+        setHover(true);
+        if (imgs.length > 1) setIdx(1);
+      }}
+      onPointerMove={onMove}
+      onPointerLeave={() => {
+        setHover(false);
+        setIdx(0);
+      }}
+    >
+      <div className="ps-mediawrap">
+      <button type="button" className="ps-open" onClick={(e) => onOpen(e, null)} aria-label={`${p.name}, ${eur(p.price_cents)}. Ver y precomprar`}>
+        <span className="ps-thumb" ref={media}>
+          {imgs.length ? (
+            imgs.map((src, k) => (
+              <img key={src} className={`ps-img${k === idx ? " on" : ""}`} src={src} alt="" loading="lazy" draggable={false} />
+            ))
+          ) : (
+            <span className="ps-soon">Foto pronto</span>
+          )}
+          {imgs.length > 1 && (
+            <span className="ps-dots" aria-hidden="true">
+              {imgs.map((src, k) => <i key={src} className={k === idx ? "on" : ""} />)}
+            </span>
+          )}
+        </span>
+      </button>
+
+      <div className="ps-quick" aria-label={`Tallas de ${p.name}`}>
+        {p.sizes.map((sz) => (
+          <button key={sz} type="button" onClick={(e) => onOpen(e, sz)} tabIndex={hover ? 0 : -1}>
+            {sz}
+          </button>
+        ))}
+      </div>
+      </div>
+
+      <button type="button" className="ps-meta-btn" onClick={(e) => onOpen(e, null)} tabIndex={-1} aria-hidden="true">
+        <span className="ps-meta">
+          <span className="ps-name">{p.name}</span>
+          <span className="ps-price">{eur(p.price_cents)}</span>
+        </span>
+        <span className="ps-cat">{p.category} · Isolation</span>
+      </button>
+    </div>
   );
 }
