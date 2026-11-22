@@ -4,24 +4,36 @@ import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
 import { ISOLATION_DROP, PRESALE } from '../data/isolation-drop';
 import { existsSync } from 'node:fs';
+import PresaleReact from '../components/PresaleReact.tsx';
 
 const hasPhoto = (url: string) => existsSync(`public${url}`);
-const eur = (c: number) => (c / 100).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
 
-// Lo que cuenta cada prenda (por id)
-const STORY: Record<string, { n: string; line: string }> = {
-  'isolation-isolate-yourself': { n: '01', line: 'El que espera su balón. Apártate del ruido, trabaja callado y, cuando te llegue, decides tú.' },
-  'isolation-out-of-my-way': { n: '02', line: 'Lo que piensas cuando recibes en el codo y ves el lado vacío. Escrito a pincel, sin pedir permiso.' },
-  'isolation-if-you-miss-her': { n: '03', line: 'If you miss her… call for an ISO. Hay cosas que solo se arreglan en la pista.' },
-  'isolation-drip-hoodie': { n: '04', line: 'El logo de siempre, derritiéndose. Para cuando el partido aprieta y hay que seguir.' },
+// Orden y número de cada pieza
+const NUM: Record<string, string> = {
+  'isolation-isolate-yourself': '01',
+  'isolation-out-of-my-way': '02',
+  'isolation-if-you-miss-her': '03',
+  'isolation-drip-hoodie': '04',
 };
-const pieces = [...ISOLATION_DROP].sort((a, b) => (STORY[a.id]?.n ?? '9').localeCompare(STORY[b.id]?.n ?? '9'));
+const items = [...ISOLATION_DROP]
+  .sort((a, b) => (NUM[a.id] ?? '9').localeCompare(NUM[b.id] ?? '9'))
+  .map((p) => ({
+    id: p.id,
+    num: NUM[p.id] ?? '',
+    name: p.name,
+    category: p.category.replace(' · Isolation drop', ''),
+    price_cents: p.price_cents,
+    sizes: p.sizes,
+    description: p.description,
+    front: hasPhoto(p.image_url) ? p.image_url : null,
+    back: p.image_back_url && hasPhoto(p.image_back_url) ? p.image_back_url : null,
+  }));
 const ticker = ['Call for an ISO', 'Out of my waaay', 'Isolate yourself', 'If you miss her', 'Drop 001', 'Clear the side'];
 ---
 
 <Layout
   title="ISO — Preventa Isolation · Drop 001"
-  description="Isolation, el Drop 001 de ISO: 3 camisetas y una sudadera. Preventa del 13 al 20 de diciembre. Envío gratis en Santander."
+  description="Isolation, el Drop 001 de ISO: 3 camisetas y una sudadera. Preventa de 5 días desde el 13 de diciembre, hasta agotar existencias. Envío gratis en Santander."
 >
   <Navbar />
   <main class="pv" data-open={PRESALE.open} data-close={PRESALE.close}>
@@ -60,7 +72,7 @@ const ticker = ['Call for an ISO', 'Out of my waaay', 'Isolate yourself', 'If yo
         </div>
 
         <ul class="pv-facts">
-          <li><b>13 → 20 dic</b><span>Abre el domingo 13 a las 20:00</span></li>
+          <li><b>5 días</b><span>Hasta agotar existencias</span></li>
           <li><b>Envío gratis</b><span>En Santander</span></li>
           <li><b>S · M · L · XL</b><span>Corte oversize</span></li>
         </ul>
@@ -84,24 +96,7 @@ const ticker = ['Call for an ISO', 'Out of my waaay', 'Isolate yourself', 'If yo
         <h2 class="pv-h2">Las 4 piezas</h2>
         <p class="pv-kicker">Solo en preventa · sin reposición</p>
       </div>
-      <ul>
-        {pieces.map((p) => (
-          <li class="pv-item" data-reveal>
-            <div class="pv-thumb">
-              <span class="pv-num">{STORY[p.id]?.n}</span>
-              {hasPhoto(p.image_back_url ?? p.image_url) ? (
-                <img src={p.image_back_url ?? p.image_url} alt={p.name} loading="lazy" />
-              ) : (
-                <span class="pv-soon">Foto pronto</span>
-              )}
-            </div>
-            <p class="pv-cat">{p.category.replace(' · Isolation drop', '')}</p>
-            <p class="pv-name">{p.name}</p>
-            <p class="pv-line">{STORY[p.id]?.line}</p>
-            <p class="pv-price">{eur(p.price_cents)}</p>
-          </li>
-        ))}
-      </ul>
+      <PresaleReact client:load items={items} opensAt={PRESALE.open} closesAt={PRESALE.close} />
     </section>
 
     <!-- ============ LA JUGADA ============ -->
@@ -170,7 +165,7 @@ const ticker = ['Call for an ISO', 'Out of my waaay', 'Isolate yourself', 'If yo
         <img class="pv-ball" src="/hero/iso-ball.webp" alt="" width="632" height="369" loading="lazy" />
       </span>
       <p class="pv-end-title">Pide el balón.</p>
-      <p class="pv-end-sub">Preventa del 13 al 20 de diciembre · Diseñado en Santander</p>
+      <p class="pv-end-sub">Preventa de 5 días · Diseñado en Santander</p>
       <a href="/" class="pv-back">← Volver a ISO</a>
     </section>
   </main>
@@ -335,51 +330,6 @@ const ticker = ['Call for an ISO', 'Out of my waaay', 'Isolate yourself', 'If yo
     line-height: 0.9;
     margin-bottom: 1.8rem;
   }
-  .pv-list ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: clamp(0.8rem, 2vw, 1.5rem);
-  }
-  .pv-thumb {
-    aspect-ratio: 4 / 5;
-    display: grid;
-    place-items: center;
-    background: radial-gradient(70% 70% at 50% 45%, #232323, #121212);
-    border: 1px solid rgba(242, 237, 229, 0.08);
-    margin-bottom: 0.8rem;
-    overflow: hidden;
-  }
-  .pv-thumb img { width: 86%; height: 86%; object-fit: contain; }
-  .pv-soon {
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 0.72rem;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--white-dim);
-    opacity: 0.6;
-  }
-  .pv-cat {
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 0.7rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--accent);
-  }
-  .pv-name {
-    font-family: var(--font-display);
-    font-weight: 900;
-    font-style: italic;
-    text-transform: uppercase;
-    font-size: clamp(1.05rem, 1.8vw, 1.35rem);
-    line-height: 1;
-    margin: 0.3rem 0;
-  }
-  .pv-price { font-family: var(--font-display); font-weight: 700; color: var(--white-dim); }
 
   @keyframes pv-pulse {
     0% { box-shadow: 0 0 0 0 rgba(126, 200, 227, 0.6); }
@@ -390,7 +340,6 @@ const ticker = ['Call for an ISO', 'Out of my waaay', 'Isolate yourself', 'If yo
   @media (max-width: 760px) {
     .pv-facts { grid-template-columns: 1fr; }
     .pv-facts li { padding: 0.9rem 0; border-bottom: 1px solid rgba(242, 237, 229, 0.08); }
-    .pv-list ul { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
   @media (prefers-reduced-motion: reduce) {
     .pv-dot { animation: none; }
@@ -507,7 +456,6 @@ const ticker = ['Call for an ISO', 'Out of my waaay', 'Isolate yourself', 'If yo
     text-transform: uppercase;
     color: var(--white-dim);
   }
-  .pv-lines { opacity: 0.28; }
   .pv-o circle { fill: #0f1214; stroke: var(--white); stroke-width: 2.2; }
   .pv-o text { fill: var(--white); }
   .pv-o .p:first-child circle { stroke: var(--accent); }
@@ -530,27 +478,6 @@ const ticker = ['Call for an ISO', 'Out of my waaay', 'Isolate yourself', 'If yo
   /* ---------- Piezas ---------- */
   .pv-list-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.8rem; }
   .pv-list-head .pv-h2 { margin-bottom: 0; }
-  .pv-thumb { position: relative; }
-  .pv-num {
-    position: absolute;
-    top: 0.5rem;
-    left: 0.7rem;
-    font-family: var(--font-display);
-    font-weight: 900;
-    font-style: italic;
-    font-size: clamp(1.6rem, 3vw, 2.4rem);
-    line-height: 1;
-    color: transparent;
-    -webkit-text-stroke: 1px var(--accent);
-  }
-  .pv-thumb img { transition: transform 0.5s var(--ease-out, ease); }
-  .pv-item:hover .pv-thumb img { transform: scale(1.04) rotate(-1deg); }
-  .pv-line { font-size: 0.9rem; line-height: 1.5; color: var(--white-dim); margin: 0.2rem 0 0.6rem; }
-  .pv-item { opacity: 0; transform: translateY(24px); transition: opacity 0.7s, transform 0.7s var(--ease-out, ease); }
-  .pv-item.is-in { opacity: 1; transform: none; }
-  .pv-item:nth-child(2) { transition-delay: 0.08s; }
-  .pv-item:nth-child(3) { transition-delay: 0.16s; }
-  .pv-item:nth-child(4) { transition-delay: 0.24s; }
 
   /* ---------- Cierre ---------- */
   .pv-end {
@@ -602,6 +529,5 @@ const ticker = ['Call for an ISO', 'Out of my waaay', 'Isolate yourself', 'If yo
     .pv-cuts path, .pv-drive { stroke-dashoffset: 0; }
     .pv-onev, .pv-x, .pv-o .p { opacity: 1; animation: none !important; }
     .pv-play.is-in .pv-cuts path, .pv-play.is-in .pv-drive { animation: none; }
-    .pv-item { opacity: 1; transform: none; transition: none; }
-  }
+    }
 </style>
