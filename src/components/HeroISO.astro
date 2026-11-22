@@ -61,7 +61,9 @@ const SHOW_PIECE = false;
         <img class="hx-letters" src="/hero/iso-letters.webp" alt="" width="1600" height="369" fetchpriority="high" />
         <span class="hx-ball-wrap">
           <span class="hx-ball-drop">
-            <img class="hx-ball" src="/hero/iso-ball.webp" alt="" width="632" height="369" fetchpriority="high" />
+            <span class="hx-ball-bob">
+              <img class="hx-ball" src="/hero/iso-ball.webp" alt="" width="632" height="369" fetchpriority="high" />
+            </span>
           </span>
           <span class="hx-shock"></span>
         </span>
@@ -137,12 +139,17 @@ const SHOW_PIECE = false;
 
     // --- Balón: vuelve a botar al pasar el cursor / tocar el logo ---
     const logo = hx.querySelector<HTMLElement>(".hx-logo");
+    // El bote va en una capa interior (.hx-ball-bob) para no reiniciar la caída de entrada,
+    // y no se activa hasta que el balón ha terminado de caer.
     const drop = hx.querySelector<HTMLElement>(".hx-ball-drop");
+    const bob = hx.querySelector<HTMLElement>(".hx-ball-bob");
+    let landed = false;
+    drop?.addEventListener("animationend", (e) => { if (e.target === drop) landed = true; });
+    setTimeout(() => (landed = true), 5000);
     const replay = () => {
-      if (!drop) return;
-      if (drop.classList.contains("is-dribble")) return;
-      drop.classList.add("is-dribble");
-      drop.addEventListener("animationend", () => drop.classList.remove("is-dribble"), { once: true });
+      if (!bob || !landed || bob.classList.contains("is-dribble")) return;
+      bob.classList.add("is-dribble");
+      bob.addEventListener("animationend", () => bob.classList.remove("is-dribble"), { once: true });
     };
     logo?.addEventListener("pointerenter", replay);
     logo?.addEventListener("click", replay);
@@ -345,7 +352,17 @@ const SHOW_PIECE = false;
     transform-origin: 50% 100%;
     animation: hx-bounce 1.25s 1.05s both;
   }
-  .hx-ball-drop.is-dribble { animation: hx-dribble 0.9s both; }
+  .hx-ball-bob {
+    position: absolute;
+    inset: 0;
+    transform-origin: 50% 100%;
+  }
+  .hx-ball-bob.is-dribble { animation: hx-dribble 0.9s both; }
+  .hx-ball-drop,
+  .hx-ball-bob {
+    will-change: transform;
+    backface-visibility: hidden;
+  }
   .hx-ball {
     width: 100%;
     height: 100%;

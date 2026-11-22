@@ -26,6 +26,8 @@ interface Props {
   title?: string;
   // Vista previa: el botón no toca el carrito real (productos de prueba)
   preview?: boolean;
+  // Antes de abrir la venta: el botón queda desactivado con este texto (p. ej. "Preventa · 13 dic")
+  soon?: string;
 }
 
 type LoadStatus = "loading" | "error" | "ready";
@@ -73,7 +75,7 @@ function Hanger() {
 
 // --- Componente principal ---
 
-export default function RackReact({ products: initial, title = "El Perchero", preview = false }: Props) {
+export default function RackReact({ products: initial, title = "El Perchero", preview = false, soon }: Props) {
   const [products, setProducts] = useState<RackProduct[]>(initial ?? []);
   const [status, setStatus] = useState<LoadStatus>(initial ? "ready" : "loading");
   const [hovered, setHovered] = useState<number | null>(null);
@@ -495,8 +497,8 @@ export default function RackReact({ products: initial, title = "El Perchero", pr
                 ))}
               </div>
 
-              <button type="button" className="rack-cta" disabled={!size || added} onClick={addToCart}>
-                {added ? (preview ? "Vista previa · no se añade" : "Añadido ✓") : size ? `Añadir al carrito · ${formatPrice(current.price_cents)}` : "Elige una talla"}
+              <button type="button" className="rack-cta" disabled={!!soon || !size || added} onClick={addToCart}>
+                {soon ? soon : added ? (preview ? "Vista previa · no se añade" : "Añadido ✓") : size ? `Añadir al carrito · ${formatPrice(current.price_cents)}` : "Elige una talla"}
               </button>
               <button type="button" className="rack-guide" onClick={() => setGuideOpen(true)}>
                 Guía de tallas
