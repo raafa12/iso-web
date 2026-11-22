@@ -78,6 +78,32 @@ const ticker = ['Call for an ISO', 'Out of my waaay', 'Isolate yourself', 'If yo
       </div>
     </div>
 
+    <!-- ============ LAS PIEZAS ============ -->
+    <section class="pv-list" aria-label="Prendas del drop">
+      <div class="pv-list-head">
+        <h2 class="pv-h2">Las 4 piezas</h2>
+        <p class="pv-kicker">Solo en preventa · sin reposición</p>
+      </div>
+      <ul>
+        {pieces.map((p) => (
+          <li class="pv-item" data-reveal>
+            <div class="pv-thumb">
+              <span class="pv-num">{STORY[p.id]?.n}</span>
+              {hasPhoto(p.image_back_url ?? p.image_url) ? (
+                <img src={p.image_back_url ?? p.image_url} alt={p.name} loading="lazy" />
+              ) : (
+                <span class="pv-soon">Foto pronto</span>
+              )}
+            </div>
+            <p class="pv-cat">{p.category.replace(' · Isolation drop', '')}</p>
+            <p class="pv-name">{p.name}</p>
+            <p class="pv-line">{STORY[p.id]?.line}</p>
+            <p class="pv-price">{eur(p.price_cents)}</p>
+          </li>
+        ))}
+      </ul>
+    </section>
+
     <!-- ============ LA JUGADA ============ -->
     <section class="pv-play" data-reveal>
       <div class="pv-play-text">
@@ -135,32 +161,6 @@ const ticker = ['Call for an ISO', 'Out of my waaay', 'Isolate yourself', 'If yo
         </svg>
         <figcaption>4 se abren al lado débil · el 1 se la juega</figcaption>
       </figure>
-    </section>
-
-    <!-- ============ LAS PIEZAS ============ -->
-    <section class="pv-list" aria-label="Prendas del drop">
-      <div class="pv-list-head">
-        <h2 class="pv-h2">Las 4 piezas</h2>
-        <p class="pv-kicker">Solo en preventa · sin reposición</p>
-      </div>
-      <ul>
-        {pieces.map((p) => (
-          <li class="pv-item" data-reveal>
-            <div class="pv-thumb">
-              <span class="pv-num">{STORY[p.id]?.n}</span>
-              {hasPhoto(p.image_back_url ?? p.image_url) ? (
-                <img src={p.image_back_url ?? p.image_url} alt={p.name} loading="lazy" />
-              ) : (
-                <span class="pv-soon">Foto pronto</span>
-              )}
-            </div>
-            <p class="pv-cat">{p.category.replace(' · Isolation drop', '')}</p>
-            <p class="pv-name">{p.name}</p>
-            <p class="pv-line">{STORY[p.id]?.line}</p>
-            <p class="pv-price">{eur(p.price_cents)}</p>
-          </li>
-        ))}
-      </ul>
     </section>
 
     <!-- ============ CIERRE ============ -->
@@ -433,8 +433,7 @@ const ticker = ['Call for an ISO', 'Out of my waaay', 'Isolate yourself', 'If yo
     border-block: 1px solid rgba(242, 237, 229, 0.1);
     background: var(--accent);
     color: #071820;
-    transform: rotate(-1.2deg);
-    margin: 1rem -1rem;
+
   }
   .pv-ticker-track { display: flex; width: max-content; animation: pv-marquee 26s linear infinite; }
   .pv-ticker-set { display: flex; align-items: center; }
