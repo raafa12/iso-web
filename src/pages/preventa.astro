@@ -81,10 +81,8 @@ const ticker = ['Call for an ISO', 'Out of my waaay', 'Isolate yourself', 'If yo
         </div>
 
         <ul class="pv-facts">
-          <li><b>1 semana</b><span>O hasta agotar existencias</span></li>
-          <li><b>{PRESALE.unitsPerItem} por prenda</b><span>Unidades limitadas, sin reposición</span></li>
-          <li><b>Envío gratis</b><span>En Santander · resto 4,99 €</span></li>
-          <li><b>S · M · L · XL</b><span>Corte oversize</span></li>
+          <li><b>1 semana</b><span>Solo {PRESALE.unitsPerItem} unidades de cada modelo</span></li>
+          <li><b>Envío gratis</b><span>En Santander</span></li>
         </ul>
       </div>
     </section>
@@ -324,7 +322,8 @@ const ticker = ['Call for an ISO', 'Out of my waaay', 'Isolate yourself', 'If yo
     padding: 0;
     margin: 2.6rem 0 0;
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: 640px;
     border-top: 1px solid rgba(242, 237, 229, 0.12);
   }
   .pv-facts li {
