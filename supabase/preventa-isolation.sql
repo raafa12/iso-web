@@ -35,8 +35,8 @@ create table if not exists public.presale_orders (
   code          text unique not null,
   created_at    timestamptz not null default now(),
   name          text not null,
-  phone         text not null,
-  email         text,
+  phone         text,
+  email         text not null,
   address       text not null,
   city          text not null,
   postal_code   text not null,
@@ -51,6 +51,7 @@ create table if not exists public.presale_orders (
 
 -- Por si la tabla ya existía de una versión anterior de este archivo
 alter table public.presale_orders add column if not exists shipping_cents int not null default 0;
+alter table public.presale_orders alter column phone drop not null;
 alter table public.presale_orders drop constraint if exists presale_orders_payment_check;
 alter table public.presale_orders add constraint presale_orders_payment_check
   check (payment in ('bizum', 'tarjeta', 'contrarreembolso'));
@@ -94,7 +95,7 @@ begin
   if p_payment not in ('bizum', 'tarjeta', 'contrarreembolso') then
     return jsonb_build_object('ok', false, 'error', 'payment');
   end if;
-  if coalesce(trim(p_customer->>'name'), '') = '' or coalesce(trim(p_customer->>'phone'), '') = ''
+  if coalesce(trim(p_customer->>'name'), '') = '' or coalesce(trim(p_customer->>'email'), '') !~ '^[^@\s]+@[^@\s]+\.[^@\s]+$'
      or coalesce(trim(p_customer->>'address'), '') = '' or coalesce(trim(p_customer->>'city'), '') = ''
      or coalesce(trim(p_customer->>'postal_code'), '') = '' then
     return jsonb_build_object('ok', false, 'error', 'customer');
@@ -131,7 +132,7 @@ begin
 
   new_code := 'ISO-' || upper(substr(md5(random()::text || clock_timestamp()::text), 1, 5));
   insert into public.presale_orders (code, name, phone, email, address, city, postal_code, notes, payment, items, shipping_cents, total_cents)
-  values (new_code, trim(p_customer->>'name'), trim(p_customer->>'phone'), nullif(trim(p_customer->>'email'), ''),
+  values (new_code, trim(p_customer->>'name'), nullif(trim(p_customer->>'phone'), ''), trim(p_customer->>'email'),
           trim(p_customer->>'address'), trim(p_customer->>'city'), trim(p_customer->>'postal_code'),
           nullif(trim(p_customer->>'notes'), ''), p_payment, lines, ship, total + ship);
 

@@ -267,7 +267,7 @@ export default function PresaleReact({ items, opensAt, closesAt, bizumPhone, shi
   const waMessage = (r: OrderResult) =>
     `Hola! Acabo de hacer el pedido ${r.code} de la preventa Isolation:\n` +
     r.lines.map((l) => `• ${l.name} (talla ${l.size}) x${l.qty}`).join("\n") +
-    `\nTotal: ${eur(r.total_cents)} · Pago: ${PAY_LABEL[r.payment]}\nNombre: ${customer.name}`;
+    `\nTotal: ${eur(r.total_cents)} · Pago: ${PAY_LABEL[r.payment]}\nNombre: ${customer.name} · ${customer.email}`;
 
   // Deslizar en la foto: cambia de prenda; tocar: le da la vuelta
   const swipe = useRef<{ x: number; y: number } | null>(null);
@@ -420,8 +420,8 @@ export default function PresaleReact({ items, opensAt, closesAt, bizumPhone, shi
 
                   <div className="ps-form">
                     <label className="wide">Nombre y apellidos<input required autoComplete="name" value={customer.name} onChange={(e) => setCustomer({ ...customer, name: e.target.value })} /></label>
-                    <label>Teléfono<input required type="tel" autoComplete="tel" value={customer.phone} onChange={(e) => setCustomer({ ...customer, phone: e.target.value })} /></label>
-                    <label><span>Email <i>(opcional)</i></span><input type="email" autoComplete="email" value={customer.email} onChange={(e) => setCustomer({ ...customer, email: e.target.value })} /></label>
+                    <label>Email<input required type="email" autoComplete="email" value={customer.email} onChange={(e) => setCustomer({ ...customer, email: e.target.value })} /></label>
+                    <label><span>Teléfono <i>(opcional)</i></span><input type="tel" autoComplete="tel" value={customer.phone} onChange={(e) => setCustomer({ ...customer, phone: e.target.value })} /></label>
                     <label className="wide">Dirección<input required autoComplete="street-address" value={customer.address} onChange={(e) => setCustomer({ ...customer, address: e.target.value })} /></label>
                     <label>Ciudad<input required autoComplete="address-level2" value={customer.city} onChange={(e) => setCustomer({ ...customer, city: e.target.value })} /></label>
                     <label>Código postal<input required inputMode="numeric" autoComplete="postal-code" value={customer.postal_code} onChange={(e) => setCustomer({ ...customer, postal_code: e.target.value })} /></label>
@@ -467,21 +467,21 @@ export default function PresaleReact({ items, opensAt, closesAt, bizumPhone, shi
                       {bizumPhone ? (
                         <p>Haz un <b>Bizum de {eur(result.total_cents)}</b> al <b>{prettyPhone(bizumPhone)}</b> con el concepto <b>{result.code}</b>.</p>
                       ) : (
-                        <p>Te mandamos por WhatsApp el número para hacer el <b>Bizum de {eur(result.total_cents)}</b> con el concepto <b>{result.code}</b>.</p>
+                        <p>Te mandamos por email el número para hacer el <b>Bizum de {eur(result.total_cents)}</b> con el concepto <b>{result.code}</b>.</p>
                       )}
                       <p>Tu prenda queda reservada 24 horas. Cuando nos llegue el Bizum, te confirmamos el pedido.</p>
                     </div>
                   )}
                   {result.payment === "tarjeta" && (
                     <div className="ps-howto">
-                      <p>Te enviamos un <b>enlace de pago con tarjeta de {eur(result.total_cents)}</b> por WhatsApp{customer.email ? " y por email" : ""}.</p>
+                      <p>Te enviamos un <b>enlace de pago con tarjeta de {eur(result.total_cents)}</b> por email{customer.phone ? " y por WhatsApp" : ""}.</p>
                       <p>Tu prenda queda reservada 24 horas mientras completas el pago.</p>
                     </div>
                   )}
                   {result.payment === "contrarreembolso" && (
                     <div className="ps-howto">
                       <p>Pagas <b>{eur(result.total_cents)}</b> en efectivo cuando te llegue el pedido.</p>
-                      <p>Te escribiremos para confirmar la dirección y la entrega.</p>
+                      <p>Te escribiremos al email para confirmar la dirección y la entrega.</p>
                     </div>
                   )}
                   <a className="ps-cta ready ps-wa" href={`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(waMessage(result))}`} target="_blank" rel="noopener noreferrer">
