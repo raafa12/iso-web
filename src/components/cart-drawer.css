@@ -345,3 +345,23 @@
 .pay-ico { height: 15px; width: auto; display: block; }
 .pay-bizum { font-family: var(--font-body); font-weight: 800; font-size: 0.8rem; letter-spacing: -0.02em; color: #05c3dd; }
 .cart-secure { display: flex; align-items: center; justify-content: center; gap: 0.4rem; font-size: 0.72rem; color: var(--muted-light); }
+
+.cart-error-box { display: flex; flex-direction: column; gap: 0.7rem; padding: 0.9rem; border: 1px solid rgba(224, 97, 79, 0.4); background: rgba(224, 97, 79, 0.06); }
+.cart-wa-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 46px;
+  background: #25d366;
+  color: #062b16;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  padding: 0 0.8rem;
+}
+.cart-wa-btn:hover { background: #1fbe5b; }
