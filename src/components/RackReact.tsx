@@ -387,9 +387,9 @@ export default function RackReact({ products: initial, title = "El Perchero", pr
   const caption = hovered != null ? products[hovered] : null;
 
   return (
-    <section className={`rack${open != null ? " is-open" : ""}`} aria-label={title}>
+    <section className={`rack${open != null ? " is-open" : ""}`} aria-label={title || "Perchero"}>
       <div className="rack-head">
-        <h2 className="rack-title">{title}</h2>
+        {title && <h2 className="rack-title">{title}</h2>}
         <p className="rack-hint">
           <span className="hint-hover">Pasa el cursor para darles la vuelta · pincha para verla</span>
           <span className="hint-touch">Desliza el perchero · toca la del centro para verla</span>

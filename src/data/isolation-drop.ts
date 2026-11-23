@@ -86,7 +86,7 @@ export const ISO_CLASSICS: DropProduct[] = [
     id: "iso-classic-hoodie-black",
     name: "ISO Classic Hoodie",
     category: "Sudadera · Siempre disponible",
-    price_cents: 4000,
+    price_cents: 2999,
     sizes: SIZES,
     description: "Sudadera oversize con el logo de ISO en el pecho.",
     image_url: "/rack/classic-hoodie-front.webp",
