@@ -218,6 +218,9 @@ const SHOW_PIECE = false;
     mask-image: radial-gradient(circle 280px at var(--mx) var(--my), #000 0%, transparent 70%);
   }
   .hx.is-lit .court-lit { opacity: 0.55; }
+  @media (hover: none) {
+    .hx.is-lit .court-lit { opacity: 0.85; }
+  }
   .hx::before {
     /* halo suave que sigue al cursor */
     content: "";

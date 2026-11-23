@@ -1,10 +1,17 @@
 // Foco que ilumina las líneas de la pista (variables --mx/--my + clase is-lit).
 // Ordenador: sigue al cursor. Móvil: sigue al dedo y, mientras no se toca,
 // recorre la pista solo, despacio, para que el efecto se vea igualmente.
-export function courtLight(el: HTMLElement) {
+export function courtLight(el: HTMLElement, litSelector = ".court-lit, .pvc-lit") {
+  // Safari no repinta las máscaras cuando cambia una variable CSS: la máscara se escribe directamente
+  const lit = Array.from(el.querySelectorAll<HTMLElement | SVGElement>(litSelector));
   const set = (x: number, y: number) => {
     el.style.setProperty("--mx", `${x}px`);
     el.style.setProperty("--my", `${y}px`);
+    const m = `radial-gradient(circle 280px at ${x.toFixed(0)}px ${y.toFixed(0)}px, #000 0%, transparent 70%)`;
+    for (const l of lit) {
+      l.style.setProperty("-webkit-mask-image", m);
+      l.style.setProperty("mask-image", m);
+    }
     el.classList.add("is-lit");
   };
   const local = (cx: number, cy: number) => {

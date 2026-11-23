@@ -380,6 +380,9 @@ const ticker = ['Call for an ISO', 'Out of my waaay', 'Isolate yourself', 'If yo
     mask-image: radial-gradient(circle 280px at var(--mx) var(--my), #000 0%, transparent 70%);
   }
   .pv-hero.is-lit .pvc-lit { opacity: 0.55; }
+  @media (hover: none) {
+    .pv-hero.is-lit .pvc-lit { opacity: 0.85; }
+  }
   .pv-hero::before {
     content: "";
     position: absolute;

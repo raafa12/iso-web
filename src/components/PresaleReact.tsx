@@ -53,6 +53,7 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
   const [guideOpen, setGuideOpen] = useState(false);
   const [stock, setStock] = useState<Record<string, number> | null>(null);
   const [demo, setDemo] = useState(false);
+  const [fingerOn, setFingerOn] = useState<string | null>(null);
   const [shown, setShown] = useState<boolean[]>(() => items.map(() => false));
   const listRef = useRef<HTMLUListElement>(null);
   const closeBtn = useRef<HTMLButtonElement>(null);
@@ -97,6 +98,36 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
   }, []);
   // Si todavía no hay datos de Supabase se muestran las unidades iniciales
   const left = (id: string) => (stock && id in stock ? stock[id] : unitsPerItem);
+
+  // Móvil: la prenda que está bajo el dedo (también mientras se hace scroll pasando por encima)
+  // enseña la otra cara; al levantar el dedo vuelven todas.
+  useEffect(() => {
+    if (window.matchMedia("(hover: hover)").matches) return;
+    let raf = 0, lx = 0, ly = 0;
+    const pick = () => {
+      raf = 0;
+      const el = document.elementFromPoint(lx, ly)?.closest<HTMLElement>("[data-card]");
+      setFingerOn(el?.dataset.card ?? null);
+    };
+    const onTouch = (e: TouchEvent) => {
+      const t = e.touches[0];
+      if (!t) return;
+      lx = t.clientX;
+      ly = t.clientY;
+      if (!raf) raf = requestAnimationFrame(pick);
+    };
+    const onEnd = () => setFingerOn(null);
+    document.addEventListener("touchstart", onTouch, { passive: true });
+    document.addEventListener("touchmove", onTouch, { passive: true });
+    document.addEventListener("touchend", onEnd, { passive: true });
+    document.addEventListener("touchcancel", onEnd, { passive: true });
+    return () => {
+      document.removeEventListener("touchstart", onTouch);
+      document.removeEventListener("touchmove", onTouch);
+      document.removeEventListener("touchend", onEnd);
+      document.removeEventListener("touchcancel", onEnd);
+    };
+  }, []);
 
   // Aparecen al bajar
   useEffect(() => {
@@ -207,7 +238,7 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
       <ul className="ps-grid" ref={listRef}>
         {items.map((p, i) => (
           <li key={p.id} className={`ps-item${shown[i] ? " is-in" : ""}`} style={{ transitionDelay: `${i * 0.08}s` }}>
-            <Card item={p} left={left(p.id)} onOpen={(e, sz) => openItem(i, e, sz)} />
+            <Card item={p} left={left(p.id)} flipped={fingerOn === p.id} onOpen={(e, sz) => openItem(i, e, sz)} />
           </li>
         ))}
       </ul>
@@ -319,10 +350,12 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
 function Card({
   item: p,
   left,
+  flipped,
   onOpen,
 }: {
   item: PresaleItem;
   left: number | null;
+  flipped: boolean;
   onOpen: (e: React.MouseEvent<HTMLElement>, size: string | null) => void;
 }) {
   const first = p.cover === "front" ? p.front ?? p.back : p.back ?? p.front;
@@ -331,38 +364,23 @@ function Card({
   const [hover, setHover] = useState(false);
   const media = useRef<HTMLSpanElement>(null);
 
-  // Táctil: mientras el dedo está sobre la foto se ve la otra cara; al levantarlo vuelve.
-  // Un toque corto (sin mover el dedo) abre la ficha.
-  const touch = useRef<{ x: number; y: number; moved: boolean } | null>(null);
+  // Táctil: un toque corto abre la ficha; si el dedo se ha movido (scroll) no se abre
+  const touch = useRef<{ x: number; y: number } | null>(null);
   const swiped = useRef(false);
-  const [scrub, setScrub] = useState(false);
   function onTouchStart(e: React.TouchEvent) {
     const t = e.touches[0];
+    touch.current = { x: t.clientX, y: t.clientY };
     swiped.current = false;
-    touch.current = { x: t.clientX, y: t.clientY, moved: false };
-    if (imgs.length > 1) {
-      setScrub(true);
-      setIdx(1);
-    }
   }
   function onTouchMove(e: React.TouchEvent) {
-    const s0 = touch.current;
-    if (!s0) return;
-    const t = e.touches[0];
-    if (!s0.moved && Math.hypot(t.clientX - s0.x, t.clientY - s0.y) > 10) {
-      s0.moved = true;
-      swiped.current = true;
-    }
-    if (imgs.length > 2 && media.current) {
-      const r = media.current.getBoundingClientRect();
-      setIdx(Math.min(imgs.length - 1, Math.max(1, Math.floor(((t.clientX - r.left) / r.width) * imgs.length))));
-    }
+    const s0 = touch.current, t = e.touches[0];
+    if (s0 && Math.hypot(t.clientX - s0.x, t.clientY - s0.y) > 10) swiped.current = true;
   }
   function onTouchEnd() {
     touch.current = null;
-    setScrub(false);
-    setIdx(0);
   }
+  const shown = flipped && imgs.length > 1 ? 1 : idx;
+  const scrub = flipped;
   function onOpenClick(e: React.MouseEvent<HTMLElement>) {
     if (swiped.current) {
       swiped.current = false;
@@ -379,6 +397,7 @@ function Card({
 
   return (
     <div
+      data-card={p.id}
       className={`ps-card${hover ? " is-hover" : ""}${scrub ? " is-scrub" : ""}${left === 0 ? " is-out" : ""}`}
       onPointerEnter={(e) => {
         if (e.pointerType !== "mouse") return;
@@ -397,14 +416,14 @@ function Card({
         <span className="ps-thumb" ref={media}>
           {imgs.length ? (
             imgs.map((src, k) => (
-              <img key={src} className={`ps-img${k === idx ? " on" : ""}`} src={src} alt="" loading="lazy" draggable={false} />
+              <img key={src} className={`ps-img${k === shown ? " on" : ""}`} src={src} alt="" loading="lazy" draggable={false} />
             ))
           ) : (
             <span className="ps-soon">Foto pronto</span>
           )}
           {imgs.length > 1 && (
             <span className="ps-dots" aria-hidden="true">
-              {imgs.map((src, k) => <i key={src} className={k === idx ? "on" : ""} />)}
+              {imgs.map((src, k) => <i key={src} className={k === shown ? "on" : ""} />)}
             </span>
           )}
         </span>
