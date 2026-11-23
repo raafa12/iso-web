@@ -1,33 +1,34 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Navbar from '../components/Navbar.astro';
-import ProductsReact from '../components/ProductsReact.tsx';
+import RackReact from '../components/RackReact.tsx';
+import { ISO_CLASSICS } from '../data/isolation-drop';
 import Footer from '../components/Footer.astro';
 ---
 
 <Layout
   title="ISO — Colección"
-  description="Compra la ISO Icon Tee. Edición limitada, sin reposición."
-  image="/camiseta1.png"
+  description="Camisetas y sudaderas ISO con el logo clásico. Envío gratis en Santander."
+  image="/rack/classic-tee-black-front.webp"
 >
   <Navbar />
   <main class="collection-main">
-    <ProductsReact client:load />
+    <RackReact client:load products={ISO_CLASSICS} title="Colección" />
   </main>
   <Footer />
 
   <script type="application/ld+json" set:html={JSON.stringify({
     "@context": "https://schema.org",
     "@type": "Product",
-    "name": "ISO Icon Tee",
-    "description": "100% algodón heavyweight. Silueta oversize. Bordado en pecho.",
-    "image": "https://isowear.es/camiseta1.png",
+    "name": "ISO Classic Tee",
+    "description": "Camiseta oversize con el logo de ISO en el pecho.",
+    "image": "https://isowear.es/rack/classic-tee-black-front.webp",
     "brand": { "@type": "Brand", "name": "ISO" },
     "offers": {
       "@type": "Offer",
       "url": "https://isowear.es/collection",
       "priceCurrency": "EUR",
-      "price": "24.99",
+      "price": "19.99",
       "availability": "https://schema.org/InStock"
     }
   })} />

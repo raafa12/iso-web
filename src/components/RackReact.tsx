@@ -360,7 +360,7 @@ export default function RackReact({ products: initial, title = "El Perchero", pr
       setTimeout(() => setAdded(false), 1600);
       return;
     }
-    window.ISOCart?.add({ id: p.id, name: p.name, size, price: p.price_cents, image: p.image_url });
+    window.ISOCart?.add({ id: p.id, name: p.color ? `${p.name} · ${p.color}` : p.name, size, price: p.price_cents, image: p.image_url });
     setTimeout(() => {
       setAdded(false);
       closeDetail();

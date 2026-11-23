@@ -66,33 +66,36 @@ export const ISOLATION_DROP: DropProduct[] = [
   },
 ];
 
-// Siempre a la venta (perchero de la home). Fotos provisionales hasta tener las reales.
-const classicTee = (color: string, front: string, back: string): DropProduct => ({
-  id: `iso-classic-tee-${color.toLowerCase()}`,
+// Siempre a la venta (perchero de la home y /collection). Precios y tallas tienen que coincidir con supabase/tienda.sql
+const classicTee = (color: string, slug: string, sizes: string[] = SIZES): DropProduct => ({
+  id: `iso-classic-tee-${slug}`,
   name: "ISO Classic Tee",
   category: "Camiseta · Siempre disponible",
   price_cents: 1999,
-  sizes: SIZES,
+  sizes,
   description: "El logo de ISO en grande en el pecho. Basketball clothing brand. Oversize.",
-  image_url: front,
-  image_back_url: back,
+  image_url: `/rack/classic-tee-${slug}-front.webp`,
+  image_back_url: `/rack/classic-tee-${slug}-back.webp`,
+  color,
+});
+const classicHoodie = (color: string, slug: string): DropProduct => ({
+  id: `iso-classic-hoodie-${slug}`,
+  name: "ISO Classic Hoodie",
+  category: "Sudadera · Siempre disponible",
+  price_cents: 2999,
+  sizes: SIZES,
+  description: "Sudadera oversize con el logo de ISO en el pecho.",
+  image_url: `/rack/classic-hoodie-${slug}-front.webp`,
+  image_back_url: `/rack/classic-hoodie-${slug}-back.webp`,
   color,
 });
 
 export const ISO_CLASSICS: DropProduct[] = [
-  classicTee("Black", "/rack/tee-icon-front.webp", "/rack/tee-icon-back.webp"),
-  classicTee("White", "/rack/classic-white-front.webp", "/rack/classic-white-back.webp"),
-  {
-    id: "iso-classic-hoodie-black",
-    name: "ISO Classic Hoodie",
-    category: "Sudadera · Siempre disponible",
-    price_cents: 2999,
-    sizes: SIZES,
-    description: "Sudadera oversize con el logo de ISO en el pecho.",
-    image_url: "/rack/classic-hoodie-front.webp",
-    image_back_url: "/rack/classic-hoodie-back.webp",
-    color: "Black",
-  },
+  classicTee("Black", "black"),
+  classicTee("White", "white"),
+  classicTee("Grey", "grey", ["M", "L"]),
+  classicHoodie("Black", "black"),
+  classicHoodie("Sport Grey", "grey"),
 ];
 
 export const PRESALE = {

@@ -5,7 +5,7 @@
   --paper: #0b0b0b;
   --muted: #8d877d;
   --line: rgba(242, 237, 229, 0.2);
-  --gh: clamp(260px, 24vw, 400px); /* alto de la prenda colgada (fotos reales en percha) */
+  --gh: clamp(220px, 17vw, 330px); /* alto de la prenda colgada (fotos reales en percha) */
   --hook: calc(var(--gh) * 0.125); /* espacio entre barra y cuello */
   position: relative;
   background:

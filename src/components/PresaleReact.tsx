@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { SizeGuideModal } from "./ProductsReact.tsx";
 import "./presale.css";
+import { SB_HEADERS, SUPABASE_ANON_KEY, SUPABASE_URL, eur } from "../lib/shop";
 
 // Prenda de la preventa (las fotos que no existen llegan a null desde la página)
 export interface PresaleItem {
@@ -20,54 +21,14 @@ interface Props {
   items: PresaleItem[];
   opensAt: string;
   closesAt: string;
-  bizumPhone: string;
+  bizumPhone?: string;
   shippingCents: number;
   unitsPerItem: number;
 }
 
 type Phase = "soon" | "open" | "closed";
-type Step = "product" | "checkout" | "done";
-type Payment = "bizum" | "tarjeta" | "contrarreembolso";
-
-const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL as string | undefined;
-const SUPABASE_ANON_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY as string | undefined;
-const SB_HEADERS = { apikey: SUPABASE_ANON_KEY ?? "", Authorization: `Bearer ${SUPABASE_ANON_KEY ?? ""}`, "Content-Type": "application/json" };
-// WhatsApp de ISO (avisos de pedido). El teléfono del Bizum viene de PRESALE.bizumPhone.
-const WHATSAPP = "34690342138";
-const PAY_LABEL: Record<Payment, string> = { bizum: "Bizum", tarjeta: "tarjeta", contrarreembolso: "contrarreembolso" };
-
-// Santander (municipio): CP 39001–39012 → envío gratis
-const isSantander = (cp: string) => /^390(0[1-9]|1[0-2])$/.test(cp.trim());
-const prettyPhone = (p: string) => p.replace(/\D/g, "").replace(/^(\d{3})(\d{3})(\d{3})$/, "$1 $2 $3");
 const LOW_STOCK = 10; // a partir de aquí se avisa de que quedan pocas
 
-interface Customer {
-  name: string;
-  phone: string;
-  email: string;
-  address: string;
-  city: string;
-  postal_code: string;
-  notes: string;
-}
-const EMPTY_CUSTOMER: Customer = { name: "", phone: "", email: "", address: "", city: "", postal_code: "", notes: "" };
-
-interface OrderResult {
-  code: string;
-  total_cents: number;
-  shipping_cents: number;
-  payment: Payment;
-  lines: { name: string; size: string; qty: number }[];
-}
-
-const ERRORS: Record<string, string> = {
-  not_open: "La preventa todavía no está abierta. Abre el 13 de diciembre a las 20:00.",
-  closed: "La preventa ya ha cerrado.",
-  stock: "Justo se han agotado las unidades que pedías. Prueba con menos cantidad.",
-  customer: "Faltan datos de envío.",
-};
-
-const eur = (c: number) => (c / 100).toLocaleString("es-ES", { style: "currency", currency: "EUR" });
 
 function firstSide(p: PresaleItem): "front" | "back" {
   if (p.cover === "front" && p.front) return "front";
@@ -80,7 +41,7 @@ function phaseAt(now: number, open: number, close: number): Phase {
   return "open";
 }
 
-export default function PresaleReact({ items, opensAt, closesAt, bizumPhone, shippingCents, unitsPerItem }: Props) {
+export default function PresaleReact({ items, opensAt, closesAt, shippingCents, unitsPerItem }: Props) {
   const open = Date.parse(opensAt);
   const close = Date.parse(closesAt);
   const [phase, setPhase] = useState<Phase>("soon");
@@ -91,12 +52,6 @@ export default function PresaleReact({ items, opensAt, closesAt, bizumPhone, shi
   const [added, setAdded] = useState(false);
   const [guideOpen, setGuideOpen] = useState(false);
   const [stock, setStock] = useState<Record<string, number> | null>(null);
-  const [step, setStep] = useState<Step>("product");
-  const [customer, setCustomer] = useState<Customer>(EMPTY_CUSTOMER);
-  const [payment, setPayment] = useState<Payment>("bizum");
-  const [sending, setSending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<OrderResult | null>(null);
   const [demo, setDemo] = useState(false);
   const [shown, setShown] = useState<boolean[]>(() => items.map(() => false));
   const listRef = useRef<HTMLUListElement>(null);
@@ -133,9 +88,11 @@ export default function PresaleReact({ items, opensAt, closesAt, bizumPhone, shi
     const id = window.setInterval(loadStock, 20000);
     const onFocus = () => loadStock();
     window.addEventListener("focus", onFocus);
+    window.addEventListener("iso-order-placed", onFocus);
     return () => {
       window.clearInterval(id);
       window.removeEventListener("focus", onFocus);
+      window.removeEventListener("iso-order-placed", onFocus);
     };
   }, []);
   const left = (id: string) => (stock && id in stock ? stock[id] : null);
@@ -167,14 +124,9 @@ export default function PresaleReact({ items, opensAt, closesAt, bizumPhone, shi
     setSize(presetSize);
     setQty(1);
     setAdded(false);
-    setStep("product");
-    setError(null);
   }
   function closeItem() {
     setCurrent(null);
-    setStep("product");
-    setError(null);
-    setResult(null);
     setGuideOpen(false);
     returnFocus.current?.focus();
   }
@@ -186,8 +138,6 @@ export default function PresaleReact({ items, opensAt, closesAt, bizumPhone, shi
     setSize(null);
     setQty(1);
     setAdded(false);
-    setStep("product");
-    setError(null);
   }
 
   // Teclado, scroll del fondo y foco
@@ -199,7 +149,6 @@ export default function PresaleReact({ items, opensAt, closesAt, bizumPhone, shi
     const onKey = (e: KeyboardEvent) => {
       if (guideOpen) return;
       if (e.key === "Escape") closeItem();
-      if (step !== "product") return;
       if (e.key === "ArrowRight") go(1);
       if (e.key === "ArrowLeft") go(-1);
     };
@@ -208,66 +157,20 @@ export default function PresaleReact({ items, opensAt, closesAt, bizumPhone, shi
       document.body.style.overflow = prev;
       window.removeEventListener("keydown", onKey);
     };
-  }, [current, guideOpen, step]);
+  }, [current, guideOpen]);
 
   function preorder() {
-    if (!item || !size || phase !== "open") return;
-    setError(null);
-    setStep("checkout");
+    if (!item || !size || phase !== "open" || soldOut) return;
+    window.ISOCart?.add(
+      { id: item.id, name: `${item.name} · Preventa`, size, price: item.price_cents, image: item.front ?? item.back ?? "/logo-mark.png" },
+      qty,
+    );
+    setAdded(true);
+    window.setTimeout(() => {
+      closeItem();
+      window.ISOCart?.open();
+    }, 650);
   }
-
-  async function submitOrder(e: React.FormEvent) {
-    e.preventDefault();
-    if (!item || !size || sending) return;
-    if (demo) {
-      // Simulación: no se guarda nada, solo baja el contador en esta pantalla
-      setStock((st) => (st ? { ...st, [item.id]: Math.max(0, (st[item.id] ?? 0) - qty) } : st));
-      setResult({ code: "ISO-DEMO1", total_cents: total, shipping_cents: shipping, payment, lines: [{ name: item.name, size, qty }] });
-      setStep("done");
-      return;
-    }
-    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-      setError("No se ha podido conectar. Escríbenos por WhatsApp y te lo reservamos.");
-      return;
-    }
-    setSending(true);
-    setError(null);
-    try {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/place_presale_order`, {
-        method: "POST",
-        headers: SB_HEADERS,
-        body: JSON.stringify({
-          p_items: [{ product_id: item.id, size, qty }],
-          p_customer: customer,
-          p_payment: payment,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok || !data?.ok) {
-        setError(ERRORS[data?.error] ?? "No se ha podido hacer el pedido. Inténtalo de nuevo o escríbenos por WhatsApp.");
-        loadStock();
-        return;
-      }
-      setResult({
-        code: data.code,
-        total_cents: data.total_cents,
-        shipping_cents: data.shipping_cents ?? 0,
-        payment,
-        lines: [{ name: item.name, size, qty }],
-      });
-      setStep("done");
-      loadStock();
-    } catch {
-      setError("No se ha podido conectar. Inténtalo de nuevo o escríbenos por WhatsApp.");
-    } finally {
-      setSending(false);
-    }
-  }
-
-  const waMessage = (r: OrderResult) =>
-    `Hola! Acabo de hacer el pedido ${r.code} de la preventa Isolation:\n` +
-    r.lines.map((l) => `• ${l.name} (talla ${l.size}) x${l.qty}`).join("\n") +
-    `\nTotal: ${eur(r.total_cents)} · Pago: ${PAY_LABEL[r.payment]}\nNombre: ${customer.name} · ${customer.email}`;
 
   // Deslizar en la foto: cambia de prenda; tocar: le da la vuelta
   const swipe = useRef<{ x: number; y: number } | null>(null);
@@ -284,9 +187,6 @@ export default function PresaleReact({ items, opensAt, closesAt, bizumPhone, shi
     else if (Math.abs(dx) < 10 && Math.abs(dy) < 10 && item.front && item.back) setSide((v) => (v === "front" ? "back" : "front"));
   }
 
-  const subtotal = item ? item.price_cents * qty : 0;
-  const shipping = customer.postal_code.trim().length === 5 && !isSantander(customer.postal_code) ? shippingCents : 0;
-  const total = subtotal + shipping;
   const itemLeft = item ? left(item.id) : null;
   const soldOut = itemLeft === 0;
   const maxQty = Math.max(1, Math.min(5, itemLeft ?? 5));
@@ -296,12 +196,13 @@ export default function PresaleReact({ items, opensAt, closesAt, bizumPhone, shi
     if (phase === "soon") return "Abre el 13 dic · 20:00";
     if (phase === "closed") return "Preventa cerrada";
     if (!size) return "Elige tu talla";
-    return `Precomprar · ${eur(item.price_cents * qty)}`;
+    if (added) return "Añadido ✓";
+    return `Añadir al carrito · ${eur(item.price_cents * qty)}`;
   })();
 
   return (
     <>
-      {demo && <p className="ps-demo">Vista de prueba: preventa abierta y 5 unidades por prenda. Los pedidos no se guardan.</p>}
+      {demo && <p className="ps-demo">Vista de prueba: preventa abierta y 5 unidades por prenda. Los pedidos del carrito no se guardan.</p>}
       <ul className="ps-grid" ref={listRef}>
         {items.map((p, i) => (
           <li key={p.id} className={`ps-item${shown[i] ? " is-in" : ""}`} style={{ transitionDelay: `${i * 0.08}s` }}>
@@ -350,8 +251,6 @@ export default function PresaleReact({ items, opensAt, closesAt, bizumPhone, shi
             </div>
 
             <div className="ps-info">
-              {step === "product" && (
-                <>
               <p className="ps-kicker">
                 <span className="ps-dot" aria-hidden="true" />
                 Drop 001 · Isolation · Preventa
@@ -393,7 +292,7 @@ export default function PresaleReact({ items, opensAt, closesAt, bizumPhone, shi
               <button
                 type="button"
                 className={`ps-cta${phase === "open" && size && !soldOut ? " ready" : ""}`}
-                disabled={phase !== "open" || !size || soldOut}
+                disabled={phase !== "open" || !size || soldOut || added}
                 onClick={preorder}
               >
                 {ctaText}
@@ -403,93 +302,8 @@ export default function PresaleReact({ items, opensAt, closesAt, bizumPhone, shi
                 <li><b>{unitsPerItem} unidades</b> por prenda, sin reposición</li>
                 <li><b>1 semana</b> de preventa o hasta agotar existencias</li>
                 <li><b>Envío gratis</b> en Santander · resto {eur(shippingCents)}</li>
-                <li>Pagas con <b>Bizum</b>, <b>tarjeta</b> o <b>contrarreembolso</b></li>
+                <li>Pagas con <b>Bizum</b>, <b>tarjeta</b> o <b>contrarreembolso</b> al finalizar la compra</li>
               </ul>
-                </>
-              )}
-
-              {step === "checkout" && (
-                <form className="ps-checkout" onSubmit={submitOrder}>
-                  <button type="button" className="ps-back" onClick={() => setStep("product")}>← Volver</button>
-                  <p className="ps-kicker"><span className="ps-dot" aria-hidden="true" />Tu pedido</p>
-                  <div className="ps-summary">
-                    <div><span>{item.name} · {size} · x{qty}</span><span>{eur(subtotal)}</span></div>
-                    <div><span>Envío {shipping ? "" : "(Santander)"}</span><span>{customer.postal_code.trim().length === 5 ? (shipping ? eur(shipping) : "Gratis") : "—"}</span></div>
-                    <div className="tot"><b>Total</b><b>{eur(total)}</b></div>
-                  </div>
-
-                  <div className="ps-form">
-                    <label className="wide">Nombre y apellidos<input required autoComplete="name" value={customer.name} onChange={(e) => setCustomer({ ...customer, name: e.target.value })} /></label>
-                    <label>Email<input required type="email" autoComplete="email" value={customer.email} onChange={(e) => setCustomer({ ...customer, email: e.target.value })} /></label>
-                    <label><span>Teléfono <i>(opcional)</i></span><input type="tel" autoComplete="tel" value={customer.phone} onChange={(e) => setCustomer({ ...customer, phone: e.target.value })} /></label>
-                    <label className="wide">Dirección<input required autoComplete="street-address" value={customer.address} onChange={(e) => setCustomer({ ...customer, address: e.target.value })} /></label>
-                    <label>Ciudad<input required autoComplete="address-level2" value={customer.city} onChange={(e) => setCustomer({ ...customer, city: e.target.value })} /></label>
-                    <label>Código postal<input required inputMode="numeric" autoComplete="postal-code" value={customer.postal_code} onChange={(e) => setCustomer({ ...customer, postal_code: e.target.value })} /></label>
-                  </div>
-
-                  <fieldset className="ps-pay">
-                    <legend>Forma de pago</legend>
-                    <label className={payment === "bizum" ? "on" : ""}>
-                      <input type="radio" name="pay" checked={payment === "bizum"} onChange={() => setPayment("bizum")} />
-                      <b>Bizum</b>
-                      <span>Al confirmar te damos el número y el concepto.</span>
-                    </label>
-                    <label className={payment === "tarjeta" ? "on" : ""}>
-                      <input type="radio" name="pay" checked={payment === "tarjeta"} onChange={() => setPayment("tarjeta")} />
-                      <b>Tarjeta (Visa / Mastercard)</b>
-                      <span>Te enviamos un enlace de pago seguro.</span>
-                    </label>
-                    <label className={payment === "contrarreembolso" ? "on" : ""}>
-                      <input type="radio" name="pay" checked={payment === "contrarreembolso"} onChange={() => setPayment("contrarreembolso")} />
-                      <b>Contrarreembolso</b>
-                      <span>Pagas en efectivo cuando te llega.</span>
-                    </label>
-                  </fieldset>
-
-                  {error && <p className="ps-error" role="alert">{error}</p>}
-
-                  <button type="submit" className="ps-cta ready" disabled={sending}>
-                    {sending ? "Reservando…" : `Confirmar pedido · ${eur(total)}`}
-                  </button>
-                  <p className="ps-fine">Envío gratis en Santander (CP 39001–39012). Resto de España: {eur(shippingCents)}.</p>
-                </form>
-              )}
-
-              {step === "done" && result && (
-                <div className="ps-done">
-                  <p className="ps-kicker"><span className="ps-dot" aria-hidden="true" />Pedido reservado</p>
-                  <h3 className="ps-title">{result.code}</h3>
-                  <p className="ps-desc">
-                    {result.lines.map((l) => `${l.name} · ${l.size} · x${l.qty}`).join(", ")} — <b>{eur(result.total_cents)}</b>
-                  </p>
-                  {result.payment === "bizum" && (
-                    <div className="ps-howto">
-                      {bizumPhone ? (
-                        <p>Haz un <b>Bizum de {eur(result.total_cents)}</b> al <b>{prettyPhone(bizumPhone)}</b> con el concepto <b>{result.code}</b>.</p>
-                      ) : (
-                        <p>Te mandamos por email el número para hacer el <b>Bizum de {eur(result.total_cents)}</b> con el concepto <b>{result.code}</b>.</p>
-                      )}
-                      <p>Tu prenda queda reservada 24 horas. Cuando nos llegue el Bizum, te confirmamos el pedido.</p>
-                    </div>
-                  )}
-                  {result.payment === "tarjeta" && (
-                    <div className="ps-howto">
-                      <p>Te enviamos un <b>enlace de pago con tarjeta de {eur(result.total_cents)}</b> por email{customer.phone ? " y por WhatsApp" : ""}.</p>
-                      <p>Tu prenda queda reservada 24 horas mientras completas el pago.</p>
-                    </div>
-                  )}
-                  {result.payment === "contrarreembolso" && (
-                    <div className="ps-howto">
-                      <p>Pagas <b>{eur(result.total_cents)}</b> en efectivo cuando te llegue el pedido.</p>
-                      <p>Te escribiremos al email para confirmar la dirección y la entrega.</p>
-                    </div>
-                  )}
-                  <a className="ps-cta ready ps-wa" href={`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(waMessage(result))}`} target="_blank" rel="noopener noreferrer">
-                    Avisar por WhatsApp
-                  </a>
-                  <button type="button" className="ps-guide" onClick={closeItem}>Cerrar</button>
-                </div>
-              )}
             </div>
           </div>
         </div>
