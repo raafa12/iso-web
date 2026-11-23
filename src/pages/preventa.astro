@@ -12,7 +12,7 @@ const hasPhoto = (url: string) => existsSync(`public${url}`);
 const NUM: Record<string, string> = {
   'isolation-isolate-yourself': '01',
   'isolation-drip-hoodie': '02',
-  'isolation-out-of-my-way': '03',
+  'isolation-not-like-them': '03',
   'isolation-if-you-miss-her': '04',
 };
 const items = [...ISOLATION_DROP]
@@ -29,7 +29,7 @@ const items = [...ISOLATION_DROP]
     back: p.image_back_url && hasPhoto(p.image_back_url) ? p.image_back_url : null,
     cover: (p.id === 'isolation-if-you-miss-her' ? 'front' : 'back') as 'front' | 'back',
   }));
-const ticker = ['Call for an ISO', 'Out of my waaay', 'Isolate yourself', 'If you miss her', 'Drop 001', 'Clear the side'];
+const ticker = ['Call for an ISO', 'Not like them', 'Isolate yourself', 'If you miss her', 'Drop 001', 'Clear the side'];
 ---
 
 <Layout
