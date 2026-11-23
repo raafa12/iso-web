@@ -1,9 +1,21 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Navbar from '../components/Navbar.astro';
-import RackReact from '../components/RackReact.tsx';
-import { ISO_CLASSICS } from '../data/isolation-drop';
 import Footer from '../components/Footer.astro';
+import CollectionReact, { type Model } from '../components/CollectionReact.tsx';
+import { ISO_CLASSICS } from '../data/isolation-drop';
+
+// Agrupa los básicos por modelo (camiseta / sudadera) con sus colores
+const SWATCH: Record<string, string> = { Black: '#111111', White: '#f2f1ec', Grey: '#a9a9a6', 'Sport Grey': '#b3b3b0' };
+const models: Model[] = [];
+for (const p of ISO_CLASSICS) {
+  let m = models.find((x) => x.name === p.name);
+  if (!m) {
+    m = { name: p.name, category: p.category.split(' · ')[0], description: p.description, price_cents: p.price_cents, variants: [] };
+    models.push(m);
+  }
+  m.variants.push({ id: p.id, color: p.color ?? '', swatch: SWATCH[p.color ?? ''] ?? '#888', sizes: p.sizes, front: p.image_url, back: p.image_back_url });
+}
 ---
 
 <Layout
@@ -12,8 +24,17 @@ import Footer from '../components/Footer.astro';
   image="/rack/classic-tee-black-front.webp"
 >
   <Navbar />
-  <main class="collection-main">
-    <RackReact client:load products={ISO_CLASSICS} title="Colección" />
+  <main class="col">
+    <header class="col-head">
+      <p class="col-kicker">Siempre disponible</p>
+      <h1 class="col-title">Colección</h1>
+      <p class="col-sub">Los básicos de ISO. Envío gratis en Santander.</p>
+    </header>
+    <CollectionReact client:load models={models} />
+    <a href="/preventa" class="col-drop">
+      <span>Drop 001 · Isolation</span>
+      <b>Ver la preventa →</b>
+    </a>
   </main>
   <Footer />
 
@@ -35,7 +56,55 @@ import Footer from '../components/Footer.astro';
 </Layout>
 
 <style>
-  .collection-main {
-    padding-top: var(--nav-h);
+  .col {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: calc(var(--nav-h) + clamp(2.5rem, 6vw, 4.5rem)) var(--pad) clamp(4rem, 8vw, 6rem);
+  }
+  .col-head { margin-bottom: clamp(2rem, 4vw, 3rem); }
+  .col-kicker {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.6rem;
+  }
+  .col-title {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-style: italic;
+    text-transform: uppercase;
+    font-size: clamp(3rem, 9vw, 6rem);
+    line-height: 0.9;
+  }
+  .col-sub { margin-top: 0.8rem; color: var(--white-dim); }
+  .col-drop {
+    margin-top: clamp(3rem, 6vw, 4.5rem);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding: 1.4rem 1.6rem;
+    border: 1px solid rgba(242, 237, 229, 0.12);
+    transition: border-color 0.2s;
+  }
+  .col-drop:hover { border-color: var(--accent); }
+  .col-drop span {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .col-drop b {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-style: italic;
+    text-transform: uppercase;
+    font-size: 1.3rem;
   }
 </style>

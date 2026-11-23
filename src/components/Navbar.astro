@@ -8,7 +8,8 @@ import CartDrawerReact from './CartDrawerReact.tsx';
   </a>
 
   <div class="nav-right">
-    <a href="/collection" class="btn-nav">Ver colección →</a>
+    <a href="/preventa" class="nav-link"><span class="nav-dot" aria-hidden="true"></span>Preventa</a>
+    <a href="/collection" class="btn-nav"><span class="hide-sm">Ver </span>colección<span class="hide-sm"> →</span></a>
 
     <button type="button" class="cart-btn" data-cart-open aria-label="Abrir carrito">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -90,6 +91,41 @@ import CartDrawerReact from './CartDrawerReact.tsx';
     display: flex;
     align-items: center;
     gap: 0.85rem;
+  }
+
+  .nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--white);
+    padding: 0.55rem 0.2rem;
+    transition: color 0.2s;
+  }
+  .nav-link:hover { color: var(--accent); }
+  .nav-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 0 rgba(126, 200, 227, 0.6);
+    animation: nav-pulse 2s infinite;
+  }
+  @keyframes nav-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(126, 200, 227, 0.6); }
+    70% { box-shadow: 0 0 0 8px rgba(126, 200, 227, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(126, 200, 227, 0); }
+  }
+  @media (max-width: 480px) {
+    .navbar { gap: 0.6rem; }
+    .nav-right { gap: 0.55rem; }
+    .btn-nav { padding: 0.5rem 0.7rem; }
+    .nav-link { font-size: 0.68rem; }
+    .hide-sm { display: none; }
   }
 
   .cart-btn {
