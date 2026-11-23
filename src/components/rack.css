@@ -387,6 +387,31 @@
 .rack-sizes button:hover { border-color: var(--ink); }
 .rack-sizes button.on { background: var(--ink); border-color: var(--ink); color: var(--paper); }
 
+.rack-logos {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.rack-logos button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.72rem;
+  color: var(--ink);
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.rack-logos button:hover { border-color: var(--ink); }
+.rack-logos button.on { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+.rack-dot { width: 12px; height: 12px; border-radius: 50%; border: 1px solid rgba(128, 128, 128, 0.6); }
+
 .rack-cta {
   margin-top: 0.3rem;
   min-width: min(320px, 100%);
@@ -462,6 +487,7 @@
 @media (hover: none), (pointer: coarse) {
   .rack-toggle button { min-height: 44px; padding: 0.6rem 1.4rem; }
   .rack-sizes button { min-height: 44px; min-width: 48px; }
+  .rack-logos button { min-height: 44px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

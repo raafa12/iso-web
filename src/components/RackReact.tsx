@@ -17,6 +17,7 @@ export interface RackProduct {
   description: string;
   image_url: string; // PNG/WebP con fondo transparente
   image_back_url?: string | null; // espalda; sin ella la prenda solo se balancea
+  image_mono_url?: string | null; // delante con el logo de un solo color (opción de logo)
   color?: string | null;
 }
 
@@ -55,6 +56,11 @@ function formatPrice(cents: number): string {
   return (cents / 100).toLocaleString("es-ES", { style: "currency", currency: "EUR" });
 }
 
+// En prendas negras el logo de un color es blanco; en blancas y grises, negro
+function monoName(p: RackProduct) {
+  return p.color === "Black" ? "Blanco" : "Negro";
+}
+
 // useLayoutEffect avisa en SSR; en servidor usamos useEffect
 const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
@@ -85,6 +91,7 @@ export default function RackReact({ products: initial, title = "El Perchero", pr
   const [closing, setClosing] = useState(false);
   const [side, setSide] = useState<"front" | "back">("front");
   const [size, setSize] = useState<string | null>(null);
+  const [mono, setMono] = useState(false); // logo de un solo color en vez del clásico
   const [added, setAdded] = useState(false);
   const [guideOpen, setGuideOpen] = useState(false);
   const [now, setNow] = useState(() => Date.now());
@@ -281,6 +288,7 @@ export default function RackReact({ products: initial, title = "El Perchero", pr
     const hover = window.matchMedia("(hover: hover)").matches;
     setSide(hover && b && b.turn > 90 ? "back" : "front");
     setSize(null);
+    setMono(false);
     setAdded(false);
     setOpen(i);
   }
@@ -349,6 +357,7 @@ export default function RackReact({ products: initial, title = "El Perchero", pr
     setOpen(n);
     setSide("front");
     setSize(null);
+    setMono(false);
     setAdded(false);
   }
 
@@ -360,7 +369,17 @@ export default function RackReact({ products: initial, title = "El Perchero", pr
       setTimeout(() => setAdded(false), 1600);
       return;
     }
-    window.ISOCart?.add({ id: p.id, name: p.color ? `${p.name} · ${p.color}` : p.name, size, price: p.price_cents, image: p.image_url });
+    // Mismo id y nombre que en /collection (tienen que coincidir con supabase/tienda.sql)
+    const withLogo = Boolean(p.image_mono_url);
+    const isMono = mono && withLogo;
+    const base = p.color ? `${p.name} · ${p.color}` : p.name;
+    window.ISOCart?.add({
+      id: isMono ? `${p.id}-mono` : p.id,
+      name: withLogo ? `${base} · Logo ${isMono ? monoName(p).toLowerCase() : "clásico"}` : base,
+      size,
+      price: p.price_cents,
+      image: isMono && p.image_mono_url ? p.image_mono_url : p.image_url,
+    });
     setTimeout(() => {
       setAdded(false);
       closeDetail();
@@ -475,7 +494,11 @@ export default function RackReact({ products: initial, title = "El Perchero", pr
             <div className="rack-big" ref={bigRef} onPointerDown={onBigPointerDown} onPointerUp={onBigPointerUp}>
               <Hanger />
               <div className={`rack-big-flip${side === "back" ? " show-back" : ""}`}>
-                <img className="rack-face front" src={current.image_url} alt={`${current.name}, delante`} />
+                <img
+                  className="rack-face front"
+                  src={mono && current.image_mono_url ? current.image_mono_url : current.image_url}
+                  alt={`${current.name}, delante`}
+                />
                 {current.image_back_url && (
                   <img className="rack-face back" src={current.image_back_url} alt={`${current.name}, espalda`} />
                 )}
@@ -495,6 +518,17 @@ export default function RackReact({ products: initial, title = "El Perchero", pr
                 <div className="rack-toggle" role="group" aria-label="Vista">
                   <button type="button" aria-pressed={side === "front"} className={side === "front" ? "on" : ""} onClick={() => setSide("front")}>Delante</button>
                   <button type="button" aria-pressed={side === "back"} className={side === "back" ? "on" : ""} onClick={() => setSide("back")}>Detrás</button>
+                </div>
+              )}
+
+              {current.image_mono_url && (
+                <div className="rack-logos" role="radiogroup" aria-label="Logo">
+                  <button type="button" role="radio" aria-checked={!mono} className={!mono ? "on" : ""} onClick={() => { setMono(false); setSide("front"); }}>
+                    <span className="rack-dot" style={{ background: "#7ec8e3" }} /> Logo clásico
+                  </button>
+                  <button type="button" role="radio" aria-checked={mono} className={mono ? "on" : ""} onClick={() => { setMono(true); setSide("front"); }}>
+                    <span className="rack-dot" style={{ background: monoName(current) === "Blanco" ? "#f2f1ec" : "#111" }} /> {monoName(current)} entero
+                  </button>
                 </div>
               )}
 
