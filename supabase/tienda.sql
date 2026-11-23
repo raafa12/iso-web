@@ -26,10 +26,12 @@ create table if not exists public.presale_stock (
 alter table public.presale_stock add column if not exists sizes text[] not null default array['S','M','L','XL'];
 insert into public.presale_stock (product_id, name, price_cents, initial, stock) values
   ('isolation-isolate-yourself', 'Isolate Yourself Tee', 2499, 25, 25),
-  ('isolation-drip-hoodie',      'ISO Drip Hoodie',      4000, 25, 25),
+  ('isolation-drip-hoodie',      'ISO Drip Hoodie',      3499, 25, 25),
   ('isolation-out-of-my-way',    'Out Of My Waaay Tee',  2499, 25, 25),
   ('isolation-if-you-miss-her',  'If You Miss Her Tee',  2499, 25, 25)
 on conflict (product_id) do nothing;
+-- precio actualizado (no toca el stock)
+update public.presale_stock set price_cents = 3499 where product_id = 'isolation-drip-hoodie';
 
 -- ---------- Básicos: siempre a la venta (sin límite) ----------
 create table if not exists public.shop_products (

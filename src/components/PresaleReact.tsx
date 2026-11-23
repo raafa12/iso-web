@@ -331,42 +331,37 @@ function Card({
   const [hover, setHover] = useState(false);
   const media = useRef<HTMLSpanElement>(null);
 
-  // Táctil: en cuanto el dedo se apoya y se mueve (o se mantiene) sobre la foto se ve la otra cara,
-  // como la preview de un vídeo; al levantarlo vuelve. Un toque rápido abre la ficha.
-  const touch = useRef<{ x: number; y: number; on: boolean; timer: number } | null>(null);
+  // Táctil: mientras el dedo está sobre la foto se ve la otra cara; al levantarlo vuelve.
+  // Un toque corto (sin mover el dedo) abre la ficha.
+  const touch = useRef<{ x: number; y: number; moved: boolean } | null>(null);
   const swiped = useRef(false);
   const [scrub, setScrub] = useState(false);
-  function startScrub() {
-    const t = touch.current;
-    if (!t || t.on || imgs.length < 2) return;
-    t.on = true;
-    swiped.current = true;
-    setScrub(true);
-    setIdx(1);
-  }
   function onTouchStart(e: React.TouchEvent) {
     const t = e.touches[0];
     swiped.current = false;
-    touch.current = { x: t.clientX, y: t.clientY, on: false, timer: window.setTimeout(startScrub, 140) };
+    touch.current = { x: t.clientX, y: t.clientY, moved: false };
+    if (imgs.length > 1) {
+      setScrub(true);
+      setIdx(1);
+    }
   }
   function onTouchMove(e: React.TouchEvent) {
     const s0 = touch.current;
     if (!s0) return;
     const t = e.touches[0];
-    if (!s0.on && Math.hypot(t.clientX - s0.x, t.clientY - s0.y) > 6) startScrub();
-    if (s0.on && imgs.length > 2 && media.current) {
+    if (!s0.moved && Math.hypot(t.clientX - s0.x, t.clientY - s0.y) > 10) {
+      s0.moved = true;
+      swiped.current = true;
+    }
+    if (imgs.length > 2 && media.current) {
       const r = media.current.getBoundingClientRect();
-      setIdx(Math.min(imgs.length - 1, Math.max(0, Math.floor(((t.clientX - r.left) / r.width) * imgs.length))));
+      setIdx(Math.min(imgs.length - 1, Math.max(1, Math.floor(((t.clientX - r.left) / r.width) * imgs.length))));
     }
   }
   function onTouchEnd() {
-    const s0 = touch.current;
-    if (s0) window.clearTimeout(s0.timer);
-    if (s0?.on) {
-      setIdx(0);
-      setScrub(false);
-    }
     touch.current = null;
+    setScrub(false);
+    setIdx(0);
   }
   function onOpenClick(e: React.MouseEvent<HTMLElement>) {
     if (swiped.current) {
@@ -375,22 +370,6 @@ function Card({
     }
     onOpen(e, null);
   }
-
-  // Móvil: al hacer scroll, la prenda que pasa por el centro de la pantalla enseña la otra cara
-  // (como las previews de vídeo de un feed) y vuelve al salir de esa franja.
-  useEffect(() => {
-    if (imgs.length < 2 || !media.current || window.matchMedia("(hover: hover)").matches) return;
-    const io = new IntersectionObserver(
-      ([e]) => {
-        if (touch.current?.on) return;
-        setIdx(e.isIntersecting ? 1 : 0);
-        setScrub(e.isIntersecting);
-      },
-      { rootMargin: "-30% 0px -30% 0px" },
-    );
-    io.observe(media.current);
-    return () => io.disconnect();
-  }, [imgs.length]);
 
   function onMove(e: React.PointerEvent) {
     if (e.pointerType !== "mouse" || imgs.length < 3 || !media.current) return;

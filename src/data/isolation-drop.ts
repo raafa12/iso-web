@@ -20,7 +20,7 @@ export const ISOLATION_DROP: DropProduct[] = [
     id: "isolation-drip-hoodie",
     name: "ISO Drip Hoodie",
     category: "Sudadera · Isolation drop",
-    price_cents: 4000,
+    price_cents: 3499,
     tag: "Preventa",
     sizes: SIZES,
     description: "Sudadera oversize con el logo de ISO goteando en la espalda.",
