@@ -438,7 +438,7 @@
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--white-dim);
+  color: var(--accent);
 }
 .ps-stock.low, .ps-left.low { color: var(--accent); }
 .ps-stock.out, .ps-left.out { color: #e0614f; }
