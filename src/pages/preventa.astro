@@ -227,23 +227,10 @@ const ticker = ['Call for an ISO', 'Out of my waaay', 'Isolate yourself', 'If yo
 
 
 <script>
-  // Foco del cursor sobre la pista del título (igual que en la home)
+  // Foco sobre la pista del título (cursor en ordenador, dedo / recorrido automático en móvil)
+  import { courtLight } from '../lib/courtLight';
   const hero = document.querySelector<HTMLElement>('.pv-hero');
-  if (hero && window.matchMedia('(pointer: fine)').matches) {
-    let raf = 0, tx = 0, ty = 0;
-    hero.addEventListener('pointermove', (e) => {
-      const r = hero.getBoundingClientRect();
-      tx = e.clientX - r.left;
-      ty = e.clientY - r.top;
-      if (!raf) raf = requestAnimationFrame(() => {
-        hero.style.setProperty('--mx', `${tx}px`);
-        hero.style.setProperty('--my', `${ty}px`);
-        hero.classList.add('is-lit');
-        raf = 0;
-      });
-    });
-    hero.addEventListener('pointerleave', () => hero.classList.remove('is-lit'));
-  }
+  if (hero) courtLight(hero);
 </script>
 
 <style>

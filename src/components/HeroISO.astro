@@ -109,6 +109,7 @@ const SHOW_PIECE = false;
 </section>
 
 <script>
+  import { courtLight } from "../lib/courtLight";
   const hx = document.querySelector<HTMLElement>(".hx");
   if (hx) {
     // --- Arranca la entrada cuando el logo y el balón ya están cargados (máx. 2,5 s de espera) ---
@@ -119,23 +120,8 @@ const SHOW_PIECE = false;
     );
     setTimeout(go, 2500);
 
-    // --- Foco del cursor sobre la pista ---
-    const fine = window.matchMedia("(pointer: fine)").matches;
-    if (fine) {
-      let raf = 0, tx = 0, ty = 0;
-      hx.addEventListener("pointermove", (e) => {
-        const r = hx.getBoundingClientRect();
-        tx = e.clientX - r.left;
-        ty = e.clientY - r.top;
-        if (!raf) raf = requestAnimationFrame(() => {
-          hx.style.setProperty("--mx", `${tx}px`);
-          hx.style.setProperty("--my", `${ty}px`);
-          hx.classList.add("is-lit");
-          raf = 0;
-        });
-      });
-      hx.addEventListener("pointerleave", () => hx.classList.remove("is-lit"));
-    }
+    // --- Foco sobre la pista (cursor en ordenador, dedo / recorrido automático en móvil) ---
+    courtLight(hx);
 
     // --- Balón: vuelve a botar al pasar el cursor / tocar el logo ---
     const logo = hx.querySelector<HTMLElement>(".hx-logo");

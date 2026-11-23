@@ -376,6 +376,22 @@ function Card({
     onOpen(e, null);
   }
 
+  // Móvil: al hacer scroll, la prenda que pasa por el centro de la pantalla enseña la otra cara
+  // (como las previews de vídeo de un feed) y vuelve al salir de esa franja.
+  useEffect(() => {
+    if (imgs.length < 2 || !media.current || window.matchMedia("(hover: hover)").matches) return;
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (touch.current?.on) return;
+        setIdx(e.isIntersecting ? 1 : 0);
+        setScrub(e.isIntersecting);
+      },
+      { rootMargin: "-30% 0px -30% 0px" },
+    );
+    io.observe(media.current);
+    return () => io.disconnect();
+  }, [imgs.length]);
+
   function onMove(e: React.PointerEvent) {
     if (e.pointerType !== "mouse" || imgs.length < 3 || !media.current) return;
     const r = media.current.getBoundingClientRect();
