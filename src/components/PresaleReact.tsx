@@ -95,7 +95,8 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
       window.removeEventListener("iso-order-placed", onFocus);
     };
   }, []);
-  const left = (id: string) => (stock && id in stock ? stock[id] : null);
+  // Si todavía no hay datos de Supabase se muestran las unidades iniciales
+  const left = (id: string) => (stock && id in stock ? stock[id] : unitsPerItem);
 
   // Aparecen al bajar
   useEffect(() => {
