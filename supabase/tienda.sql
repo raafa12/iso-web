@@ -71,7 +71,7 @@ create table if not exists public.orders (
 
 alter table public.orders drop constraint if exists orders_payment_check;
 alter table public.orders add constraint orders_payment_check
-  check (payment in ('bizum', 'tarjeta', 'paypal', 'contrarreembolso'));
+  check (payment in ('bizum', 'paypal', 'contrarreembolso'));
 
 -- ---------- Seguridad: la web solo LEE stock, precios y fechas ----------
 alter table public.presale_config enable row level security;
@@ -113,7 +113,7 @@ declare
   presale  boolean := false;
   new_code text;
 begin
-  if p_payment not in ('bizum', 'tarjeta', 'paypal', 'contrarreembolso') then
+  if p_payment not in ('bizum', 'paypal', 'contrarreembolso') then
     return jsonb_build_object('ok', false, 'error', 'payment');
   end if;
   if coalesce(trim(p_customer->>'name'), '') = ''

@@ -333,7 +333,6 @@ export default function CartDrawerReact() {
               {(
                 [
                   ["bizum", "Bizum"],
-                  ["tarjeta", "Tarjeta"],
                   ["paypal", "PayPal"],
                   ["contrarreembolso", "Contrarreembolso"],
                 ] as [Payment, string][]
@@ -374,7 +373,6 @@ export default function CartDrawerReact() {
                 ) : (
                   <p>Te mandamos por email el número para hacer el <b>Bizum de {eur(order.total)}</b> con el concepto <b>{order.code}</b>.</p>
                 ))}
-              {order.payment === "tarjeta" && <p>Te enviamos un <b>enlace de pago con tarjeta de {eur(order.total)}</b> por email.</p>}
               {order.payment === "paypal" && <p>Te enviamos un <b>enlace de pago de PayPal de {eur(order.total)}</b> por email.</p>}
               {order.payment === "contrarreembolso" && <p>Pagas <b>{eur(order.total)}</b> en efectivo cuando te llegue el pedido.</p>}
               {order.payment !== "contrarreembolso" && <p>Tu pedido queda reservado 24 horas mientras se completa el pago.</p>}

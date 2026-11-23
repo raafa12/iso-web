@@ -1,7 +1,7 @@
 // Todo lo que comparten el carrito, la preventa y la tienda a la hora de cobrar.
 import { PRESALE } from "../data/isolation-drop";
 
-export type Payment = "bizum" | "tarjeta" | "paypal" | "contrarreembolso";
+export type Payment = "bizum" | "paypal" | "contrarreembolso";
 
 export const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL as string | undefined;
 export const SUPABASE_ANON_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY as string | undefined;
@@ -16,7 +16,7 @@ export const BIZUM_PHONE = PRESALE.bizumPhone; // único sitio donde va el telé
 export const SHIPPING_CENTS = PRESALE.shippingCents;
 export const MAX_PER_ITEM = 5;
 
-export const PAY_LABEL: Record<Payment, string> = { bizum: "Bizum", tarjeta: "tarjeta", paypal: "PayPal", contrarreembolso: "contrarreembolso" };
+export const PAY_LABEL: Record<Payment, string> = { bizum: "Bizum", paypal: "PayPal", contrarreembolso: "contrarreembolso" };
 
 export const eur = (c: number) => (c / 100).toLocaleString("es-ES", { style: "currency", currency: "EUR" });
 // Santander (municipio): CP 39001–39012 → envío gratis
