@@ -91,7 +91,8 @@ export default function RackReact({ products: initial, title = "El Perchero", pr
   const [closing, setClosing] = useState(false);
   const [side, setSide] = useState<"front" | "back">("front");
   const [size, setSize] = useState<string | null>(null);
-  const [mono, setMono] = useState(false); // logo de un solo color en vez del clásico
+  // Logo elegido por prenda (de un solo color en vez del clásico): se ve también en la percha
+  const [monoIds, setMonoIds] = useState<Record<string, boolean>>({});
   const [added, setAdded] = useState(false);
   const [guideOpen, setGuideOpen] = useState(false);
   const [now, setNow] = useState(() => Date.now());
@@ -288,7 +289,6 @@ export default function RackReact({ products: initial, title = "El Perchero", pr
     const hover = window.matchMedia("(hover: hover)").matches;
     setSide(hover && b && b.turn > 90 ? "back" : "front");
     setSize(null);
-    setMono(false);
     setAdded(false);
     setOpen(i);
   }
@@ -357,7 +357,6 @@ export default function RackReact({ products: initial, title = "El Perchero", pr
     setOpen(n);
     setSide("front");
     setSize(null);
-    setMono(false);
     setAdded(false);
   }
 
@@ -371,7 +370,7 @@ export default function RackReact({ products: initial, title = "El Perchero", pr
     }
     // Mismo id y nombre que en /collection (tienen que coincidir con supabase/tienda.sql)
     const withLogo = Boolean(p.image_mono_url);
-    const isMono = mono && withLogo;
+    const isMono = Boolean(monoIds[p.id]) && withLogo;
     const base = p.color ? `${p.name} · ${p.color}` : p.name;
     window.ISOCart?.add({
       id: isMono ? `${p.id}-mono` : p.id,
@@ -403,6 +402,13 @@ export default function RackReact({ products: initial, title = "El Perchero", pr
   }
 
   const current = open != null ? products[open] : null;
+  const mono = current ? Boolean(monoIds[current.id]) : false;
+  const frontOf = (p: RackProduct) => (monoIds[p.id] && p.image_mono_url ? p.image_mono_url : p.image_url);
+  function pickLogo(m: boolean) {
+    if (!current) return;
+    setMonoIds((prev) => ({ ...prev, [current.id]: m }));
+    setSide("front");
+  }
   const caption = hovered != null ? products[hovered] : null;
 
   return (
@@ -446,7 +452,7 @@ export default function RackReact({ products: initial, title = "El Perchero", pr
                     <span className="rack-swing">
                       <Hanger />
                       <span className="rack-flip" ref={(el) => (garmentEls.current[i] = el)}>
-                        <img className="rack-face front" src={p.image_url} alt="" draggable={false} />
+                        <img className="rack-face front" src={frontOf(p)} alt="" draggable={false} />
                         {p.image_back_url && (
                           <img className="rack-face back" src={p.image_back_url} alt="" draggable={false} loading="lazy" />
                         )}
@@ -496,7 +502,7 @@ export default function RackReact({ products: initial, title = "El Perchero", pr
               <div className={`rack-big-flip${side === "back" ? " show-back" : ""}`}>
                 <img
                   className="rack-face front"
-                  src={mono && current.image_mono_url ? current.image_mono_url : current.image_url}
+                  src={frontOf(current)}
                   alt={`${current.name}, delante`}
                 />
                 {current.image_back_url && (
@@ -523,10 +529,10 @@ export default function RackReact({ products: initial, title = "El Perchero", pr
 
               {current.image_mono_url && (
                 <div className="rack-logos" role="radiogroup" aria-label="Logo">
-                  <button type="button" role="radio" aria-checked={!mono} className={!mono ? "on" : ""} onClick={() => { setMono(false); setSide("front"); }}>
+                  <button type="button" role="radio" aria-checked={!mono} className={!mono ? "on" : ""} onClick={() => pickLogo(false)}>
                     <span className="rack-dot" style={{ background: "#7ec8e3" }} /> Logo clásico
                   </button>
-                  <button type="button" role="radio" aria-checked={mono} className={mono ? "on" : ""} onClick={() => { setMono(true); setSide("front"); }}>
+                  <button type="button" role="radio" aria-checked={mono} className={mono ? "on" : ""} onClick={() => pickLogo(true)}>
                     <span className="rack-dot" style={{ background: monoName(current) === "Blanco" ? "#f2f1ec" : "#111" }} /> {monoName(current)} entero
                   </button>
                 </div>
