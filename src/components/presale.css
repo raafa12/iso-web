@@ -541,7 +541,7 @@
 
 /* Táctil: al deslizar el dedo se ve la otra cara; las barritas solo mientras se desliza */
 @media (hover: none) {
-  .ps-open { touch-action: pan-y; }
+  .ps-open { touch-action: pan-y; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
   .ps-card.is-scrub .ps-dots { opacity: 1; }
   .ps-card.is-scrub .ps-img { transition: opacity 0.18s ease, transform 0.6s ease; }
 }

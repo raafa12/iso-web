@@ -331,36 +331,38 @@ function Card({
   const [hover, setHover] = useState(false);
   const media = useRef<HTMLSpanElement>(null);
 
-  // Táctil: mientras el dedo se desliza por la foto se ve la otra cara (como la preview de un vídeo); al soltar, vuelve
-  const touch = useRef<{ x: number; y: number; scrubbing: boolean } | null>(null);
+  // Táctil: en cuanto el dedo se apoya y se mueve (o se mantiene) sobre la foto se ve la otra cara,
+  // como la preview de un vídeo; al levantarlo vuelve. Un toque rápido abre la ficha.
+  const touch = useRef<{ x: number; y: number; on: boolean; timer: number } | null>(null);
   const swiped = useRef(false);
   const [scrub, setScrub] = useState(false);
+  function startScrub() {
+    const t = touch.current;
+    if (!t || t.on || imgs.length < 2) return;
+    t.on = true;
+    swiped.current = true;
+    setScrub(true);
+    setIdx(1);
+  }
   function onTouchStart(e: React.TouchEvent) {
     const t = e.touches[0];
-    touch.current = { x: t.clientX, y: t.clientY, scrubbing: false };
     swiped.current = false;
+    touch.current = { x: t.clientX, y: t.clientY, on: false, timer: window.setTimeout(startScrub, 140) };
   }
   function onTouchMove(e: React.TouchEvent) {
     const s0 = touch.current;
-    if (!s0 || imgs.length < 2) return;
+    if (!s0) return;
     const t = e.touches[0];
-    const dx = t.clientX - s0.x;
-    const dy = t.clientY - s0.y;
-    if (!s0.scrubbing) {
-      if (Math.abs(dx) < 8 || Math.abs(dx) < Math.abs(dy)) return; // scroll vertical: no se toca
-      s0.scrubbing = true;
-      swiped.current = true;
-      setScrub(true);
-    }
-    if (imgs.length === 2) {
-      setIdx(1);
-    } else if (media.current) {
+    if (!s0.on && Math.hypot(t.clientX - s0.x, t.clientY - s0.y) > 6) startScrub();
+    if (s0.on && imgs.length > 2 && media.current) {
       const r = media.current.getBoundingClientRect();
       setIdx(Math.min(imgs.length - 1, Math.max(0, Math.floor(((t.clientX - r.left) / r.width) * imgs.length))));
     }
   }
   function onTouchEnd() {
-    if (touch.current?.scrubbing) {
+    const s0 = touch.current;
+    if (s0) window.clearTimeout(s0.timer);
+    if (s0?.on) {
       setIdx(0);
       setScrub(false);
     }
