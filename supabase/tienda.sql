@@ -46,7 +46,13 @@ insert into public.shop_products (product_id, name, price_cents, sizes) values
   ('iso-classic-tee-white',    'ISO Classic Tee · White',         1999, array['S','M','L','XL']),
   ('iso-classic-tee-grey',     'ISO Classic Tee · Grey',          1999, array['M','L']),
   ('iso-classic-hoodie-black', 'ISO Classic Hoodie · Black',      3499, array['S','M','L','XL']),
-  ('iso-classic-hoodie-grey',  'ISO Classic Hoodie · Sport Grey', 3499, array['S','M','L','XL'])
+  ('iso-classic-hoodie-grey',  'ISO Classic Hoodie · Sport Grey', 3499, array['S','M','L','XL']),
+  -- misma prenda con el logo de un solo color (sin el balón azul)
+  ('iso-classic-tee-black-mono',    'ISO Classic Tee · Black · Logo blanco',          1999, array['S','M','L','XL']),
+  ('iso-classic-tee-white-mono',    'ISO Classic Tee · White · Logo negro',           1999, array['S','M','L','XL']),
+  ('iso-classic-tee-grey-mono',     'ISO Classic Tee · Grey · Logo negro',            1999, array['M','L']),
+  ('iso-classic-hoodie-black-mono', 'ISO Classic Hoodie · Black · Logo blanco',       3499, array['S','M','L','XL']),
+  ('iso-classic-hoodie-grey-mono',  'ISO Classic Hoodie · Sport Grey · Logo negro',   3499, array['S','M','L','XL'])
 on conflict (product_id) do update
   set name = excluded.name, price_cents = excluded.price_cents, sizes = excluded.sizes;
 

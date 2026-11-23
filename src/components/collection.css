@@ -134,3 +134,27 @@
 @media (max-width: 800px) {
   .cl-grid { grid-template-columns: 1fr; gap: 3rem; }
 }
+
+/* Opción de logo: clásico (balón azul) o de un solo color */
+.cl-img.front.hide { opacity: 0 !important; }
+.cl-media:hover .cl-variant.on .cl-img.front.mono:not(.hide) { opacity: 0; transform: scale(0.98); }
+.cl-logos { display: flex; gap: 6px; flex-wrap: wrap; }
+.cl-logos button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  border: 1px solid rgba(242, 237, 229, 0.2);
+  border-radius: 999px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--white);
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.cl-logos button:hover { border-color: var(--white); }
+.cl-logos button.on { background: var(--white); border-color: var(--white); color: #0d0d0d; }
+.cl-dot { width: 12px; height: 12px; border-radius: 50%; border: 1px solid rgba(128, 128, 128, 0.6); }

@@ -10,6 +10,7 @@ export interface Variant {
   sizes: string[];
   front: string;
   back?: string | null;
+  frontMono?: string | null; // mismo color de prenda, logo entero blanco o negro
 }
 export interface Model {
   name: string;
@@ -22,9 +23,14 @@ export interface Model {
 // ---- Una tarjeta por modelo, con sus colores ----
 function ModelCard({ model, onGuide }: { model: Model; onGuide: () => void }) {
   const [vi, setVi] = useState(0);
+  const [mono, setMono] = useState(false);
   const [size, setSize] = useState<string | null>(null);
   const [added, setAdded] = useState(false);
   const v = model.variants[vi];
+  const hasMono = Boolean(v.frontMono);
+  const isMono = mono && hasMono;
+  // en prendas oscuras el logo de un color es blanco; en claras, negro
+  const monoName = v.swatch && ["#111111"].includes(v.swatch) ? "Blanco" : "Negro";
 
   function pickColor(i: number) {
     setVi(i);
@@ -35,7 +41,13 @@ function ModelCard({ model, onGuide }: { model: Model; onGuide: () => void }) {
 
   function add() {
     if (!size) return;
-    window.ISOCart?.add({ id: v.id, name: `${model.name} · ${v.color}`, size, price: model.price_cents, image: v.front });
+    window.ISOCart?.add({
+      id: isMono ? `${v.id}-mono` : v.id,
+      name: `${model.name} · ${v.color} · Logo ${isMono ? monoName.toLowerCase() : "clásico"}`,
+      size,
+      price: model.price_cents,
+      image: isMono && v.frontMono ? v.frontMono : v.front,
+    });
     setAdded(true);
     window.setTimeout(() => {
       setAdded(false);
@@ -48,7 +60,8 @@ function ModelCard({ model, onGuide }: { model: Model; onGuide: () => void }) {
       <div className="cl-media">
         {model.variants.map((x, i) => (
           <span key={x.id} className={`cl-variant${i === vi ? " on" : ""}`} aria-hidden={i !== vi}>
-            <img className="cl-img front" src={x.front} alt={i === vi ? `${model.name} ${x.color}, delante` : ""} loading={i ? "lazy" : "eager"} />
+            <img className={`cl-img front${mono && x.frontMono ? " hide" : ""}`} src={x.front} alt={i === vi ? `${model.name} ${x.color}, delante` : ""} loading={i ? "lazy" : "eager"} />
+            {x.frontMono && <img className={`cl-img front mono${mono ? "" : " hide"}`} src={x.frontMono} alt="" loading="lazy" />}
             {x.back && <img className="cl-img back" src={x.back} alt="" loading="lazy" />}
           </span>
         ))}
@@ -87,6 +100,24 @@ function ModelCard({ model, onGuide }: { model: Model; onGuide: () => void }) {
             ))}
           </div>
         </div>
+
+        {hasMono && (
+          <div className="cl-field">
+            <span className="cl-label">
+              <span>
+                Logo <b>{isMono ? `${monoName} entero` : "Clásico"}</b>
+              </span>
+            </span>
+            <div className="cl-logos" role="radiogroup" aria-label="Logo">
+              <button type="button" role="radio" aria-checked={!isMono} className={!isMono ? "on" : ""} onClick={() => setMono(false)}>
+                <span className="cl-dot" style={{ background: "#7ec8e3" }} /> Clásico
+              </button>
+              <button type="button" role="radio" aria-checked={isMono} className={isMono ? "on" : ""} onClick={() => setMono(true)}>
+                <span className="cl-dot" style={{ background: monoName === "Blanco" ? "#f2f1ec" : "#111" }} /> {monoName} entero
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="cl-field">
           <span className="cl-label">

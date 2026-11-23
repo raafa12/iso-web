@@ -14,7 +14,7 @@ for (const p of ISO_CLASSICS) {
     m = { name: p.name, category: p.category.split(' · ')[0], description: p.description, price_cents: p.price_cents, variants: [] };
     models.push(m);
   }
-  m.variants.push({ id: p.id, color: p.color ?? '', swatch: SWATCH[p.color ?? ''] ?? '#888', sizes: p.sizes, front: p.image_url, back: p.image_back_url });
+  m.variants.push({ id: p.id, color: p.color ?? '', swatch: SWATCH[p.color ?? ''] ?? '#888', sizes: p.sizes, front: p.image_url, back: p.image_back_url, frontMono: p.image_mono_url });
 }
 ---
 
