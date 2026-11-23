@@ -162,29 +162,21 @@
   .cta-ghost:hover { color: var(--accent); border-color: var(--accent); }
 
   /* ========== RESPONSIVE ========== */
-  /* Móvil: el texto arriba y la foto debajo, entera, para que se vea a la gente */
+  /* Móvil: misma foto de fondo, pero el texto arriba (sobre la canasta y las lonas) para que se vea a la gente */
   @media (max-width: 760px) {
     .recap {
-      flex-direction: column;
-      min-height: 0;
-      padding: 0;
+      align-items: flex-start;
+      min-height: clamp(40rem, 100svh, 50rem);
+      padding-top: clamp(2.2rem, 6vh, 3.2rem);
     }
-    .recap-inner {
-      order: 1;
-      padding: 3rem var(--pad) 1.6rem;
-    }
-    .recap-media {
-      order: 2;
-      position: relative;
-      inset: auto;
-      width: 100%;
-      aspect-ratio: 2000 / 2126;
-    }
-    .recap-photo { object-position: center; }
+    .recap-media { top: 8%; }
+    .recap-photo { object-position: center top; }
     .recap-scrim {
-      background: linear-gradient(180deg, var(--bg) 0%, rgba(7, 7, 7, 0.35) 14%, rgba(7, 7, 7, 0) 30%, rgba(7, 7, 7, 0) 80%, rgba(7, 7, 7, 0.5) 100%);
+      background: linear-gradient(180deg, rgba(7, 7, 7, 0.92) 0%, rgba(7, 7, 7, 0.78) 40%, rgba(7, 7, 7, 0.15) 62%, rgba(7, 7, 7, 0.05) 82%, rgba(7, 7, 7, 0.55) 100%);
     }
-    .recap-desc { margin-bottom: 1.6rem; }
+    .recap-eyebrow { font-size: 0.62rem; letter-spacing: 0.16em; margin-bottom: 0.7rem; }
+    .recap-title { font-size: clamp(2.6rem, 13vw, 3.4rem); margin-bottom: 0.9rem; }
+    .recap-desc { font-size: 0.9rem; line-height: 1.55; margin-bottom: 1.1rem; }
   }
 
   @media (max-width: 480px) {
