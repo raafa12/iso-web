@@ -439,7 +439,7 @@ function Card({
         <span className="ps-thumb" ref={media}>
           {imgs.length ? (
             imgs.map((src, k) => (
-              <img key={src} className={`ps-img${src === p.front ? " is-front" : ""}${k === shown ? " on" : ""}`} src={src} alt="" loading="lazy" draggable={false} />
+              <img key={src} className={`ps-img${k === shown ? " on" : ""}`} src={src} alt="" loading="lazy" draggable={false} />
             ))
           ) : (
             <span className="ps-soon">Foto pronto</span>
