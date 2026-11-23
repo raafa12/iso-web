@@ -104,10 +104,22 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
   useEffect(() => {
     if (window.matchMedia("(hover: hover)").matches) return;
     let raf = 0, lx = 0, ly = 0;
+    // Menos saltos: una prenda tiene que estar bajo el dedo 180 ms para darse la vuelta,
+    // y una vez girada se queda así al menos 900 ms aunque el dedo pase a otra.
+    let shown: string | null = null, shownAt = 0, cand: string | null = null, candAt = 0;
     const pick = () => {
       raf = 0;
-      const el = document.elementFromPoint(lx, ly)?.closest<HTMLElement>("[data-card]");
-      setFingerOn(el?.dataset.card ?? null);
+      const id = document.elementFromPoint(lx, ly)?.closest<HTMLElement>("[data-card]")?.dataset.card ?? null;
+      const now = performance.now();
+      if (id !== cand) {
+        cand = id;
+        candAt = now;
+      }
+      if (cand && cand !== shown && now - candAt > 180 && now - shownAt > 900) {
+        shown = cand;
+        shownAt = now;
+        setFingerOn(shown);
+      }
     };
     const onTouch = (e: TouchEvent) => {
       const t = e.touches[0];
@@ -116,7 +128,17 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
       ly = t.clientY;
       if (!raf) raf = requestAnimationFrame(pick);
     };
-    const onEnd = () => setFingerOn(null);
+    // mientras el dedo esté quieto encima también cuenta el tiempo
+    const tick = window.setInterval(() => cand && pick(), 100);
+    const onEnd = () => {
+      cand = null;
+      const wait = Math.max(0, 900 - (performance.now() - shownAt));
+      window.setTimeout(() => {
+        if (cand) return;
+        shown = null;
+        setFingerOn(null);
+      }, shown ? wait : 0);
+    };
     document.addEventListener("touchstart", onTouch, { passive: true });
     document.addEventListener("touchmove", onTouch, { passive: true });
     document.addEventListener("touchend", onEnd, { passive: true });
@@ -126,6 +148,7 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
       document.removeEventListener("touchmove", onTouch);
       document.removeEventListener("touchend", onEnd);
       document.removeEventListener("touchcancel", onEnd);
+      window.clearInterval(tick);
     };
   }, []);
 

@@ -544,5 +544,5 @@
   .ps-open { touch-action: pan-y; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
   .ps-img { pointer-events: none; -webkit-touch-callout: none; }
   .ps-card.is-scrub .ps-dots { opacity: 1; }
-  .ps-card .ps-img { transition: opacity 0.15s ease, transform 0.5s ease; }
+  .ps-card .ps-img { transition: opacity 0.35s ease, transform 0.8s ease; }
 }

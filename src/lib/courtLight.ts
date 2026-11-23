@@ -34,29 +34,34 @@ export function courtLight(el: HTMLElement, litSelector = ".court-lit, .pvc-lit"
 
   // ---- Táctil ----
   let touching = false;
-  let lastTouch = 0;
   const onTouch = (e: TouchEvent) => {
     const t = e.touches[0];
     if (!t) return;
     touching = true;
-    lastTouch = performance.now();
     set(...local(t.clientX, t.clientY));
   };
   el.addEventListener("touchstart", onTouch, { passive: true });
   el.addEventListener("touchmove", onTouch, { passive: true });
-  el.addEventListener("touchend", () => { touching = false; lastTouch = performance.now(); }, { passive: true });
+  el.addEventListener("touchend", () => { touching = false; }, { passive: true });
 
-  // Recorrido automático (en forma de 8) mientras está en pantalla y nadie toca
-  let visible = false, raf = 0;
-  const loop = (now: number) => {
-    if (!touching && now - lastTouch > 1200) {
-      const w = el.clientWidth, h = el.clientHeight, s = now / 1000;
-      set(w * (0.5 + 0.36 * Math.sin(s * 0.55)), h * (0.55 + 0.25 * Math.sin(s * 1.1)));
-    }
-    raf = visible ? requestAnimationFrame(loop) : 0;
+  // Una sola pasada automática al entrar (de izquierda a derecha); después solo con el dedo
+  let start = 0;
+  const DUR = 3200;
+  const sweep = (now: number) => {
+    if (touching) return;
+    if (!start) start = now;
+    const t = Math.min(1, (now - start) / DUR);
+    const e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+    const w = el.clientWidth, h = el.clientHeight;
+    set(w * (0.1 + 0.8 * e), h * (0.62 - 0.18 * Math.sin(e * Math.PI)));
+    if (t < 1) requestAnimationFrame(sweep);
+    else window.setTimeout(() => !touching && el.classList.remove("is-lit"), 400);
   };
-  new IntersectionObserver(([e]) => {
-    visible = e.isIntersecting;
-    if (visible && !raf) raf = requestAnimationFrame(loop);
-  }).observe(el);
+  const io = new IntersectionObserver(([e]) => {
+    if (!e.isIntersecting) return;
+    io.disconnect();
+    window.setTimeout(() => requestAnimationFrame(sweep), 600);
+  });
+  io.observe(el);
+  el.addEventListener("touchend", () => window.setTimeout(() => !touching && el.classList.remove("is-lit"), 900), { passive: true });
 }
