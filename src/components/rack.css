@@ -1,18 +1,15 @@
 /* ============ EL PERCHERO ============ */
 .rack {
   /* Tema oscuro, como el resto de la web: --ink = texto, --paper = fondo */
-  --ink: var(--white, #f2ede5);
-  --paper: #0b0b0b;
-  --muted: #8d877d;
-  --line: rgba(242, 237, 229, 0.2);
-  --gh: clamp(260px, 24vw, 400px); /* alto de la prenda colgada (fotos reales en percha) */
+  --ink: #111;
+  --paper: #f4f4f2;
+  --muted: #8b8984;
+  --line: rgba(17, 17, 17, 0.16);
+  --gh: clamp(230px, 19vw, 330px); /* alto de la prenda colgada (fotos reales en percha) */
   --hook: calc(var(--gh) * 0.125); /* espacio entre barra y cuello */
   position: relative;
-  background:
-    radial-gradient(55% 65% at 50% 58%, #333 0%, #1c1c1c 50%, var(--paper) 100%);
+  background: var(--paper);
   color: var(--ink);
-  border-top: 1px solid rgba(242, 237, 229, 0.06);
-  border-bottom: 1px solid rgba(242, 237, 229, 0.06);
   padding: clamp(2.5rem, 6vw, 5rem) 0 clamp(2rem, 4vw, 3.5rem);
   overflow: hidden;
 }
@@ -23,7 +20,7 @@
   padding: 0 var(--pad, 1.5rem);
   display: flex;
   align-items: flex-end;
-  justify-content: space-between;
+  justify-content: center;
   gap: 1rem;
   flex-wrap: wrap;
 }
@@ -39,12 +36,11 @@
 }
 
 .rack-hint {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-style: italic;
+  font-family: var(--font-body);
+  font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.18em;
-  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  font-size: 0.68rem;
   color: var(--muted);
 }
 .hint-touch { display: none; }
@@ -72,29 +68,28 @@
 .rack-stage {
   position: relative;
   width: max-content;
-  min-width: 100%;
   margin: 0 auto;
-  padding: clamp(2.5rem, 5vw, 4rem) clamp(2rem, 6vw, 6rem) 3.5rem;
+  padding: clamp(2.5rem, 5vw, 4rem) clamp(3rem, 6vw, 6rem) 3rem;
   display: flex;
   justify-content: center;
 }
 
 .rack-bar {
   position: absolute;
-  left: clamp(1rem, 4vw, 4rem);
-  right: clamp(1rem, 4vw, 4rem);
+  left: clamp(1rem, 2vw, 2rem);
+  right: clamp(1rem, 2vw, 2rem);
   top: calc(clamp(2.5rem, 5vw, 4rem) - 2px);
-  height: 7px;
-  border-radius: 7px;
-  background: linear-gradient(180deg, #d8d8d8 0%, #9a9a9a 45%, #5e5e5e 70%, #a8a8a8 100%);
-  box-shadow: 0 6px 12px -6px rgba(0, 0, 0, 0.8);
+  height: 5px;
+  border-radius: 5px;
+  background: linear-gradient(180deg, #f2f2f2 0%, #bdbdbd 45%, #8a8a8a 70%, #d4d4d4 100%);
+  box-shadow: 0 4px 8px -4px rgba(0, 0, 0, 0.35);
 }
 .rack-knob {
   position: absolute;
   top: 50%;
-  width: 16px;
-  height: 16px;
-  margin-top: -8px;
+  width: 11px;
+  height: 11px;
+  margin-top: -5.5px;
   border-radius: 50%;
   background: radial-gradient(circle at 35% 35%, #f4f4f4, #9a9a9a 70%);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
@@ -115,8 +110,9 @@
   --swing: 0deg;
   --shade: 1;
   position: relative;
-  margin-inline: calc(var(--gh) * -0.05);
+  margin-inline: calc(var(--gh) * -0.1);
   perspective: 1100px;
+  transition: opacity 0.35s ease;
 }
 
 .rack-garment {
@@ -143,28 +139,18 @@
 /* ---- Percha ----
    Escala: la percha mide 0.6·gh de ancho → 1 unidad SVG = 0.003·gh.
    Gancho por encima de la barra y tallo que se mete por el cuello (detrás de la prenda). */
-.rack-hook {
+.rack-hanger {
   position: absolute;
-  top: calc(-6px - var(--gh) * 0.012);
+  top: calc(-6px - var(--gh) * 0.03);
   left: 50%;
-  width: calc(var(--gh) * 0.072);
-  height: calc(var(--gh) * 0.138);
+  height: calc(var(--hook) + 8px + var(--gh) * 0.03);
+  width: auto;
+  aspect-ratio: 40 / 64;
+  transform: translateX(-50%);
   overflow: visible;
-  transform: translateX(-50%);
   pointer-events: none;
 }
-.rack-hook path { stroke: #a3a3a3; }
-.rack-hook-stem {
-  position: absolute;
-  top: calc(-6px + var(--gh) * 0.1);
-  left: 50%;
-  width: calc(var(--gh) * 0.0096);
-  height: calc(var(--hook) - var(--gh) * 0.1 + 6px + var(--gh) * 0.05);
-  border-radius: 2px;
-  background: #a3a3a3;
-  transform: translateX(-50%);
-  pointer-events: none;
-}
+.rack-big .rack-hanger { top: -4px; height: calc(var(--hook) + 6px); }
 
 /* ---- Prenda (dos caras) ---- */
 .rack-flip {
@@ -176,6 +162,7 @@
   transform-style: preserve-3d;
   transition: opacity 0.25s;
 }
+.rack-items:hover .rack-item:not(.is-hover) { opacity: 0.72; }
 .rack-face {
   display: block;
   height: 100%;
@@ -184,7 +171,7 @@
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   user-select: none;
-  filter: brightness(var(--shade)) drop-shadow(0 18px 18px rgba(0, 0, 0, 0.55)) drop-shadow(0 0 1px rgba(255, 255, 255, 0.12));
+  filter: brightness(var(--shade)) drop-shadow(0 14px 14px rgba(0, 0, 0, 0.16));
 }
 .rack-face.back {
   position: absolute;
@@ -193,29 +180,27 @@
   transform: translateX(-50%) rotateY(180deg);
 }
 .rack-item.is-picked .rack-flip,
-.rack-item.is-picked .rack-hook,
-.rack-item.is-picked .rack-hook-stem { opacity: 0; }
+.rack-item.is-picked .rack-hanger { opacity: 0; }
 
 .rack-caption {
   min-height: 1.4em;
-  margin-top: -1.2rem;
+  margin-top: -0.6rem;
   text-align: center;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-style: italic;
+  font-family: var(--font-body);
+  font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.16em;
-  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  font-size: 0.72rem;
   color: var(--muted);
 }
 .rack-caption-price { margin-left: 0.9em; color: var(--ink); }
 
 /* ============ DETALLE ============ */
 .rack-detail {
-  --ink: var(--white, #f2ede5);
-  --paper: #0b0b0b;
-  --muted: #8d877d;
-  --line: rgba(242, 237, 229, 0.2);
+  --ink: #111;
+  --paper: #f4f4f2;
+  --muted: #8b8984;
+  --line: rgba(17, 17, 17, 0.16);
   position: fixed;
   inset: 0;
   z-index: 250; /* por encima del navbar (200), por debajo del carrito (299) */
@@ -224,14 +209,14 @@
   overflow-y: auto;
   padding: 4.5rem 1rem 2rem;
   color: var(--ink);
-  background: rgba(11, 11, 11, 0.86);
+  background: rgba(244, 244, 242, 0.88);
   -webkit-backdrop-filter: blur(16px) saturate(0.85);
   backdrop-filter: blur(16px) saturate(0.85);
   animation: rack-fade 0.35s ease both;
 }
 .rack-detail.is-closing { animation: rack-fade-out 0.42s ease both; }
 @keyframes rack-fade { from { opacity: 0; } }
-@keyframes rack-fade-out { to { background: rgba(11, 11, 11, 0); -webkit-backdrop-filter: blur(0); backdrop-filter: blur(0); } }
+@keyframes rack-fade-out { to { background: rgba(244, 244, 242, 0); -webkit-backdrop-filter: blur(0); backdrop-filter: blur(0); } }
 .rack-detail.is-closing .rack-info,
 .rack-detail.is-closing .rack-tags,
 .rack-detail.is-closing .rack-close,
@@ -288,15 +273,15 @@
   font-size: 0.62rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  background: #e86a3a;
-  color: #fff;
+  background: var(--accent, #7ec8e3);
+  color: #071820;
   border-radius: 3px 3px 2px 2px;
   box-shadow: 0 6px 10px -4px rgba(0, 0, 0, 0.3);
   transform-origin: 50% -38px;
   animation: rack-tag-sway 3.2s ease-in-out infinite alternate;
 }
 .rack-tag:nth-child(2) { animation-delay: -1.2s; margin-top: 52px; transform-origin: 50% -52px; }
-.rack-tag.dark { background: var(--accent, #7ec8e3); color: #071820; }
+.rack-tag.dark { background: #111; color: #f4f4f2; }
 .rack-tag::before {
   content: "";
   position: absolute;
@@ -330,27 +315,24 @@
   transition: opacity 0.25s;
 }
 .rack-info-cat {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-style: italic;
+  font-family: var(--font-body);
+  font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.2em;
-  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  font-size: 0.68rem;
   color: var(--muted);
 }
 .rack-info-name {
-  font-family: var(--font-display);
-  font-weight: 900;
-  font-style: italic;
+  font-family: var(--font-body);
+  font-weight: 600;
   text-transform: uppercase;
-  font-size: clamp(1.8rem, 4.5vw, 2.6rem);
-  line-height: 0.92;
-  letter-spacing: -0.01em;
+  font-size: 0.95rem;
+  letter-spacing: 0.12em;
 }
 .rack-info-price {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 1.05rem;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--muted);
   letter-spacing: 0.06em;
 }
 
@@ -392,18 +374,17 @@
   min-width: min(320px, 100%);
   padding: 0.95rem 1.6rem;
   border-radius: 999px;
-  background: var(--accent, #7ec8e3);
-  color: #071820;
-  font-family: var(--font-display);
-  font-weight: 900;
-  font-style: italic;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-body);
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: 0.95rem;
+  letter-spacing: 0.14em;
+  font-size: 0.78rem;
   transition: transform 0.15s, opacity 0.2s;
 }
 .rack-cta:hover:not(:disabled) { transform: translateY(-1px); }
-.rack-cta:disabled { opacity: 0.35; cursor: default; }
+.rack-cta:disabled { background: #d6d5d1; color: #8b8984; cursor: default; }
 
 .rack-guide {
   font-size: 0.75rem;
@@ -455,7 +436,7 @@
   .rack-item { scroll-snap-align: center; margin-inline: calc(var(--gh) * -0.02); }
   .rack-big { --gh: min(40vh, 330px); --hook: calc(var(--gh) * 0.125); }
   .rack-tags { left: calc(50% + var(--gh) * 0.3); }
-  .rack-arrow { top: calc(4.5rem + min(40vh, 330px) * 0.85); width: 44px; height: 44px; background: rgba(11, 11, 11, 0.9); }
+  .rack-arrow { top: calc(4.5rem + min(40vh, 330px) * 0.85); width: 44px; height: 44px; background: rgba(244, 244, 242, 0.92); }
 }
 
 /* Táctil: botones cómodos para el dedo */

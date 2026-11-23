@@ -63,15 +63,25 @@ function prefersReducedMotion() {
 }
 
 // --- Percha ---
-// La percha va "dentro" de la prenda: solo se ve el gancho metálico saliendo por el cuello.
+// Gancho cromado que sale de la barra y la pieza de madera de la percha asomando por el cuello.
 function Hanger() {
   return (
-    <>
-      <span className="rack-hook-stem" aria-hidden="true" />
-      <svg className="rack-hook" viewBox="88 -4 24 46" aria-hidden="true">
-        <path d="M100 42 L100 22 C100 14 108 12 108 6 C108 0 100 -2 95 2" fill="none" strokeWidth="3.2" strokeLinecap="round" />
-      </svg>
-    </>
+    <svg className="rack-hanger" viewBox="0 0 40 64" aria-hidden="true">
+      <defs>
+        <linearGradient id="rk-chrome" x1="0" x2="1">
+          <stop offset="0" stopColor="#7d7d7d" />
+          <stop offset="0.45" stopColor="#e6e6e6" />
+          <stop offset="1" stopColor="#8f8f8f" />
+        </linearGradient>
+        <linearGradient id="rk-wood" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0" stopColor="#d9b07a" />
+          <stop offset="1" stopColor="#a87443" />
+        </linearGradient>
+      </defs>
+      <path d="M20 50 L20 26 C20 18 28 16 28 9 C28 2 20 0 15 4" fill="none" stroke="url(#rk-chrome)" strokeWidth="2.6" strokeLinecap="round" />
+      <path d="M12 50 Q20 46 28 50 L30 60 Q20 63 10 60 Z" fill="url(#rk-wood)" />
+      <circle cx="20" cy="51" r="1.4" fill="#c9c9c9" />
+    </svg>
   );
 }
 
@@ -481,8 +491,8 @@ export default function RackReact({ products: initial, title = "El Perchero", pr
                 )}
               </div>
               <div className="rack-tags" aria-hidden="true">
-                {current.color && <span className="rack-tag dark">{current.color}</span>}
-                {current.tag && <span className="rack-tag">{current.tag}</span>}
+                <span className="rack-tag dark">ISO</span>
+                <span className="rack-tag">{current.tag ?? current.color ?? "Basketball"}</span>
               </div>
             </div>
 

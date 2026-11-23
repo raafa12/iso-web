@@ -80,7 +80,7 @@ const classicTee = (color: string, front: string, back: string): DropProduct => 
 });
 
 export const ISO_CLASSICS: DropProduct[] = [
-  classicTee("Black", "/rack/tee-icon-front.webp", "/rack/tee-icon-back.webp"),
+  classicTee("Black", "/rack/classic-black-front.webp", "/rack/classic-black-back.webp"),
   classicTee("White", "/rack/classic-white-front.webp", "/rack/classic-white-back.webp"),
   {
     id: "iso-classic-hoodie-black",
