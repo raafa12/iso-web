@@ -23,6 +23,41 @@ interface Props {
 }
 
 type Phase = "soon" | "open" | "closed";
+type Step = "product" | "checkout" | "done";
+type Payment = "bizum" | "contrarreembolso";
+
+const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL as string | undefined;
+const SUPABASE_ANON_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY as string | undefined;
+const SB_HEADERS = { apikey: SUPABASE_ANON_KEY ?? "", Authorization: `Bearer ${SUPABASE_ANON_KEY ?? ""}`, "Content-Type": "application/json" };
+// Teléfono al que se hace el Bizum y al que se avisa por WhatsApp
+const BIZUM_PHONE = "690 342 138";
+const WHATSAPP = "34690342138";
+const LOW_STOCK = 10; // a partir de aquí se avisa de que quedan pocas
+
+interface Customer {
+  name: string;
+  phone: string;
+  email: string;
+  address: string;
+  city: string;
+  postal_code: string;
+  notes: string;
+}
+const EMPTY_CUSTOMER: Customer = { name: "", phone: "", email: "", address: "", city: "", postal_code: "", notes: "" };
+
+interface OrderResult {
+  code: string;
+  total_cents: number;
+  payment: Payment;
+  lines: { name: string; size: string; qty: number }[];
+}
+
+const ERRORS: Record<string, string> = {
+  not_open: "La preventa todavía no está abierta. Abre el 13 de diciembre a las 20:00.",
+  closed: "La preventa ya ha cerrado.",
+  stock: "Justo se han agotado las unidades que pedías. Prueba con menos cantidad.",
+  customer: "Faltan datos de envío.",
+};
 
 const eur = (c: number) => (c / 100).toLocaleString("es-ES", { style: "currency", currency: "EUR" });
 
@@ -47,6 +82,13 @@ export default function PresaleReact({ items, opensAt, closesAt }: Props) {
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
   const [guideOpen, setGuideOpen] = useState(false);
+  const [stock, setStock] = useState<Record<string, number> | null>(null);
+  const [step, setStep] = useState<Step>("product");
+  const [customer, setCustomer] = useState<Customer>(EMPTY_CUSTOMER);
+  const [payment, setPayment] = useState<Payment>("bizum");
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<OrderResult | null>(null);
   const [shown, setShown] = useState<boolean[]>(() => items.map(() => false));
   const listRef = useRef<HTMLUListElement>(null);
   const closeBtn = useRef<HTMLButtonElement>(null);
@@ -60,6 +102,30 @@ export default function PresaleReact({ items, opensAt, closesAt }: Props) {
     const id = window.setInterval(update, 15000);
     return () => window.clearInterval(id);
   }, [open, close]);
+
+  // Stock en directo (Supabase): se refresca cada 20 s y al volver a la pestaña
+  const loadStock = async () => {
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return;
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/presale_stock?select=product_id,stock`, { headers: SB_HEADERS });
+      if (!res.ok) return;
+      const rows: { product_id: string; stock: number }[] = await res.json();
+      setStock(Object.fromEntries(rows.map((r) => [r.product_id, r.stock])));
+    } catch {
+      /* sin conexión: no se muestra el contador */
+    }
+  };
+  useEffect(() => {
+    loadStock();
+    const id = window.setInterval(loadStock, 20000);
+    const onFocus = () => loadStock();
+    window.addEventListener("focus", onFocus);
+    return () => {
+      window.clearInterval(id);
+      window.removeEventListener("focus", onFocus);
+    };
+  }, []);
+  const left = (id: string) => (stock && id in stock ? stock[id] : null);
 
   // Aparecen al bajar
   useEffect(() => {
@@ -88,9 +154,14 @@ export default function PresaleReact({ items, opensAt, closesAt }: Props) {
     setSize(presetSize);
     setQty(1);
     setAdded(false);
+    setStep("product");
+    setError(null);
   }
   function closeItem() {
     setCurrent(null);
+    setStep("product");
+    setError(null);
+    setResult(null);
     setGuideOpen(false);
     returnFocus.current?.focus();
   }
@@ -102,6 +173,8 @@ export default function PresaleReact({ items, opensAt, closesAt }: Props) {
     setSize(null);
     setQty(1);
     setAdded(false);
+    setStep("product");
+    setError(null);
   }
 
   // Teclado, scroll del fondo y foco
@@ -113,6 +186,7 @@ export default function PresaleReact({ items, opensAt, closesAt }: Props) {
     const onKey = (e: KeyboardEvent) => {
       if (guideOpen) return;
       if (e.key === "Escape") closeItem();
+      if (step !== "product") return;
       if (e.key === "ArrowRight") go(1);
       if (e.key === "ArrowLeft") go(-1);
     };
@@ -121,26 +195,53 @@ export default function PresaleReact({ items, opensAt, closesAt }: Props) {
       document.body.style.overflow = prev;
       window.removeEventListener("keydown", onKey);
     };
-  }, [current, guideOpen]);
+  }, [current, guideOpen, step]);
 
   function preorder() {
     if (!item || !size || phase !== "open") return;
-    window.ISOCart?.add(
-      {
-        id: `${item.id}-preventa`,
-        name: `${item.name} · Preventa Isolation`,
-        size,
-        price: item.price_cents,
-        image: item.front ?? item.back ?? "/logo-mark.png",
-      },
-      qty,
-    );
-    setAdded(true);
-    window.setTimeout(() => {
-      closeItem();
-      window.ISOCart?.open();
-    }, 750);
+    setError(null);
+    setStep("checkout");
   }
+
+  async function submitOrder(e: React.FormEvent) {
+    e.preventDefault();
+    if (!item || !size || sending) return;
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+      setError("No se ha podido conectar. Escríbenos por WhatsApp y te lo reservamos.");
+      return;
+    }
+    setSending(true);
+    setError(null);
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/place_presale_order`, {
+        method: "POST",
+        headers: SB_HEADERS,
+        body: JSON.stringify({
+          p_items: [{ product_id: item.id, size, qty }],
+          p_customer: customer,
+          p_payment: payment,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data?.ok) {
+        setError(ERRORS[data?.error] ?? "No se ha podido hacer el pedido. Inténtalo de nuevo o escríbenos por WhatsApp.");
+        loadStock();
+        return;
+      }
+      setResult({ code: data.code, total_cents: data.total_cents, payment, lines: [{ name: item.name, size, qty }] });
+      setStep("done");
+      loadStock();
+    } catch {
+      setError("No se ha podido conectar. Inténtalo de nuevo o escríbenos por WhatsApp.");
+    } finally {
+      setSending(false);
+    }
+  }
+
+  const waMessage = (r: OrderResult) =>
+    `Hola! Acabo de hacer el pedido ${r.code} de la preventa Isolation:\n` +
+    r.lines.map((l) => `• ${l.name} (talla ${l.size}) x${l.qty}`).join("\n") +
+    `\nTotal: ${eur(r.total_cents)} · Pago: ${r.payment === "bizum" ? "Bizum" : "contrarreembolso"}\nNombre: ${customer.name}`;
 
   // Deslizar en la foto: cambia de prenda; tocar: le da la vuelta
   const swipe = useRef<{ x: number; y: number } | null>(null);
@@ -157,8 +258,11 @@ export default function PresaleReact({ items, opensAt, closesAt }: Props) {
     else if (Math.abs(dx) < 10 && Math.abs(dy) < 10 && item.front && item.back) setSide((v) => (v === "front" ? "back" : "front"));
   }
 
+  const itemLeft = item ? left(item.id) : null;
+  const soldOut = itemLeft === 0;
+  const maxQty = Math.max(1, Math.min(5, itemLeft ?? 5));
   const ctaText = (() => {
-    if (added) return "Añadido ✓";
+    if (soldOut) return "Agotado";
     if (phase === "soon") return "Abre el 13 dic · 20:00";
     if (phase === "closed") return "Preventa cerrada";
     if (!size) return "Elige tu talla";
@@ -170,7 +274,7 @@ export default function PresaleReact({ items, opensAt, closesAt }: Props) {
       <ul className="ps-grid" ref={listRef}>
         {items.map((p, i) => (
           <li key={p.id} className={`ps-item${shown[i] ? " is-in" : ""}`} style={{ transitionDelay: `${i * 0.08}s` }}>
-            <Card item={p} onOpen={(e, sz) => openItem(i, e, sz)} />
+            <Card item={p} left={left(p.id)} onOpen={(e, sz) => openItem(i, e, sz)} />
           </li>
         ))}
       </ul>
@@ -215,13 +319,22 @@ export default function PresaleReact({ items, opensAt, closesAt }: Props) {
             </div>
 
             <div className="ps-info">
+              {step === "product" && (
+                <>
               <p className="ps-kicker">
                 <span className="ps-dot" aria-hidden="true" />
                 Drop 001 · Isolation · Preventa
               </p>
               <h3 className="ps-title">{item.name}</h3>
               <p className="ps-desc">{item.description}</p>
-              <p className="ps-big-price">{eur(item.price_cents)}</p>
+              <p className="ps-big-price">
+                {eur(item.price_cents)}
+                {itemLeft != null && (
+                  <span className={`ps-left${soldOut ? " out" : itemLeft <= LOW_STOCK ? " low" : ""}`}>
+                    {soldOut ? "Agotado" : `Quedan ${itemLeft}`}
+                  </span>
+                )}
+              </p>
 
               <div className="ps-field">
                 <div className="ps-label">
@@ -242,14 +355,14 @@ export default function PresaleReact({ items, opensAt, closesAt }: Props) {
                 <div className="ps-qty">
                   <button type="button" onClick={() => setQty((q) => Math.max(1, q - 1))} aria-label="Una menos" disabled={qty <= 1}>−</button>
                   <span aria-live="polite">{qty}</span>
-                  <button type="button" onClick={() => setQty((q) => Math.min(5, q + 1))} aria-label="Una más" disabled={qty >= 5}>+</button>
+                  <button type="button" onClick={() => setQty((q) => Math.min(maxQty, q + 1))} aria-label="Una más" disabled={qty >= maxQty}>+</button>
                 </div>
               </div>
 
               <button
                 type="button"
-                className={`ps-cta${phase === "open" && size ? " ready" : ""}`}
-                disabled={phase !== "open" || !size || added}
+                className={`ps-cta${phase === "open" && size && !soldOut ? " ready" : ""}`}
+                disabled={phase !== "open" || !size || soldOut}
                 onClick={preorder}
               >
                 {ctaText}
@@ -258,8 +371,76 @@ export default function PresaleReact({ items, opensAt, closesAt }: Props) {
               <ul className="ps-notes">
                 <li><b>1 semana</b> de preventa o hasta agotar existencias</li>
                 <li><b>Envío gratis</b> en Santander</li>
-                <li>Cierras el pedido por <b>WhatsApp</b> desde el carrito</li>
+                <li>Pagas por <b>Bizum</b> o <b>contrarreembolso</b></li>
               </ul>
+                </>
+              )}
+
+              {step === "checkout" && (
+                <form className="ps-checkout" onSubmit={submitOrder}>
+                  <button type="button" className="ps-back" onClick={() => setStep("product")}>← Volver</button>
+                  <p className="ps-kicker"><span className="ps-dot" aria-hidden="true" />Tu pedido</p>
+                  <div className="ps-summary">
+                    <span>{item.name} · {size} · x{qty}</span>
+                    <b>{eur(item.price_cents * qty)}</b>
+                  </div>
+
+                  <div className="ps-form">
+                    <label className="wide">Nombre y apellidos<input required autoComplete="name" value={customer.name} onChange={(e) => setCustomer({ ...customer, name: e.target.value })} /></label>
+                    <label>Teléfono<input required type="tel" autoComplete="tel" value={customer.phone} onChange={(e) => setCustomer({ ...customer, phone: e.target.value })} /></label>
+                    <label><span>Email <i>(opcional)</i></span><input type="email" autoComplete="email" value={customer.email} onChange={(e) => setCustomer({ ...customer, email: e.target.value })} /></label>
+                    <label className="wide">Dirección<input required autoComplete="street-address" value={customer.address} onChange={(e) => setCustomer({ ...customer, address: e.target.value })} /></label>
+                    <label>Ciudad<input required autoComplete="address-level2" value={customer.city} onChange={(e) => setCustomer({ ...customer, city: e.target.value })} /></label>
+                    <label>Código postal<input required inputMode="numeric" autoComplete="postal-code" value={customer.postal_code} onChange={(e) => setCustomer({ ...customer, postal_code: e.target.value })} /></label>
+                  </div>
+
+                  <fieldset className="ps-pay">
+                    <legend>Forma de pago</legend>
+                    <label className={payment === "bizum" ? "on" : ""}>
+                      <input type="radio" name="pay" checked={payment === "bizum"} onChange={() => setPayment("bizum")} />
+                      <b>Bizum</b>
+                      <span>Al confirmar te damos el número y el concepto.</span>
+                    </label>
+                    <label className={payment === "contrarreembolso" ? "on" : ""}>
+                      <input type="radio" name="pay" checked={payment === "contrarreembolso"} onChange={() => setPayment("contrarreembolso")} />
+                      <b>Contrarreembolso</b>
+                      <span>Pagas en efectivo cuando te llega.</span>
+                    </label>
+                  </fieldset>
+
+                  {error && <p className="ps-error" role="alert">{error}</p>}
+
+                  <button type="submit" className="ps-cta ready" disabled={sending}>
+                    {sending ? "Reservando…" : `Confirmar pedido · ${eur(item.price_cents * qty)}`}
+                  </button>
+                  <p className="ps-fine">Envío gratis en Santander. Fuera de Santander te confirmamos el envío por WhatsApp.</p>
+                </form>
+              )}
+
+              {step === "done" && result && (
+                <div className="ps-done">
+                  <p className="ps-kicker"><span className="ps-dot" aria-hidden="true" />Pedido reservado</p>
+                  <h3 className="ps-title">{result.code}</h3>
+                  <p className="ps-desc">
+                    {result.lines.map((l) => `${l.name} · ${l.size} · x${l.qty}`).join(", ")} — <b>{eur(result.total_cents)}</b>
+                  </p>
+                  {result.payment === "bizum" ? (
+                    <div className="ps-howto">
+                      <p>Haz un <b>Bizum de {eur(result.total_cents)}</b> al <b>{BIZUM_PHONE}</b> con el concepto <b>{result.code}</b>.</p>
+                      <p>Tu prenda queda reservada 24 horas. Cuando nos llegue el Bizum, te confirmamos el pedido.</p>
+                    </div>
+                  ) : (
+                    <div className="ps-howto">
+                      <p>Pagas <b>{eur(result.total_cents)}</b> en efectivo cuando te llegue el pedido.</p>
+                      <p>Te escribiremos para confirmar la dirección y la entrega.</p>
+                    </div>
+                  )}
+                  <a className="ps-cta ready ps-wa" href={`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(waMessage(result))}`} target="_blank" rel="noopener noreferrer">
+                    Avisar por WhatsApp
+                  </a>
+                  <button type="button" className="ps-guide" onClick={closeItem}>Cerrar</button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -271,7 +452,15 @@ export default function PresaleReact({ items, opensAt, closesAt }: Props) {
 }
 
 // ---- Tarjeta: al pasar el ratón cambia de foto (fundido + zoom suave) y aparecen las tallas ----
-function Card({ item: p, onOpen }: { item: PresaleItem; onOpen: (e: React.MouseEvent<HTMLElement>, size: string | null) => void }) {
+function Card({
+  item: p,
+  left,
+  onOpen,
+}: {
+  item: PresaleItem;
+  left: number | null;
+  onOpen: (e: React.MouseEvent<HTMLElement>, size: string | null) => void;
+}) {
   const first = p.cover === "front" ? p.front ?? p.back : p.back ?? p.front;
   const imgs = [first, first === p.front ? p.back : p.front].filter(Boolean) as string[];
   const [idx, setIdx] = useState(0);
@@ -286,7 +475,7 @@ function Card({ item: p, onOpen }: { item: PresaleItem; onOpen: (e: React.MouseE
 
   return (
     <div
-      className={`ps-card${hover ? " is-hover" : ""}`}
+      className={`ps-card${hover ? " is-hover" : ""}${left === 0 ? " is-out" : ""}`}
       onPointerEnter={(e) => {
         if (e.pointerType !== "mouse") return;
         setHover(true);
@@ -330,7 +519,14 @@ function Card({ item: p, onOpen }: { item: PresaleItem; onOpen: (e: React.MouseE
           <span className="ps-name">{p.name}</span>
           <span className="ps-price">{eur(p.price_cents)}</span>
         </span>
-        <span className="ps-cat">{p.category} · Isolation</span>
+        <span className="ps-cat">
+          {p.category} · Isolation
+          {left != null && (
+            <span className={`ps-stock${left === 0 ? " out" : left <= LOW_STOCK ? " low" : ""}`}>
+              {left === 0 ? "Agotado" : `Quedan ${left}`}
+            </span>
+          )}
+        </span>
       </button>
     </div>
   );
