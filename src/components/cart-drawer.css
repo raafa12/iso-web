@@ -291,7 +291,7 @@
 }
 .cart-pay label {
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: auto 1fr auto;
   column-gap: 0.7rem;
   align-items: center;
   padding: 0.7rem 0.9rem;
@@ -300,9 +300,9 @@
   transition: border-color 0.2s;
 }
 .cart-pay label.on { border-color: var(--white); }
-.cart-pay input { grid-row: span 2; accent-color: var(--accent); width: 18px; height: 18px; }
+.cart-pay input { accent-color: var(--accent); width: 18px; height: 18px; margin: 0; }
 .cart-pay b { font-weight: 600; font-size: 0.9rem; color: var(--white); }
-.cart-pay span { font-size: 0.78rem; color: var(--muted-light); }
+
 .cart-totals { display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.9rem; color: var(--muted-light); }
 .cart-totals div { display: flex; justify-content: space-between; }
 .cart-totals .tot { padding-top: 0.5rem; margin-top: 0.2rem; border-top: 1px solid var(--border); color: var(--white); font-weight: 700; }
@@ -330,3 +330,18 @@
 }
 .cart-howto b { color: var(--white); }
 .cart-wa { display: grid; place-items: center; text-decoration: none; }
+
+/* Distintivos de pago */
+.pay-badges { display: inline-flex; gap: 4px; }
+.pay-badge {
+  display: inline-grid;
+  place-items: center;
+  height: 24px;
+  min-width: 38px;
+  padding: 0 6px;
+  background: #fff;
+  border-radius: 4px;
+}
+.pay-ico { height: 15px; width: auto; display: block; }
+.pay-bizum { font-family: var(--font-body); font-weight: 800; font-size: 0.8rem; letter-spacing: -0.02em; color: #05c3dd; }
+.cart-secure { display: flex; align-items: center; justify-content: center; gap: 0.4rem; font-size: 0.72rem; color: var(--muted-light); }

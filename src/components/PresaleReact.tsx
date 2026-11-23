@@ -302,7 +302,7 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
                 <li><b>{unitsPerItem} unidades</b> por prenda, sin reposición</li>
                 <li><b>1 semana</b> de preventa o hasta agotar existencias</li>
                 <li><b>Envío gratis</b> en Santander · resto {eur(shippingCents)}</li>
-                <li>Pagas con <b>Bizum</b>, <b>tarjeta</b> o <b>contrarreembolso</b> al finalizar la compra</li>
+                <li>Pagas con <b>Bizum</b>, <b>tarjeta</b>, <b>PayPal</b> o <b>contrarreembolso</b> al finalizar la compra</li>
               </ul>
             </div>
           </div>

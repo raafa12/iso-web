@@ -60,7 +60,7 @@ create table if not exists public.orders (
   city            text not null,
   postal_code     text not null,
   notes           text,
-  payment         text not null check (payment in ('bizum', 'tarjeta', 'contrarreembolso')),
+  payment         text not null,
   items           jsonb not null,   -- [{product_id, name, size, qty, price_cents, presale}]
   has_presale     boolean not null default false,
   shipping_cents  int not null default 0,
@@ -68,6 +68,10 @@ create table if not exists public.orders (
   status          text not null default 'pendiente'
                   check (status in ('pendiente', 'pagado', 'enviado', 'entregado', 'cancelado'))
 );
+
+alter table public.orders drop constraint if exists orders_payment_check;
+alter table public.orders add constraint orders_payment_check
+  check (payment in ('bizum', 'tarjeta', 'paypal', 'contrarreembolso'));
 
 -- ---------- Seguridad: la web solo LEE stock, precios y fechas ----------
 alter table public.presale_config enable row level security;
@@ -109,7 +113,7 @@ declare
   presale  boolean := false;
   new_code text;
 begin
-  if p_payment not in ('bizum', 'tarjeta', 'contrarreembolso') then
+  if p_payment not in ('bizum', 'tarjeta', 'paypal', 'contrarreembolso') then
     return jsonb_build_object('ok', false, 'error', 'payment');
   end if;
   if coalesce(trim(p_customer->>'name'), '') = ''

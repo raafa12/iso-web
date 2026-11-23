@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import "./cart-drawer.css";
+import { PayBadge } from "./PayBadges.tsx";
 import {
   BIZUM_PHONE,
   ORDER_ERRORS,
@@ -200,18 +201,30 @@ export default function CartDrawerReact() {
     }
     setSending(true);
     try {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/place_order`, {
-        method: "POST",
-        headers: SB_HEADERS,
-        body: JSON.stringify({
-          p_items: cart.map((i) => ({ product_id: i.id, size: i.size, qty: i.qty })),
-          p_customer: customer,
-          p_payment: payment,
-        }),
-      });
-      const data = await res.json();
+      let res: Response;
+      try {
+        res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/place_order`, {
+          method: "POST",
+          headers: SB_HEADERS,
+          body: JSON.stringify({
+            p_items: cart.map((i) => ({ product_id: i.id, size: i.size, qty: i.qty })),
+            p_customer: customer,
+            p_payment: payment,
+          }),
+        });
+      } catch (err) {
+        console.error("[ISO] pedido: no hay conexión con Supabase", err);
+        setError("No se ha podido conectar con la tienda. Inténtalo en un momento o escríbenos por WhatsApp.");
+        return;
+      }
+      const data = await res.json().catch(() => null);
       if (!res.ok || !data?.ok) {
-        setError(ORDER_ERRORS[data?.error] ?? "No se ha podido hacer el pedido. Inténtalo de nuevo o escríbenos por WhatsApp.");
+        console.error("[ISO] pedido rechazado", res.status, data);
+        if (res.status === 404 || data?.code === "PGRST202") {
+          setError("La tienda todavía no está activada. Escríbenos por WhatsApp y te lo preparamos.");
+        } else {
+          setError(ORDER_ERRORS[data?.error] ?? "No se ha podido hacer el pedido. Inténtalo de nuevo o escríbenos por WhatsApp.");
+        }
         return;
       }
       setOrder({ code: data.code, total: data.total_cents, payment, lines, presale: hasPresale });
@@ -319,15 +332,16 @@ export default function CartDrawerReact() {
               <legend>Forma de pago</legend>
               {(
                 [
-                  ["bizum", "Bizum", "Al confirmar te damos el número y el concepto."],
-                  ["tarjeta", "Tarjeta (Visa / Mastercard)", "Te enviamos un enlace de pago seguro."],
-                  ["contrarreembolso", "Contrarreembolso", "Pagas en efectivo cuando te llega."],
-                ] as [Payment, string, string][]
-              ).map(([k, title, sub]) => (
+                  ["bizum", "Bizum"],
+                  ["tarjeta", "Tarjeta"],
+                  ["paypal", "PayPal"],
+                  ["contrarreembolso", "Contrarreembolso"],
+                ] as [Payment, string][]
+              ).map(([k, title]) => (
                 <label key={k} className={payment === k ? "on" : ""}>
                   <input type="radio" name="pay" checked={payment === k} onChange={() => setPayment(k)} />
                   <b>{title}</b>
-                  <span>{sub}</span>
+                  <PayBadge method={k} />
                 </label>
               ))}
             </fieldset>
@@ -361,6 +375,7 @@ export default function CartDrawerReact() {
                   <p>Te mandamos por email el número para hacer el <b>Bizum de {eur(order.total)}</b> con el concepto <b>{order.code}</b>.</p>
                 ))}
               {order.payment === "tarjeta" && <p>Te enviamos un <b>enlace de pago con tarjeta de {eur(order.total)}</b> por email.</p>}
+              {order.payment === "paypal" && <p>Te enviamos un <b>enlace de pago de PayPal de {eur(order.total)}</b> por email.</p>}
               {order.payment === "contrarreembolso" && <p>Pagas <b>{eur(order.total)}</b> en efectivo cuando te llegue el pedido.</p>}
               {order.payment !== "contrarreembolso" && <p>Tu pedido queda reservado 24 horas mientras se completa el pago.</p>}
               {order.presale && <p>Las prendas de preventa se envían al cerrar la preventa.</p>}
