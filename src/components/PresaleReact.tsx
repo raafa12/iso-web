@@ -331,25 +331,40 @@ function Card({
   const [hover, setHover] = useState(false);
   const media = useRef<HTMLSpanElement>(null);
 
-  // Táctil: deslizar el dedo en horizontal sobre la foto pasa a la otra cara (sin abrir la ficha)
-  const touch = useRef<{ x: number; y: number; done: boolean } | null>(null);
+  // Táctil: mientras el dedo se desliza por la foto se ve la otra cara (como la preview de un vídeo); al soltar, vuelve
+  const touch = useRef<{ x: number; y: number; scrubbing: boolean } | null>(null);
   const swiped = useRef(false);
+  const [scrub, setScrub] = useState(false);
   function onTouchStart(e: React.TouchEvent) {
     const t = e.touches[0];
-    touch.current = { x: t.clientX, y: t.clientY, done: false };
+    touch.current = { x: t.clientX, y: t.clientY, scrubbing: false };
     swiped.current = false;
   }
   function onTouchMove(e: React.TouchEvent) {
     const s0 = touch.current;
-    if (!s0 || s0.done || imgs.length < 2) return;
+    if (!s0 || imgs.length < 2) return;
     const t = e.touches[0];
     const dx = t.clientX - s0.x;
     const dy = t.clientY - s0.y;
-    if (Math.abs(dx) > 28 && Math.abs(dx) > Math.abs(dy) * 1.2) {
-      s0.done = true;
+    if (!s0.scrubbing) {
+      if (Math.abs(dx) < 8 || Math.abs(dx) < Math.abs(dy)) return; // scroll vertical: no se toca
+      s0.scrubbing = true;
       swiped.current = true;
-      setIdx((i) => (i + (dx < 0 ? 1 : imgs.length - 1)) % imgs.length);
+      setScrub(true);
     }
+    if (imgs.length === 2) {
+      setIdx(1);
+    } else if (media.current) {
+      const r = media.current.getBoundingClientRect();
+      setIdx(Math.min(imgs.length - 1, Math.max(0, Math.floor(((t.clientX - r.left) / r.width) * imgs.length))));
+    }
+  }
+  function onTouchEnd() {
+    if (touch.current?.scrubbing) {
+      setIdx(0);
+      setScrub(false);
+    }
+    touch.current = null;
   }
   function onOpenClick(e: React.MouseEvent<HTMLElement>) {
     if (swiped.current) {
@@ -367,7 +382,7 @@ function Card({
 
   return (
     <div
-      className={`ps-card${hover ? " is-hover" : ""}${left === 0 ? " is-out" : ""}`}
+      className={`ps-card${hover ? " is-hover" : ""}${scrub ? " is-scrub" : ""}${left === 0 ? " is-out" : ""}`}
       onPointerEnter={(e) => {
         if (e.pointerType !== "mouse") return;
         setHover(true);
@@ -381,7 +396,7 @@ function Card({
       }}
     >
       <div className="ps-mediawrap">
-      <button type="button" className="ps-open" onClick={onOpenClick} onTouchStart={onTouchStart} onTouchMove={onTouchMove} aria-label={`${p.name}, ${eur(p.price_cents)}. Ver y precomprar`}>
+      <button type="button" className="ps-open" onClick={onOpenClick} onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd} onTouchCancel={onTouchEnd} aria-label={`${p.name}, ${eur(p.price_cents)}. Ver y precomprar`}>
         <span className="ps-thumb" ref={media}>
           {imgs.length ? (
             imgs.map((src, k) => (

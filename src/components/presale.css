@@ -539,18 +539,9 @@
   .ps-form { grid-template-columns: 1fr; }
 }
 
-/* Táctil: se desliza la foto en horizontal; las barritas se ven siempre para indicar que hay otra cara */
+/* Táctil: al deslizar el dedo se ve la otra cara; las barritas solo mientras se desliza */
 @media (hover: none) {
   .ps-open { touch-action: pan-y; }
-  .ps-dots { opacity: 1; }
-  .ps-dots::after {
-    content: "Desliza ⇄";
-    position: absolute;
-    top: 0.5rem;
-    right: 0;
-    font-size: 0.6rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: #8a8a86;
-  }
+  .ps-card.is-scrub .ps-dots { opacity: 1; }
+  .ps-card.is-scrub .ps-img { transition: opacity 0.18s ease, transform 0.6s ease; }
 }
