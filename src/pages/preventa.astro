@@ -82,7 +82,8 @@ const ticker = ['Call for an ISO', 'Out of my waaay', 'Isolate yourself', 'If yo
 
         <ul class="pv-facts">
           <li><b>1 semana</b><span>O hasta agotar existencias</span></li>
-          <li><b>Envío gratis</b><span>En Santander</span></li>
+          <li><b>{PRESALE.unitsPerItem} por prenda</b><span>Unidades limitadas, sin reposición</span></li>
+          <li><b>Envío gratis</b><span>En Santander · resto 4,99 €</span></li>
           <li><b>S · M · L · XL</b><span>Corte oversize</span></li>
         </ul>
       </div>
@@ -101,7 +102,7 @@ const ticker = ['Call for an ISO', 'Out of my waaay', 'Isolate yourself', 'If yo
 
     <!-- ============ LAS PIEZAS ============ -->
     <section class="pv-list" aria-label="Prendas del drop">
-      <PresaleReact client:load items={items} opensAt={PRESALE.open} closesAt={PRESALE.close} />
+      <PresaleReact client:load items={items} opensAt={PRESALE.open} closesAt={PRESALE.close} bizumPhone={PRESALE.bizumPhone} shippingCents={PRESALE.shippingCents} unitsPerItem={PRESALE.unitsPerItem} />
     </section>
 
     <!-- ============ LA JUGADA ============ -->
@@ -175,8 +176,10 @@ const ticker = ['Call for an ISO', 'Out of my waaay', 'Isolate yourself', 'If yo
 <script>
   const root = document.querySelector<HTMLElement>('.pv');
   if (root) {
-    const open = Date.parse(root.dataset.open || '');
-    const close = Date.parse(root.dataset.close || '');
+    // ?demo → se ve como si la preventa estuviera abierta (una semana desde ahora)
+    const demo = new URLSearchParams(location.search).has('demo');
+    const open = demo ? Date.now() - 1000 : Date.parse(root.dataset.open || '');
+    const close = demo ? open + 7 * 86400000 : Date.parse(root.dataset.close || '');
     const clock = root.querySelector<HTMLElement>('[data-clock]');
     const label = root.querySelector<HTMLElement>('[data-clock-label]');
     const q = (k: string) => root.querySelector<HTMLElement>(`[data-${k}]`);
@@ -321,7 +324,7 @@ const ticker = ['Call for an ISO', 'Out of my waaay', 'Isolate yourself', 'If yo
     padding: 0;
     margin: 2.6rem 0 0;
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     border-top: 1px solid rgba(242, 237, 229, 0.12);
   }
   .pv-facts li {

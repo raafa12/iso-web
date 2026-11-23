@@ -20,18 +20,25 @@ interface Props {
   items: PresaleItem[];
   opensAt: string;
   closesAt: string;
+  bizumPhone: string;
+  shippingCents: number;
+  unitsPerItem: number;
 }
 
 type Phase = "soon" | "open" | "closed";
 type Step = "product" | "checkout" | "done";
-type Payment = "bizum" | "contrarreembolso";
+type Payment = "bizum" | "tarjeta" | "contrarreembolso";
 
 const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL as string | undefined;
 const SUPABASE_ANON_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY as string | undefined;
 const SB_HEADERS = { apikey: SUPABASE_ANON_KEY ?? "", Authorization: `Bearer ${SUPABASE_ANON_KEY ?? ""}`, "Content-Type": "application/json" };
-// Teléfono al que se hace el Bizum y al que se avisa por WhatsApp
-const BIZUM_PHONE = "690 342 138";
+// WhatsApp de ISO (avisos de pedido). El teléfono del Bizum viene de PRESALE.bizumPhone.
 const WHATSAPP = "34690342138";
+const PAY_LABEL: Record<Payment, string> = { bizum: "Bizum", tarjeta: "tarjeta", contrarreembolso: "contrarreembolso" };
+
+// Santander (municipio): CP 39001–39012 → envío gratis
+const isSantander = (cp: string) => /^390(0[1-9]|1[0-2])$/.test(cp.trim());
+const prettyPhone = (p: string) => p.replace(/\D/g, "").replace(/^(\d{3})(\d{3})(\d{3})$/, "$1 $2 $3");
 const LOW_STOCK = 10; // a partir de aquí se avisa de que quedan pocas
 
 interface Customer {
@@ -48,6 +55,7 @@ const EMPTY_CUSTOMER: Customer = { name: "", phone: "", email: "", address: "", 
 interface OrderResult {
   code: string;
   total_cents: number;
+  shipping_cents: number;
   payment: Payment;
   lines: { name: string; size: string; qty: number }[];
 }
@@ -72,7 +80,7 @@ function phaseAt(now: number, open: number, close: number): Phase {
   return "open";
 }
 
-export default function PresaleReact({ items, opensAt, closesAt }: Props) {
+export default function PresaleReact({ items, opensAt, closesAt, bizumPhone, shippingCents, unitsPerItem }: Props) {
   const open = Date.parse(opensAt);
   const close = Date.parse(closesAt);
   const [phase, setPhase] = useState<Phase>("soon");
@@ -89,6 +97,7 @@ export default function PresaleReact({ items, opensAt, closesAt }: Props) {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<OrderResult | null>(null);
+  const [demo, setDemo] = useState(false);
   const [shown, setShown] = useState<boolean[]>(() => items.map(() => false));
   const listRef = useRef<HTMLUListElement>(null);
   const closeBtn = useRef<HTMLButtonElement>(null);
@@ -96,7 +105,11 @@ export default function PresaleReact({ items, opensAt, closesAt }: Props) {
 
   // Fase de la preventa (en el navegador; ?abierta en la URL la simula abierta para probar)
   useEffect(() => {
-    const force = new URLSearchParams(location.search).has("abierta");
+    const qs = new URLSearchParams(location.search);
+    const isDemo = qs.has("demo");
+    setDemo(isDemo);
+    if (isDemo) setStock(Object.fromEntries(items.map((p) => [p.id, 5]))); // simulación: quedan 5 de cada
+    const force = isDemo || qs.has("abierta");
     const update = () => setPhase(force ? "open" : phaseAt(Date.now(), open, close));
     update();
     const id = window.setInterval(update, 15000);
@@ -105,7 +118,7 @@ export default function PresaleReact({ items, opensAt, closesAt }: Props) {
 
   // Stock en directo (Supabase): se refresca cada 20 s y al volver a la pestaña
   const loadStock = async () => {
-    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return;
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY || new URLSearchParams(location.search).has("demo")) return;
     try {
       const res = await fetch(`${SUPABASE_URL}/rest/v1/presale_stock?select=product_id,stock`, { headers: SB_HEADERS });
       if (!res.ok) return;
@@ -206,6 +219,13 @@ export default function PresaleReact({ items, opensAt, closesAt }: Props) {
   async function submitOrder(e: React.FormEvent) {
     e.preventDefault();
     if (!item || !size || sending) return;
+    if (demo) {
+      // Simulación: no se guarda nada, solo baja el contador en esta pantalla
+      setStock((st) => (st ? { ...st, [item.id]: Math.max(0, (st[item.id] ?? 0) - qty) } : st));
+      setResult({ code: "ISO-DEMO1", total_cents: total, shipping_cents: shipping, payment, lines: [{ name: item.name, size, qty }] });
+      setStep("done");
+      return;
+    }
     if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
       setError("No se ha podido conectar. Escríbenos por WhatsApp y te lo reservamos.");
       return;
@@ -228,7 +248,13 @@ export default function PresaleReact({ items, opensAt, closesAt }: Props) {
         loadStock();
         return;
       }
-      setResult({ code: data.code, total_cents: data.total_cents, payment, lines: [{ name: item.name, size, qty }] });
+      setResult({
+        code: data.code,
+        total_cents: data.total_cents,
+        shipping_cents: data.shipping_cents ?? 0,
+        payment,
+        lines: [{ name: item.name, size, qty }],
+      });
       setStep("done");
       loadStock();
     } catch {
@@ -241,7 +267,7 @@ export default function PresaleReact({ items, opensAt, closesAt }: Props) {
   const waMessage = (r: OrderResult) =>
     `Hola! Acabo de hacer el pedido ${r.code} de la preventa Isolation:\n` +
     r.lines.map((l) => `• ${l.name} (talla ${l.size}) x${l.qty}`).join("\n") +
-    `\nTotal: ${eur(r.total_cents)} · Pago: ${r.payment === "bizum" ? "Bizum" : "contrarreembolso"}\nNombre: ${customer.name}`;
+    `\nTotal: ${eur(r.total_cents)} · Pago: ${PAY_LABEL[r.payment]}\nNombre: ${customer.name}`;
 
   // Deslizar en la foto: cambia de prenda; tocar: le da la vuelta
   const swipe = useRef<{ x: number; y: number } | null>(null);
@@ -258,19 +284,24 @@ export default function PresaleReact({ items, opensAt, closesAt }: Props) {
     else if (Math.abs(dx) < 10 && Math.abs(dy) < 10 && item.front && item.back) setSide((v) => (v === "front" ? "back" : "front"));
   }
 
+  const subtotal = item ? item.price_cents * qty : 0;
+  const shipping = customer.postal_code.trim().length === 5 && !isSantander(customer.postal_code) ? shippingCents : 0;
+  const total = subtotal + shipping;
   const itemLeft = item ? left(item.id) : null;
   const soldOut = itemLeft === 0;
   const maxQty = Math.max(1, Math.min(5, itemLeft ?? 5));
   const ctaText = (() => {
+    if (!item) return "";
     if (soldOut) return "Agotado";
     if (phase === "soon") return "Abre el 13 dic · 20:00";
     if (phase === "closed") return "Preventa cerrada";
     if (!size) return "Elige tu talla";
-    return `Precomprar · ${eur(item!.price_cents * qty)}`;
+    return `Precomprar · ${eur(item.price_cents * qty)}`;
   })();
 
   return (
     <>
+      {demo && <p className="ps-demo">Vista de prueba: preventa abierta y 5 unidades por prenda. Los pedidos no se guardan.</p>}
       <ul className="ps-grid" ref={listRef}>
         {items.map((p, i) => (
           <li key={p.id} className={`ps-item${shown[i] ? " is-in" : ""}`} style={{ transitionDelay: `${i * 0.08}s` }}>
@@ -369,9 +400,10 @@ export default function PresaleReact({ items, opensAt, closesAt }: Props) {
               </button>
 
               <ul className="ps-notes">
+                <li><b>{unitsPerItem} unidades</b> por prenda, sin reposición</li>
                 <li><b>1 semana</b> de preventa o hasta agotar existencias</li>
-                <li><b>Envío gratis</b> en Santander</li>
-                <li>Pagas por <b>Bizum</b> o <b>contrarreembolso</b></li>
+                <li><b>Envío gratis</b> en Santander · resto {eur(shippingCents)}</li>
+                <li>Pagas con <b>Bizum</b>, <b>tarjeta</b> o <b>contrarreembolso</b></li>
               </ul>
                 </>
               )}
@@ -381,8 +413,9 @@ export default function PresaleReact({ items, opensAt, closesAt }: Props) {
                   <button type="button" className="ps-back" onClick={() => setStep("product")}>← Volver</button>
                   <p className="ps-kicker"><span className="ps-dot" aria-hidden="true" />Tu pedido</p>
                   <div className="ps-summary">
-                    <span>{item.name} · {size} · x{qty}</span>
-                    <b>{eur(item.price_cents * qty)}</b>
+                    <div><span>{item.name} · {size} · x{qty}</span><span>{eur(subtotal)}</span></div>
+                    <div><span>Envío {shipping ? "" : "(Santander)"}</span><span>{customer.postal_code.trim().length === 5 ? (shipping ? eur(shipping) : "Gratis") : "—"}</span></div>
+                    <div className="tot"><b>Total</b><b>{eur(total)}</b></div>
                   </div>
 
                   <div className="ps-form">
@@ -401,6 +434,11 @@ export default function PresaleReact({ items, opensAt, closesAt }: Props) {
                       <b>Bizum</b>
                       <span>Al confirmar te damos el número y el concepto.</span>
                     </label>
+                    <label className={payment === "tarjeta" ? "on" : ""}>
+                      <input type="radio" name="pay" checked={payment === "tarjeta"} onChange={() => setPayment("tarjeta")} />
+                      <b>Tarjeta (Visa / Mastercard)</b>
+                      <span>Te enviamos un enlace de pago seguro.</span>
+                    </label>
                     <label className={payment === "contrarreembolso" ? "on" : ""}>
                       <input type="radio" name="pay" checked={payment === "contrarreembolso"} onChange={() => setPayment("contrarreembolso")} />
                       <b>Contrarreembolso</b>
@@ -411,9 +449,9 @@ export default function PresaleReact({ items, opensAt, closesAt }: Props) {
                   {error && <p className="ps-error" role="alert">{error}</p>}
 
                   <button type="submit" className="ps-cta ready" disabled={sending}>
-                    {sending ? "Reservando…" : `Confirmar pedido · ${eur(item.price_cents * qty)}`}
+                    {sending ? "Reservando…" : `Confirmar pedido · ${eur(total)}`}
                   </button>
-                  <p className="ps-fine">Envío gratis en Santander. Fuera de Santander te confirmamos el envío por WhatsApp.</p>
+                  <p className="ps-fine">Envío gratis en Santander (CP 39001–39012). Resto de España: {eur(shippingCents)}.</p>
                 </form>
               )}
 
@@ -424,12 +462,23 @@ export default function PresaleReact({ items, opensAt, closesAt }: Props) {
                   <p className="ps-desc">
                     {result.lines.map((l) => `${l.name} · ${l.size} · x${l.qty}`).join(", ")} — <b>{eur(result.total_cents)}</b>
                   </p>
-                  {result.payment === "bizum" ? (
+                  {result.payment === "bizum" && (
                     <div className="ps-howto">
-                      <p>Haz un <b>Bizum de {eur(result.total_cents)}</b> al <b>{BIZUM_PHONE}</b> con el concepto <b>{result.code}</b>.</p>
+                      {bizumPhone ? (
+                        <p>Haz un <b>Bizum de {eur(result.total_cents)}</b> al <b>{prettyPhone(bizumPhone)}</b> con el concepto <b>{result.code}</b>.</p>
+                      ) : (
+                        <p>Te mandamos por WhatsApp el número para hacer el <b>Bizum de {eur(result.total_cents)}</b> con el concepto <b>{result.code}</b>.</p>
+                      )}
                       <p>Tu prenda queda reservada 24 horas. Cuando nos llegue el Bizum, te confirmamos el pedido.</p>
                     </div>
-                  ) : (
+                  )}
+                  {result.payment === "tarjeta" && (
+                    <div className="ps-howto">
+                      <p>Te enviamos un <b>enlace de pago con tarjeta de {eur(result.total_cents)}</b> por WhatsApp{customer.email ? " y por email" : ""}.</p>
+                      <p>Tu prenda queda reservada 24 horas mientras completas el pago.</p>
+                    </div>
+                  )}
+                  {result.payment === "contrarreembolso" && (
                     <div className="ps-howto">
                       <p>Pagas <b>{eur(result.total_cents)}</b> en efectivo cuando te llegue el pedido.</p>
                       <p>Te escribiremos para confirmar la dirección y la entrega.</p>

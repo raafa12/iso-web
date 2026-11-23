@@ -1,5 +1,5 @@
 -- =====================================================================
---  PREVENTA ISOLATION · stock limitado + pedidos (Bizum / contrarreembolso)
+--  PREVENTA ISOLATION · stock limitado + pedidos (Bizum / tarjeta / contrarreembolso)
 --  Pegar entero en Supabase → SQL Editor → Run. Se puede ejecutar más de
 --  una vez: no borra pedidos ni resetea el stock que ya haya bajado.
 -- =====================================================================
@@ -41,12 +41,19 @@ create table if not exists public.presale_orders (
   city          text not null,
   postal_code   text not null,
   notes         text,
-  payment       text not null check (payment in ('bizum', 'contrarreembolso')),
+  payment       text not null,
   items         jsonb not null,          -- [{product_id, name, size, qty, price_cents}]
+  shipping_cents int not null default 0,
   total_cents   int  not null,
   status        text not null default 'pendiente'
                 check (status in ('pendiente', 'pagado', 'enviado', 'entregado', 'cancelado'))
 );
+
+-- Por si la tabla ya existía de una versión anterior de este archivo
+alter table public.presale_orders add column if not exists shipping_cents int not null default 0;
+alter table public.presale_orders drop constraint if exists presale_orders_payment_check;
+alter table public.presale_orders add constraint presale_orders_payment_check
+  check (payment in ('bizum', 'tarjeta', 'contrarreembolso'));
 
 -- ---------- Seguridad ----------
 -- La web (clave anon) solo puede LEER el stock. Los pedidos solo se crean a
@@ -76,6 +83,7 @@ declare
   size_      text;
   lines      jsonb := '[]'::jsonb;
   total      int := 0;
+  ship       int := 0;
   new_code   text;
   need       record;
 begin
@@ -83,7 +91,7 @@ begin
   if now() < cfg.open_at then return jsonb_build_object('ok', false, 'error', 'not_open'); end if;
   if now() >= cfg.close_at then return jsonb_build_object('ok', false, 'error', 'closed'); end if;
 
-  if p_payment not in ('bizum', 'contrarreembolso') then
+  if p_payment not in ('bizum', 'tarjeta', 'contrarreembolso') then
     return jsonb_build_object('ok', false, 'error', 'payment');
   end if;
   if coalesce(trim(p_customer->>'name'), '') = '' or coalesce(trim(p_customer->>'phone'), '') = ''
@@ -118,13 +126,16 @@ begin
     total := total + row_.price_cents * qty;
   end loop;
 
+  -- Envío: gratis en Santander (CP 39001–39012), 4,99 € en el resto
+  if trim(p_customer->>'postal_code') !~ '^390(0[1-9]|1[0-2])$' then ship := 499; end if;
+
   new_code := 'ISO-' || upper(substr(md5(random()::text || clock_timestamp()::text), 1, 5));
-  insert into public.presale_orders (code, name, phone, email, address, city, postal_code, notes, payment, items, total_cents)
+  insert into public.presale_orders (code, name, phone, email, address, city, postal_code, notes, payment, items, shipping_cents, total_cents)
   values (new_code, trim(p_customer->>'name'), trim(p_customer->>'phone'), nullif(trim(p_customer->>'email'), ''),
           trim(p_customer->>'address'), trim(p_customer->>'city'), trim(p_customer->>'postal_code'),
-          nullif(trim(p_customer->>'notes'), ''), p_payment, lines, total);
+          nullif(trim(p_customer->>'notes'), ''), p_payment, lines, ship, total + ship);
 
-  return jsonb_build_object('ok', true, 'code', new_code, 'total_cents', total, 'items', lines);
+  return jsonb_build_object('ok', true, 'code', new_code, 'shipping_cents', ship, 'total_cents', total + ship, 'items', lines);
 end;
 $$;
 

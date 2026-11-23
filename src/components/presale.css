@@ -458,11 +458,21 @@
 .ps-back:hover { color: var(--white); }
 .ps-summary {
   display: flex;
-  justify-content: space-between;
-  gap: 1rem;
+  flex-direction: column;
+  gap: 0.35rem;
   padding: 0.9rem 1rem;
   border: 1px solid rgba(242, 237, 229, 0.12);
   font-size: 0.92rem;
+}
+.ps-summary div { display: flex; justify-content: space-between; gap: 1rem; }
+.ps-summary div span:last-child { white-space: nowrap; }
+.ps-summary .tot { margin-top: 0.3rem; padding-top: 0.5rem; border-top: 1px solid rgba(242, 237, 229, 0.12); }
+.ps-demo {
+  margin-bottom: 1.2rem;
+  padding: 0.7rem 1rem;
+  border: 1px dashed rgba(126, 200, 227, 0.5);
+  color: var(--accent);
+  font-size: 0.85rem;
 }
 .ps-form { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
 .ps-form label {
