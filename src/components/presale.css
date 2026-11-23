@@ -538,3 +538,19 @@
 @media (max-width: 760px) {
   .ps-form { grid-template-columns: 1fr; }
 }
+
+/* Táctil: se desliza la foto en horizontal; las barritas se ven siempre para indicar que hay otra cara */
+@media (hover: none) {
+  .ps-open { touch-action: pan-y; }
+  .ps-dots { opacity: 1; }
+  .ps-dots::after {
+    content: "Desliza ⇄";
+    position: absolute;
+    top: 0.5rem;
+    right: 0;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #8a8a86;
+  }
+}

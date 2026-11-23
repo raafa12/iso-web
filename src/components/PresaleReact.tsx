@@ -331,6 +331,34 @@ function Card({
   const [hover, setHover] = useState(false);
   const media = useRef<HTMLSpanElement>(null);
 
+  // Táctil: deslizar el dedo en horizontal sobre la foto pasa a la otra cara (sin abrir la ficha)
+  const touch = useRef<{ x: number; y: number; done: boolean } | null>(null);
+  const swiped = useRef(false);
+  function onTouchStart(e: React.TouchEvent) {
+    const t = e.touches[0];
+    touch.current = { x: t.clientX, y: t.clientY, done: false };
+    swiped.current = false;
+  }
+  function onTouchMove(e: React.TouchEvent) {
+    const s0 = touch.current;
+    if (!s0 || s0.done || imgs.length < 2) return;
+    const t = e.touches[0];
+    const dx = t.clientX - s0.x;
+    const dy = t.clientY - s0.y;
+    if (Math.abs(dx) > 28 && Math.abs(dx) > Math.abs(dy) * 1.2) {
+      s0.done = true;
+      swiped.current = true;
+      setIdx((i) => (i + (dx < 0 ? 1 : imgs.length - 1)) % imgs.length);
+    }
+  }
+  function onOpenClick(e: React.MouseEvent<HTMLElement>) {
+    if (swiped.current) {
+      swiped.current = false;
+      return;
+    }
+    onOpen(e, null);
+  }
+
   function onMove(e: React.PointerEvent) {
     if (e.pointerType !== "mouse" || imgs.length < 3 || !media.current) return;
     const r = media.current.getBoundingClientRect();
@@ -346,13 +374,14 @@ function Card({
         if (imgs.length > 1) setIdx(1);
       }}
       onPointerMove={onMove}
-      onPointerLeave={() => {
+      onPointerLeave={(e) => {
+        if (e.pointerType !== "mouse") return;
         setHover(false);
         setIdx(0);
       }}
     >
       <div className="ps-mediawrap">
-      <button type="button" className="ps-open" onClick={(e) => onOpen(e, null)} aria-label={`${p.name}, ${eur(p.price_cents)}. Ver y precomprar`}>
+      <button type="button" className="ps-open" onClick={onOpenClick} onTouchStart={onTouchStart} onTouchMove={onTouchMove} aria-label={`${p.name}, ${eur(p.price_cents)}. Ver y precomprar`}>
         <span className="ps-thumb" ref={media}>
           {imgs.length ? (
             imgs.map((src, k) => (
