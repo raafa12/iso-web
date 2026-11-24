@@ -103,7 +103,7 @@ export function layout({ subject, preheader = '', kicker = '', title = '', body 
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${C.bg};">
 <tr><td align="center" style="padding:32px 16px;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;">
-  <tr><td style="padding:0 0 32px;"><a href="${SITE}"><img src="${SITE}/email/iso-logo-azul.png" width="120" alt="ISO" style="display:block;border:0;width:120px;height:auto;"></a></td></tr>
+  <tr><td style="padding:0 0 32px;"><a href="${SITE}"><img src="${SITE}/email/iso-logo-email.png" width="147" alt="ISO" style="display:block;border:0;width:147px;height:auto;margin-left:-13px;"></a></td></tr>
   ${kicker ? `<tr><td style="font-family:${F.body};font-size:12px;letter-spacing:3px;text-transform:uppercase;color:${C.accent};font-weight:bold;padding:0 0 12px;">&#9679; ${kicker}</td></tr>` : ''}
   ${title ? `<tr><td style="font-family:${F.display};font-size:48px;line-height:0.95;font-weight:900;font-style:italic;text-transform:uppercase;color:${C.text};letter-spacing:-1px;padding:0 0 22px;">${title}</td></tr>` : ''}
   <tr><td style="padding:0 0 12px;">${body}</td></tr>
