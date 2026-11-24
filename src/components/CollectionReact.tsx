@@ -3,6 +3,7 @@ import { SizeGuideModal } from "./ProductsReact.tsx";
 import { STRIPE_ENABLED, eur } from "../lib/shop";
 import BuyNow from "./BuyNow";
 import ShareWhatsApp from "./ShareWhatsApp";
+import MoreProducts from "./MoreProducts";
 import "./presale.css";
 import "./collection.css";
 
@@ -357,6 +358,20 @@ export default function CollectionReact({ models, shippingCents = 499 }: { model
                 <li>Pagas con {STRIPE_ENABLED && <><b>tarjeta</b>, <b>Apple Pay</b>, <b>Google Pay</b>, </>}<b>Bizum</b>, <b>PayPal</b> o <b>contrarreembolso</b></li>
               </ul>
               <ShareWhatsApp id={item.id} name={`${item.model.name} · ${item.color}`} price={eur(item.model.price_cents)} />
+              <MoreProducts
+                currentId={item.id}
+                here="collection"
+                onPick={(id) => {
+                  const i = items.findIndex((it) => it.id === id);
+                  if (i < 0) return;
+                  setCurrent(i);
+                  setSide("front");
+                  setSize(null);
+                  setQty(1);
+                  setAdded(false);
+                  document.querySelectorAll(".ps-modal, .ps-sheet").forEach((el) => el.scrollTo({ top: 0, behavior: "smooth" }));
+                }}
+              />
             </div>
           </div>
         </div>

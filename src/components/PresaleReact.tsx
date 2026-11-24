@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { SizeGuideModal } from "./ProductsReact.tsx";
 import BuyNow from "./BuyNow";
 import ShareWhatsApp from "./ShareWhatsApp";
+import MoreProducts from "./MoreProducts";
 import "./presale.css";
 import { SB_HEADERS, STRIPE_ENABLED, SUPABASE_ANON_KEY, SUPABASE_URL, eur } from "../lib/shop";
 
@@ -383,6 +384,20 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
                 <li>Pagas con {STRIPE_ENABLED && <><b>tarjeta</b>, <b>Apple Pay</b>, <b>Google Pay</b>, </>}<b>Bizum</b>, <b>PayPal</b> o <b>contrarreembolso</b></li>
               </ul>
               <ShareWhatsApp id={item.id} name={item.name} price={eur(item.price_cents)} />
+              <MoreProducts
+                currentId={item.id}
+                here="preventa"
+                onPick={(id) => {
+                  const i = items.findIndex((it) => it.id === id);
+                  if (i < 0) return;
+                  setCurrent(i);
+                  setSide(firstSide(items[i]));
+                  setSize(null);
+                  setQty(1);
+                  setAdded(false);
+                  document.querySelectorAll(".ps-modal, .ps-sheet").forEach((el) => el.scrollTo({ top: 0, behavior: "smooth" }));
+                }}
+              />
             </div>
           </div>
         </div>
