@@ -37,6 +37,7 @@ export default function ExpressPay({ cart, onPaid, orText = "o elige otra forma 
     let cancelled = false;
 
     (async () => {
+     try {
       const stripe: Stripe | null = await loadStripe(PK, { locale: "es" }).catch((e) => { log(`Stripe.js no carga: ${e}`); return null; });
       log(stripe ? "Stripe.js cargado" : "Stripe.js no disponible");
       if (!stripe || cancelled || !box.current) return;
@@ -68,12 +69,21 @@ export default function ExpressPay({ cart, onPaid, orText = "o elige otra forma 
         layout: { maxColumns: 1, maxRows: 3, overflow: "never" },
       });
 
-      ece.on("availablepaymentmethodschange", ({ paymentMethods }) => {
-        log(`monederos disponibles: ${paymentMethods ? Object.entries(paymentMethods).filter(([, v]) => v).map(([k]) => k).join(", ") || "ninguno" : "ninguno"}`);
-        setAvailable(!!paymentMethods);
+      log("botón creado");
+      const showMethods = (pm: Record<string, boolean> | null | undefined) => {
+        const on = pm ? Object.entries(pm).filter(([, v]) => v).map(([k]) => k) : [];
+        log(`monederos disponibles: ${on.join(", ") || "ninguno"}`);
+        setAvailable(on.length > 0);
+      };
+      // "ready" trae los monederos disponibles; el evento nuevo, si existe, también
+      ece.on("ready", (e: any) => {
+        log("botón listo");
+        showMethods(e?.availablePaymentMethods);
       });
+      try {
+        (ece as any).on("availablepaymentmethodschange", (e: any) => showMethods(e?.paymentMethods));
+      } catch {}
       ece.on("loaderror", (e) => log(`error al cargar el botón: ${e.error?.message}`));
-      ece.on("ready", () => log("botón listo"));
 
       ece.on("click", (event) => {
         setError(null);
@@ -144,6 +154,10 @@ export default function ExpressPay({ cart, onPaid, orText = "o elige otra forma 
       });
 
       ece.mount(box.current);
+      log("botón montado");
+     } catch (e) {
+      log(`ERROR: ${e instanceof Error ? e.message : String(e)}`);
+     }
     })();
 
     return () => {
@@ -159,7 +173,7 @@ export default function ExpressPay({ cart, onPaid, orText = "o elige otra forma 
   return (
     <>
     {debug && <pre className="cart-debug">{[`STRIPE_ENABLED ok`, ...diag].join("\n")}</pre>}
-    <div className="cart-express" hidden={!available && !error}>
+    <div className={`cart-express${available || error ? "" : " pending"}`}>
       <div ref={box} />
       {error && <p className="cart-error">{error}</p>}
       {available && orText && <p className="cart-express-or"><span>{orText}</span></p>}
