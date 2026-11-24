@@ -13,6 +13,8 @@ export const SITE = 'https://isowear.es';
 export const WHATSAPP = '34690342138';
 // Mantener igual que PRESALE.bizumPhone en src/data/isolation-drop.ts
 export const BIZUM_PHONE = '601105483';
+// Mantener igual que PAYPAL_URL en src/lib/shop.ts
+export const PAYPAL_URL = 'https://www.paypal.biz/isoweares';
 
 export function env(name, fallback) {
   const v = process.env[name] || fallback;

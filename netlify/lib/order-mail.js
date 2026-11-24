@@ -1,6 +1,6 @@
 // Correos de pedido: confirmación al cliente y aviso para ISO.
 
-import { SITE, WHATSAPP, BIZUM_PHONE, C, F, layout, sendEmail, p, b, box, esc, eur, prettyPhone, env } from './email.js';
+import { SITE, WHATSAPP, BIZUM_PHONE, PAYPAL_URL, C, F, layout, sendEmail, p, b, box, esc, eur, prettyPhone, env } from './email.js';
 
 const PAY = { bizum: 'Bizum', paypal: 'PayPal', contrarreembolso: 'Contrarreembolso' };
 
@@ -30,7 +30,7 @@ function howToPay(order) {
       : `En breve te mandamos el número para hacer el ${b(`Bizum de ${total}`)} con el concepto ${b(order.code)}. Tu pedido queda reservado 24 horas mientras se completa el pago.`;
   }
   if (order.payment === 'paypal') {
-    return `En breve te mandamos un ${b(`enlace de pago de PayPal de ${total}`)}. Tu pedido queda reservado 24 horas mientras se completa el pago.`;
+    return `Paga ${b(total)} en nuestro <a href="${PAYPAL_URL}" style="color:${C.accent};font-weight:bold;">PayPal (paypal.biz/isoweares)</a> y pon ${b(order.code)} en la nota del pago. Tu pedido queda reservado 24 horas mientras se completa el pago.`;
   }
   return `Pagas ${b(total)} en efectivo cuando te llegue el pedido.`;
 }

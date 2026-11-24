@@ -3,6 +3,7 @@ import "./cart-drawer.css";
 import { PayBadge } from "./PayBadges.tsx";
 import {
   BIZUM_PHONE,
+  PAYPAL_URL,
   ORDER_ERRORS,
   PAY_LABEL,
   SB_HEADERS,
@@ -408,7 +409,9 @@ export default function CartDrawerReact() {
                 ) : (
                   <p>Te mandamos por email el número para hacer el <b>Bizum de {eur(order.total)}</b> con el concepto <b>{order.code}</b>.</p>
                 ))}
-              {order.payment === "paypal" && <p>Te enviamos un <b>enlace de pago de PayPal de {eur(order.total)}</b> por email.</p>}
+              {order.payment === "paypal" && (
+                <p>Paga <b>{eur(order.total)}</b> en nuestro <a href={PAYPAL_URL} target="_blank" rel="noopener noreferrer"><b>PayPal</b></a> y pon <b>{order.code}</b> en la nota del pago.</p>
+              )}
               {order.payment === "contrarreembolso" && <p>Pagas <b>{eur(order.total)}</b> en efectivo cuando te llegue el pedido.</p>}
               {order.payment !== "contrarreembolso" && <p>Tu pedido queda reservado 24 horas mientras se completa el pago.</p>}
               {order.presale && <p>Las prendas de preventa se envían al cerrar la preventa.</p>}

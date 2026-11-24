@@ -12,6 +12,7 @@ export const SB_HEADERS = {
 };
 
 export const WHATSAPP = "34690342138";
+export const PAYPAL_URL = "https://www.paypal.biz/isoweares";
 export const BIZUM_PHONE = PRESALE.bizumPhone; // único sitio donde va el teléfono del Bizum
 export const SHIPPING_CENTS = PRESALE.shippingCents;
 export const MAX_PER_ITEM = 5;
