@@ -23,7 +23,7 @@ const page = ({ title, msg, actions = '', status = 200 }) =>
   .link:hover{color:#f2ede5}
 </style></head>
 <body><div class="wrap">
-<a href="/"><img class="logo" src="/email/iso-logo.png" alt="ISO" width="120"></a>
+<a href="/"><img class="logo" src="/email/iso-logo-azul.png" alt="ISO" width="120"></a>
 <h1>${title}</h1><p>${msg}</p>${actions}
 </div></body></html>`,
     { status, headers: { 'Content-Type': 'text/html; charset=utf-8' } }
