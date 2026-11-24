@@ -6,6 +6,7 @@
 // El webhook de Stripe (payment_intent.succeeded) lo marca como pagado y manda los correos.
 
 import { sb, env } from '../lib/email.js';
+import { markPaid, checkWithStripe } from '../lib/paid.js';
 
 const json = (data, status = 200) =>
   new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
@@ -25,6 +26,20 @@ export default async (req) => {
   if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
   const body = await req.json().catch(() => ({}));
   const { url, headers } = sb();
+
+  // ---- Comprobar el pago al volver a /pago (no depende solo del webhook) ----
+  if (body.confirm) {
+    const code = String(body.confirm).toUpperCase();
+    if (!/^ISO-[0-9A-F]{5}$/.test(code)) return json({ error: 'Código no válido' }, 400);
+    const r = await fetch(`${url}/rest/v1/orders?code=eq.${code}&select=*`, { headers });
+    const [o] = await r.json();
+    if (!o) return json({ error: 'No existe' }, 404);
+    if (o.status !== 'pendiente') return json({ status: o.status });
+    const pi = await checkWithStripe(o).catch(() => null);
+    if (!pi) return json({ status: 'pendiente' });
+    await markPaid(code, pi.startsWith('pi_') ? pi : null);
+    return json({ status: 'pagado' });
+  }
 
   // ---- Cancelar un pedido que no se llegó a pagar ----
   if (body.cancel) {

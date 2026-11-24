@@ -4,7 +4,7 @@
 
 import { sb } from '../lib/email.js';
 import { verifyWebhook } from '../lib/stripe.js';
-import { sendOrderEmails } from '../lib/order-mail.js';
+import { markPaid } from '../lib/paid.js';
 
 export default async (req) => {
   if (req.method !== 'POST') return new Response('Method not allowed', { status: 405 });
@@ -29,19 +29,9 @@ export default async (req) => {
       event.type === 'checkout.session.async_payment_succeeded' ||
       event.type === 'payment_intent.succeeded'
     ) {
-      // Solo pasa a pagado si estaba pendiente (Stripe puede repetir el aviso)
-      const r = await fetch(`${url}/rest/v1/orders?code=eq.${encodeURIComponent(code)}&status=eq.pendiente`, {
-        method: 'PATCH',
-        headers: { ...headers, Prefer: 'return=representation' },
-        body: JSON.stringify({
-          status: 'pagado',
-          paid_at: new Date().toISOString(),
-          confirmation_sent_at: new Date().toISOString(),
-          stripe_payment_intent: s.object === 'payment_intent' ? s.id : s.payment_intent || null,
-        }),
-      });
-      const rows = r.ok ? await r.json() : [];
-      if (!rows.length) {
+      const piId = s.object === 'payment_intent' ? s.id : s.payment_intent || null;
+      const r = await markPaid(code, piId);
+      if (r.already) {
         const o = await getOrder();
         if (o?.status === 'cancelado') {
           // Pagó después de caducar: hay que revisarlo a mano (devolver o reactivar)
@@ -49,8 +39,6 @@ export default async (req) => {
         }
         return new Response('ya procesado');
       }
-      const r2 = await sendOrderEmails(rows[0]);
-      if (r2.errors.length) console.error('Stripe: fallo en correos', code, r2.errors);
       return new Response('ok');
     }
 

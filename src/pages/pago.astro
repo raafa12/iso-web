@@ -53,6 +53,14 @@ import { WHATSAPP } from '../lib/shop';
   const sec = document.querySelector(`[data-state="${state}"]`);
   sec.hidden = false;
   sec.querySelectorAll('[data-code]').forEach((el) => (el.textContent = code));
+  // Comprueba el pago con Stripe (marca el pedido como pagado y manda los correos si hacía falta)
+  if (state === 'ok' && /^ISO-[0-9A-F]{5}$/.test(code)) {
+    fetch('/api/pago-express', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ confirm: code }),
+    }).catch(() => {});
+  }
   if (params.get('estado') === 'error') {
     sec.querySelector('h1').textContent = 'No se abrió el pago.';
   }
