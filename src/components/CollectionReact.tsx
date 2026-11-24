@@ -346,8 +346,6 @@ export default function CollectionReact({ models, shippingCents = 499 }: { model
                 </div>
               </div>
 
-              <ShareWhatsApp id={item.id} name={`${item.model.name} · ${item.color}`} price={eur(item.model.price_cents)} />
-
               {size ? (
                 <BuyNow line={lineFor(item, size)} qty={qty} close={closeItem} onAddToCart={addToCart} added={added} />
               ) : (
@@ -358,6 +356,7 @@ export default function CollectionReact({ models, shippingCents = 499 }: { model
                 <li><b>Envío gratis</b> en Santander · resto {eur(shippingCents)}</li>
                 <li>Pagas con {STRIPE_ENABLED && <><b>tarjeta</b>, <b>Apple Pay</b>, <b>Google Pay</b>, </>}<b>Bizum</b>, <b>PayPal</b> o <b>contrarreembolso</b></li>
               </ul>
+              <ShareWhatsApp id={item.id} name={`${item.model.name} · ${item.color}`} price={eur(item.model.price_cents)} />
             </div>
           </div>
         </div>

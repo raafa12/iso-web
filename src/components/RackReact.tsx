@@ -645,8 +645,6 @@ export default function RackReact({ products: initial, title = "El Perchero", pr
                 ))}
               </div>
 
-              <ShareWhatsApp id={current.id} name={current.color ? `${current.name} · ${current.color}` : current.name} price={formatPrice(current.price_cents)} />
-
               {!soon && size && !preview ? (
                 <BuyNow line={lineFor(current, size)} qty={1} close={closeDetail} onAddToCart={addToCart} added={added} />
               ) : (
@@ -657,6 +655,7 @@ export default function RackReact({ products: initial, title = "El Perchero", pr
               <button type="button" className="rack-guide" onClick={() => setGuideOpen(true)}>
                 Guía de tallas
               </button>
+              <ShareWhatsApp id={current.id} name={current.color ? `${current.name} · ${current.color}` : current.name} price={formatPrice(current.price_cents)} />
             </div>
           </div>
         </div>

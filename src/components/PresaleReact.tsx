@@ -360,8 +360,6 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
                 </div>
               </div>
 
-              <ShareWhatsApp id={item.id} name={item.name} price={eur(item.price_cents)} />
-
               {phase === "open" && size && !soldOut ? (
                 <BuyNow
                   line={{ id: item.id, name: `${item.name} · Preventa`, size, price: item.price_cents, image: item.front ?? item.back ?? "/logo-mark.png" }}
@@ -384,6 +382,7 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
                 <li><b>Envío gratis</b> en Santander · resto {eur(shippingCents)}</li>
                 <li>Pagas con {STRIPE_ENABLED && <><b>tarjeta</b>, <b>Apple Pay</b>, <b>Google Pay</b>, </>}<b>Bizum</b>, <b>PayPal</b> o <b>contrarreembolso</b></li>
               </ul>
+              <ShareWhatsApp id={item.id} name={item.name} price={eur(item.price_cents)} />
             </div>
           </div>
         </div>

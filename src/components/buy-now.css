@@ -34,7 +34,7 @@
 .share-wa {
   display: inline-flex; align-items: center; gap: 0.45rem;
   align-self: flex-start; justify-self: start; width: auto;
-  margin: 0.1rem 0 1.1rem; padding: 0.5rem 0.85rem;
+  margin: 1.1rem 0 0; padding: 0.5rem 0.85rem;
   background: transparent; border: 1px solid #25d366; border-radius: 999px;
   color: #25d366; font: 600 0.85rem var(--font-body); cursor: pointer;
   transition: background 0.15s, color 0.15s;
