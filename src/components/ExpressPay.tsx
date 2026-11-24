@@ -4,13 +4,14 @@
 // PaymentIntent → se confirma el pago → el webhook de Stripe lo marca como pagado.
 import { useEffect, useRef, useState } from "react";
 import { loadStripe, type Stripe, type StripeElements, type StripeExpressCheckoutElement } from "@stripe/stripe-js";
+import "./cart-drawer.css";
 import { ORDER_ERRORS, SHIPPING_CENTS, isSantander } from "../lib/shop";
 
 const PK = import.meta.env.PUBLIC_STRIPE_KEY as string | undefined;
 
 type Line = { id: string; name: string; size: string; qty: number; price: number };
 
-export default function ExpressPay({ cart, onPaid }: { cart: Line[]; onPaid: (code: string) => void }) {
+export default function ExpressPay({ cart, onPaid, orText = "o elige otra forma de pago" }: { cart: Line[]; onPaid: (code: string) => void; orText?: string }) {
   const box = useRef<HTMLDivElement>(null);
   const cartRef = useRef(cart);
   const [available, setAvailable] = useState(false);
@@ -161,7 +162,7 @@ export default function ExpressPay({ cart, onPaid }: { cart: Line[]; onPaid: (co
     <div className="cart-express" hidden={!available && !error}>
       <div ref={box} />
       {error && <p className="cart-error">{error}</p>}
-      {available && <p className="cart-express-or"><span>o elige otra forma de pago</span></p>}
+      {available && <p className="cart-express-or"><span>{orText}</span></p>}
     </div>
     </>
   );

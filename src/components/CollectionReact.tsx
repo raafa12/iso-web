@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { SizeGuideModal } from "./ProductsReact.tsx";
 import { STRIPE_ENABLED, eur } from "../lib/shop";
+import BuyNow from "./BuyNow";
 import "./presale.css";
 import "./collection.css";
 
@@ -171,20 +172,21 @@ export default function CollectionReact({ models, shippingCents = 499 }: { model
     };
   }, [current, guideOpen]);
 
+  // Mismo id y nombre que en el perchero (tienen que coincidir con supabase/tienda.sql)
+  function lineFor(it: Item, sz: string) {
+    const isMono = Boolean(monoIds[it.id] && it.frontMono);
+    return {
+      id: isMono ? `${it.id}-mono` : it.id,
+      name: `${it.model.name} · ${it.color} · Logo ${isMono ? monoName(it).toLowerCase() : "clásico"}`,
+      size: sz,
+      price: it.model.price_cents,
+      image: frontOf(it),
+    };
+  }
+
   function addToCart() {
     if (!item || !size) return;
-    const isMono = Boolean(monoIds[item.id] && item.frontMono);
-    // Mismo id y nombre que en el perchero (tienen que coincidir con supabase/tienda.sql)
-    window.ISOCart?.add(
-      {
-        id: isMono ? `${item.id}-mono` : item.id,
-        name: `${item.model.name} · ${item.color} · Logo ${isMono ? monoName(item).toLowerCase() : "clásico"}`,
-        size,
-        price: item.model.price_cents,
-        image: frontOf(item),
-      },
-      qty,
-    );
+    window.ISOCart?.add(lineFor(item, size), qty);
     setAdded(true);
     window.setTimeout(() => {
       closeItem();
@@ -330,9 +332,11 @@ export default function CollectionReact({ models, shippingCents = 499 }: { model
                 </div>
               </div>
 
-              <button type="button" className={`ps-cta${size ? " ready" : ""}`} disabled={!size || added} onClick={addToCart}>
-                {added ? "Añadido ✓" : size ? `Añadir al carrito · ${eur(item.model.price_cents * qty)}` : "Elige tu talla"}
-              </button>
+              {size ? (
+                <BuyNow line={lineFor(item, size)} qty={qty} close={closeItem} onAddToCart={addToCart} added={added} />
+              ) : (
+                <button type="button" className="ps-cta" disabled>Elige tu talla</button>
+              )}
 
               <ul className="ps-notes">
                 <li><b>Envío gratis</b> en Santander · resto {eur(shippingCents)}</li>

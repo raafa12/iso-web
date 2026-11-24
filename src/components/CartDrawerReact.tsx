@@ -55,6 +55,8 @@ interface ISOCartAPI {
   setQty: (id: string, size: string, qty: number) => void;
   getAll: () => CartItem[];
   open: () => void;
+  // Abre el carrito directamente en el formulario con una forma de pago elegida
+  checkout?: (pay?: Payment) => void;
 }
 
 // Le decimos a TypeScript que window.ISOCart puede existir,
@@ -151,6 +153,12 @@ export default function CartDrawerReact() {
       setQty,
       getAll: () => cartRef.current,
       open: openDrawer,
+      checkout: (pay?: Payment) => {
+        if (pay && (pay !== "tarjeta" || STRIPE_ENABLED)) setPayment(pay);
+        setError(null);
+        setView("checkout");
+        openDrawer();
+      },
     };
 
     function handleOpenClick(e: MouseEvent) {

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { SizeGuideModal } from "./ProductsReact.tsx";
+import BuyNow from "./BuyNow";
 import "./rack.css";
 
 const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL;
@@ -443,6 +444,20 @@ export default function RackReact({ products: initial, title = "El Perchero", pr
     setAdded(false);
   }
 
+  // Mismo id y nombre que en /collection (tienen que coincidir con supabase/tienda.sql)
+  function lineFor(p: (typeof products)[number], sz: string) {
+    const withLogo = Boolean(p.image_mono_url);
+    const isMono = Boolean(monoIds[p.id]) && withLogo;
+    const base = p.color ? `${p.name} · ${p.color}` : p.name;
+    return {
+      id: isMono ? `${p.id}-mono` : p.id,
+      name: withLogo ? `${base} · Logo ${isMono ? monoName(p).toLowerCase() : "clásico"}` : base,
+      size: sz,
+      price: p.price_cents,
+      image: isMono && p.image_mono_url ? p.image_mono_url : p.image_url,
+    };
+  }
+
   function addToCart() {
     if (open == null || !size) return;
     const p = products[open];
@@ -451,17 +466,7 @@ export default function RackReact({ products: initial, title = "El Perchero", pr
       setTimeout(() => setAdded(false), 1600);
       return;
     }
-    // Mismo id y nombre que en /collection (tienen que coincidir con supabase/tienda.sql)
-    const withLogo = Boolean(p.image_mono_url);
-    const isMono = Boolean(monoIds[p.id]) && withLogo;
-    const base = p.color ? `${p.name} · ${p.color}` : p.name;
-    window.ISOCart?.add({
-      id: isMono ? `${p.id}-mono` : p.id,
-      name: withLogo ? `${base} · Logo ${isMono ? monoName(p).toLowerCase() : "clásico"}` : base,
-      size,
-      price: p.price_cents,
-      image: isMono && p.image_mono_url ? p.image_mono_url : p.image_url,
-    });
+    window.ISOCart?.add(lineFor(p, size));
     setTimeout(() => {
       setAdded(false);
       closeDetail();
@@ -643,9 +648,13 @@ export default function RackReact({ products: initial, title = "El Perchero", pr
                 ))}
               </div>
 
-              <button type="button" className="rack-cta" disabled={!!soon || !size || added} onClick={addToCart}>
-                {soon ? soon : added ? (preview ? "Vista previa · no se añade" : "Añadido ✓") : size ? `Añadir al carrito · ${formatPrice(current.price_cents)}` : "Elige una talla"}
-              </button>
+              {!soon && size && !preview ? (
+                <BuyNow line={lineFor(current, size)} qty={1} close={closeDetail} onAddToCart={addToCart} added={added} />
+              ) : (
+                <button type="button" className="rack-cta" disabled={!!soon || !size || added} onClick={addToCart}>
+                  {soon ? soon : added ? (preview ? "Vista previa · no se añade" : "Añadido ✓") : size ? `Añadir al carrito · ${formatPrice(current.price_cents)}` : "Elige una talla"}
+                </button>
+              )}
               <button type="button" className="rack-guide" onClick={() => setGuideOpen(true)}>
                 Guía de tallas
               </button>

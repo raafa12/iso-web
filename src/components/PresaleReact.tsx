@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { SizeGuideModal } from "./ProductsReact.tsx";
+import BuyNow from "./BuyNow";
 import "./presale.css";
 import { SB_HEADERS, STRIPE_ENABLED, SUPABASE_ANON_KEY, SUPABASE_URL, eur } from "../lib/shop";
 
@@ -345,14 +346,19 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
                 </div>
               </div>
 
-              <button
-                type="button"
-                className={`ps-cta${phase === "open" && size && !soldOut ? " ready" : ""}`}
-                disabled={phase !== "open" || !size || soldOut || added}
-                onClick={preorder}
-              >
-                {ctaText}
-              </button>
+              {phase === "open" && size && !soldOut ? (
+                <BuyNow
+                  line={{ id: item.id, name: `${item.name} · Preventa`, size, price: item.price_cents, image: item.front ?? item.back ?? "/logo-mark.png" }}
+                  qty={qty}
+                  close={closeItem}
+                  onAddToCart={preorder}
+                  added={added}
+                />
+              ) : (
+                <button type="button" className="ps-cta" disabled>
+                  {ctaText}
+                </button>
+              )}
 
               {phase === "soon" && <NotifyForm compact />}
 
