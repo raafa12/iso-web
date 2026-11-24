@@ -276,7 +276,6 @@ export default function CollectionReact({ models, shippingCents = 499 }: { model
               <h3 className="ps-title">{item.model.name}</h3>
               <p className="ps-desc">{item.model.description}</p>
               <p className="ps-big-price">{eur(item.model.price_cents)}</p>
-              <ShareWhatsApp id={item.id} name={`${item.model.name} · ${item.color}`} price={eur(item.model.price_cents)} />
 
               {siblings.length > 1 && (
                 <div className="ps-field">
@@ -346,6 +345,8 @@ export default function CollectionReact({ models, shippingCents = 499 }: { model
                   <button type="button" onClick={() => setQty((q) => Math.min(5, q + 1))} aria-label="Una más" disabled={qty >= 5}>+</button>
                 </div>
               </div>
+
+              <ShareWhatsApp id={item.id} name={`${item.model.name} · ${item.color}`} price={eur(item.model.price_cents)} />
 
               {size ? (
                 <BuyNow line={lineFor(item, size)} qty={qty} close={closeItem} onAddToCart={addToCart} added={added} />

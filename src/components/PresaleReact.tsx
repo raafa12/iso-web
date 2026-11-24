@@ -336,7 +336,6 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
                   </span>
                 )}
               </p>
-              <ShareWhatsApp id={item.id} name={item.name} price={eur(item.price_cents)} />
 
               <div className="ps-field">
                 <div className="ps-label">
@@ -360,6 +359,8 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
                   <button type="button" onClick={() => setQty((q) => Math.min(maxQty, q + 1))} aria-label="Una más" disabled={qty >= maxQty}>+</button>
                 </div>
               </div>
+
+              <ShareWhatsApp id={item.id} name={item.name} price={eur(item.price_cents)} />
 
               {phase === "open" && size && !soldOut ? (
                 <BuyNow
