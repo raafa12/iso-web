@@ -11,8 +11,8 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
 
 // Mantener igual que PRESALE en src/data/isolation-drop.ts
-export const PRESALE_OPEN = process.env.PRESALE_OPEN || '2026-12-14T20:00:00+01:00';
-export const PRESALE_CLOSE = process.env.PRESALE_CLOSE || '2026-12-21T20:00:00+01:00';
+export const PRESALE_OPEN = process.env.PRESALE_OPEN || '2026-12-14T00:00:00+01:00';
+export const PRESALE_CLOSE = process.env.PRESALE_CLOSE || '2026-12-20T23:59:59+01:00';
 
 const SITE = 'https://isowear.es';
 const SUBJECT = 'La preventa de Isolation está abierta';

@@ -27,7 +27,7 @@ export const isPresaleId = (id: string) => id.startsWith("isolation-");
 export const isDemo = () => typeof location !== "undefined" && new URLSearchParams(location.search).has("demo");
 
 export const ORDER_ERRORS: Record<string, string> = {
-  not_open: "La preventa todavía no está abierta. Abre el 14 de diciembre a las 20:00.",
+  not_open: "La preventa todavía no está abierta. Abre el 14 de diciembre a las 00:00.",
   closed: "La preventa ya ha cerrado.",
   stock: "Se han agotado las unidades de una prenda de tu carrito. Baja la cantidad e inténtalo de nuevo.",
   customer: "Revisa tus datos: falta alguno o el email no es válido.",

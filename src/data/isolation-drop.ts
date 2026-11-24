@@ -105,8 +105,8 @@ export const ISO_CLASSICS: DropProduct[] = [
 ];
 
 export const PRESALE = {
-  open: "2026-12-14T20:00:00+01:00",
-  close: "2026-12-21T20:00:00+01:00",
+  open: "2026-12-14T00:00:00+01:00",
+  close: "2026-12-20T23:59:59+01:00",
   shipping: "Envío gratis en Santander",
   // ⬇︎ Único dato que falta: el teléfono del Bizum (9 cifras, con o sin espacios). Vacío = "te lo enviamos por WhatsApp".
   bizumPhone: "",

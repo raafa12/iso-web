@@ -11,7 +11,7 @@ create table if not exists public.presale_config (
   close_at  timestamptz not null
 );
 insert into public.presale_config (id, open_at, close_at)
-values (1, '2026-12-14 20:00:00+01', '2026-12-21 20:00:00+01')
+values (1, '2026-12-14 00:00:00+01', '2026-12-20 23:59:59+01')
 on conflict (id) do nothing;
 
 -- ---------- Preventa: 25 unidades por prenda ----------
