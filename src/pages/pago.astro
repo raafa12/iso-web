@@ -1,0 +1,83 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { WHATSAPP } from '../lib/shop';
+---
+
+<Layout title="ISO — Pago" description="Pago del pedido" noindex={true}>
+  <main class="pg">
+    <a href="/" class="pg-logo"><img src="/logo-white-nav.png" alt="ISO" width="110" /></a>
+
+    <section data-state="ok" hidden>
+      <p class="pg-kicker">● Pago recibido</p>
+      <h1>Pagado.</h1>
+      <p class="pg-code" data-code></p>
+      <p class="pg-text">Gracias. Te hemos mandado la confirmación a tu correo. Si en unos minutos no la ves, mira en spam.</p>
+      <a class="pg-btn" href="/">Seguir mirando</a>
+    </section>
+
+    <section data-state="cancelado" hidden>
+      <p class="pg-kicker warn">● Pago sin completar</p>
+      <h1>Falta el pago.</h1>
+      <p class="pg-code" data-code></p>
+      <p class="pg-text">Tu pedido queda reservado <b>1 hora</b>. Si no se paga, se cancela solo y las unidades vuelven a estar disponibles.</p>
+      <button class="pg-btn" type="button" data-retry>Volver a pagar</button>
+      <a class="pg-link" data-wa target="_blank" rel="noopener noreferrer">Prefiero pagar por Bizum · escribir por WhatsApp</a>
+      <p class="pg-err" data-err hidden></p>
+    </section>
+  </main>
+</Layout>
+
+<style>
+  .pg { min-height: 100vh; display: grid; align-content: center; justify-items: center; text-align: center; gap: 0; padding: 3rem var(--pad); background: var(--bg); color: var(--white); }
+  .pg [hidden] { display: none !important; }
+  .pg-logo { margin-bottom: 3rem; }
+  .pg-logo img { display: block; height: auto; }
+  section { max-width: 440px; display: grid; justify-items: center; }
+  .pg-kicker { font-family: var(--font-display); font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; font-size: 0.8rem; color: var(--accent); margin-bottom: 0.8rem; }
+  .pg-kicker.warn { color: #f0b35a; }
+  h1 { font-family: var(--font-display); font-weight: 900; font-style: italic; text-transform: uppercase; font-size: clamp(3.2rem, 12vw, 5rem); line-height: 0.9; letter-spacing: -0.02em; margin-bottom: 1rem; }
+  .pg-code { font-family: var(--font-display); font-weight: 700; font-style: italic; font-size: 1.4rem; letter-spacing: 0.06em; color: var(--white-dim); margin-bottom: 1.25rem; }
+  .pg-text { color: var(--white-dim); line-height: 1.6; margin-bottom: 2rem; }
+  .pg-text b { color: var(--white); }
+  .pg-btn { display: inline-block; width: 100%; background: var(--accent); color: #071820; border: 0; padding: 1rem 1.5rem; font: 900 italic 1rem var(--font-display); letter-spacing: 0.14em; text-transform: uppercase; text-decoration: none; cursor: pointer; }
+  .pg-btn:disabled { opacity: 0.6; cursor: wait; }
+  .pg-link { margin-top: 1.1rem; color: var(--muted-light); font-size: 0.9rem; text-decoration: underline; }
+  .pg-link:hover { color: var(--white); }
+  .pg-err { margin-top: 1rem; color: #ff7a7a; font-size: 0.9rem; }
+</style>
+
+<script define:vars={{ WHATSAPP }}>
+  const params = new URLSearchParams(location.search);
+  const code = (params.get('code') || '').toUpperCase();
+  const state = params.get('estado') === 'ok' ? 'ok' : 'cancelado';
+  const sec = document.querySelector(`[data-state="${state}"]`);
+  sec.hidden = false;
+  sec.querySelectorAll('[data-code]').forEach((el) => (el.textContent = code));
+  if (params.get('estado') === 'error') {
+    sec.querySelector('h1').textContent = 'No se abrió el pago.';
+  }
+  const wa = sec.querySelector('[data-wa]');
+  if (wa) wa.href = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(`Hola! Quiero pagar por Bizum el pedido ${code}`)}`;
+
+  const retry = sec.querySelector('[data-retry]');
+  retry?.addEventListener('click', async () => {
+    const err = sec.querySelector('[data-err]');
+    err.hidden = true;
+    retry.disabled = true;
+    retry.textContent = 'Abriendo el pago…';
+    try {
+      const r = await fetch('/api/pago-stripe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code }),
+      });
+      const d = await r.json();
+      if (d.url) { location.href = d.url; return; }
+      if (d.paid) { location.search = `?estado=ok&code=${code}`; return; }
+      throw new Error(d.error || 'No se ha podido abrir el pago');
+    } catch (e) {
+      err.textContent = e.message; err.hidden = false;
+      retry.disabled = false; retry.textContent = 'Volver a pagar';
+    }
+  });
+</script>

@@ -132,7 +132,7 @@ import Layout from '../layouts/Layout.astro';
 
   const API = '/api/admin/pedidos';
   const SIZES = ['S', 'M', 'L', 'XL'];
-  const PAY: Record<string, string> = { bizum: 'Bizum', paypal: 'PayPal', contrarreembolso: 'Contrarreembolso' };
+  const PAY: Record<string, string> = { tarjeta: 'Tarjeta', bizum: 'Bizum', paypal: 'PayPal', contrarreembolso: 'Contrarreembolso' };
   const FILTERS: [string, string, (o: Order) => boolean][] = [
     ['cobrar', 'Por cobrar', (o) => o.status === 'pendiente' && o.payment !== 'contrarreembolso'],
     ['enviar', 'Por enviar', (o) => o.status === 'pagado' || (o.status === 'pendiente' && o.payment === 'contrarreembolso')],

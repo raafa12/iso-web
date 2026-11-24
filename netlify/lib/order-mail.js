@@ -2,7 +2,7 @@
 
 import { SITE, WHATSAPP, BIZUM_PHONE, PAYPAL_URL, C, F, layout, sendEmail, p, b, box, esc, eur, prettyPhone, env } from './email.js';
 
-const PAY = { bizum: 'Bizum', paypal: 'PayPal', contrarreembolso: 'Contrarreembolso' };
+const PAY = { bizum: 'Bizum', paypal: 'PayPal', contrarreembolso: 'Contrarreembolso', tarjeta: 'Tarjeta / Apple Pay' };
 
 function itemsTable(order) {
   const rows = (order.items || [])
@@ -32,12 +32,14 @@ function howToPay(order) {
   if (order.payment === 'paypal') {
     return `Paga ${b(total)} en nuestro <a href="${PAYPAL_URL}" style="color:${C.accent};font-weight:bold;">PayPal (paypal.biz/isoweares)</a> y pon ${b(order.code)} en la nota del pago. Tu pedido queda reservado 24 horas mientras se completa el pago.`;
   }
+  if (order.payment === 'tarjeta') return `${b(`Pagado: ${total}`)} con tarjeta. No tienes que hacer nada más.`;
   return `Pagas ${b(total)} en efectivo cuando te llegue el pedido.`;
 }
 
 export function renderCustomer(order) {
   const first = String(order.name || '').trim().split(/\s+/)[0];
-  const subject = `Pedido ${order.code} recibido`;
+  const paid = order.status === 'pagado';
+  const subject = `Pedido ${order.code} ${paid ? 'confirmado' : 'recibido'}`;
   const presale = order.has_presale
     ? p(`Las prendas de ${b('preventa')} se preparan al cerrar la preventa y te avisamos por correo cuando salgan.`)
     : p('Te avisamos por correo cuando salga tu pedido.');
@@ -65,7 +67,7 @@ ${esc(order.name)}<br>${esc(order.address)}<br>${esc(order.postal_code)} ${esc(o
   return {
     subject,
     text,
-    html: layout({ subject, preheader: `Total ${eur(order.total_cents)} · ${PAY[order.payment] || ''}`, kicker: 'Pedido recibido', title: esc(order.code), body }),
+    html: layout({ subject, preheader: `Total ${eur(order.total_cents)} · ${PAY[order.payment] || ''}`, kicker: paid ? 'Pedido confirmado' : 'Pedido recibido', title: esc(order.code), body }),
   };
 }
 

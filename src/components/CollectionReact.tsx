@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { SizeGuideModal } from "./ProductsReact.tsx";
-import { eur } from "../lib/shop";
+import { STRIPE_ENABLED, eur } from "../lib/shop";
 import "./presale.css";
 import "./collection.css";
 
@@ -336,7 +336,7 @@ export default function CollectionReact({ models, shippingCents = 499 }: { model
 
               <ul className="ps-notes">
                 <li><b>Envío gratis</b> en Santander · resto {eur(shippingCents)}</li>
-                <li>Pagas con <b>Bizum</b>, <b>PayPal</b> o <b>contrarreembolso</b> al finalizar la compra</li>
+                <li>Pagas con {STRIPE_ENABLED && <><b>tarjeta</b>, <b>Apple Pay</b>, <b>Google Pay</b>, </>}<b>Bizum</b>, <b>PayPal</b> o <b>contrarreembolso</b></li>
               </ul>
             </div>
           </div>

@@ -25,6 +25,8 @@ export default async (req) => {
     const [order] = await res.json();
     if (!order) return json({ error: 'No existe' }, 404);
     if (order.confirmation_sent_at) return json({ ok: true, already: true });
+    // Con tarjeta los correos salen cuando Stripe confirma el pago (stripe-webhook)
+    if (order.payment === 'tarjeta') return json({ ok: true, waiting: 'tarjeta' });
     if (Date.now() - Date.parse(order.created_at) > 60 * 60 * 1000) return json({ error: 'Pedido antiguo' }, 409);
 
     // Se marca antes de enviar para que dos llamadas seguidas no manden dos correos

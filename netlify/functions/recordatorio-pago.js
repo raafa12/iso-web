@@ -10,7 +10,7 @@ export default async () => {
     const { url, headers } = sb();
     const before = new Date(Date.now() - 20 * 60 * 60 * 1000).toISOString();
     const q =
-      `select=*&status=eq.pendiente&payment=neq.contrarreembolso&reminder_sent_at=is.null` +
+      `select=*&status=eq.pendiente&payment=in.(bizum,paypal)&reminder_sent_at=is.null` +
       `&created_at=lt.${encodeURIComponent(before)}&limit=50`;
     const r = await fetch(`${url}/rest/v1/orders?${q}`, { headers });
     if (!r.ok) return new Response(`sin columnas: ${r.status}`); // falta ejecutar el SQL

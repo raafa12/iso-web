@@ -4,6 +4,7 @@ import { PayBadge } from "./PayBadges.tsx";
 import {
   BIZUM_PHONE,
   PAYPAL_URL,
+  STRIPE_ENABLED,
   ORDER_ERRORS,
   PAY_LABEL,
   SB_HEADERS,
@@ -84,7 +85,7 @@ export default function CartDrawerReact() {
   const [isOpen, setIsOpen] = useState(false);
   const [view, setView] = useState<"cart" | "checkout" | "done">("cart");
   const [customer, setCustomer] = useState({ name: "", email: "", phone: "", address: "", city: "", postal_code: "" });
-  const [payment, setPayment] = useState<Payment>("bizum");
+  const [payment, setPayment] = useState<Payment>(STRIPE_ENABLED ? "tarjeta" : "bizum");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [order, setOrder] = useState<{ code: string; total: number; payment: Payment; lines: string; presale: boolean } | null>(null);
@@ -237,6 +238,18 @@ export default function CartDrawerReact() {
         }
         return;
       }
+      if (payment === "tarjeta") {
+        // Stripe: el carrito se vacía y se abre la página de pago; los correos salen al pagar
+        const pay = await fetch("/api/pago-stripe", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code: data.code }),
+        }).then((r) => r.json()).catch(() => null);
+        persist([]);
+        window.dispatchEvent(new CustomEvent("iso-order-placed"));
+        location.href = pay?.url ?? `/pago?estado=error&code=${data.code}`;
+        return;
+      }
       setOrder({ code: data.code, total: data.total_cents, payment, lines, presale: hasPresale });
       // Correo de confirmación al cliente + aviso a ISO (si falla, el pedido ya está hecho)
       fetch("/api/pedido", {
@@ -366,11 +379,12 @@ export default function CartDrawerReact() {
               <legend>Forma de pago</legend>
               {(
                 [
+                  ["tarjeta", "Tarjeta · Apple Pay · Google Pay"],
                   ["bizum", "Bizum"],
                   ["paypal", "PayPal"],
                   ["contrarreembolso", "Contrarreembolso"],
                 ] as [Payment, string][]
-              ).map(([k, title]) => (
+              ).filter(([k]) => k !== "tarjeta" || STRIPE_ENABLED).map(([k, title]) => (
                 <label key={k} className={payment === k ? "on" : ""}>
                   <input type="radio" name="pay" checked={payment === k} onChange={() => setPayment(k)} />
                   <b>{title}</b>
@@ -401,7 +415,7 @@ export default function CartDrawerReact() {
             )}
 
             <button type="submit" className="cart-checkout-btn" disabled={sending}>
-              {sending ? "Enviando…" : `Confirmar pedido · ${eur(total)}`}
+              {sending ? (payment === "tarjeta" ? "Abriendo el pago…" : "Enviando…") : payment === "tarjeta" ? `Pagar · ${eur(total)}` : `Confirmar pedido · ${eur(total)}`}
             </button>
           </form>
         )}

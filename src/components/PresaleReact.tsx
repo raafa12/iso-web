@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { SizeGuideModal } from "./ProductsReact.tsx";
 import "./presale.css";
-import { SB_HEADERS, SUPABASE_ANON_KEY, SUPABASE_URL, eur } from "../lib/shop";
+import { SB_HEADERS, STRIPE_ENABLED, SUPABASE_ANON_KEY, SUPABASE_URL, eur } from "../lib/shop";
 
 // Prenda de la preventa (las fotos que no existen llegan a null desde la página)
 export interface PresaleItem {
@@ -360,7 +360,7 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
                 <li><b>Unidades limitadas</b> por prenda, sin reposición</li>
                 <li><b>1 semana</b> de preventa o hasta agotar existencias</li>
                 <li><b>Envío gratis</b> en Santander · resto {eur(shippingCents)}</li>
-                <li>Pagas con <b>Bizum</b>, <b>PayPal</b> o <b>contrarreembolso</b> al finalizar la compra</li>
+                <li>Pagas con {STRIPE_ENABLED && <><b>tarjeta</b>, <b>Apple Pay</b>, <b>Google Pay</b>, </>}<b>Bizum</b>, <b>PayPal</b> o <b>contrarreembolso</b></li>
               </ul>
             </div>
           </div>

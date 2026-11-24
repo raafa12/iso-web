@@ -35,3 +35,13 @@
   from = "/api/admin/pedidos"
   to = "/.netlify/functions/pedidos-admin"
   status = 200
+
+[[redirects]]
+  from = "/api/pago-stripe"
+  to = "/.netlify/functions/pago-stripe"
+  status = 200
+
+[[redirects]]
+  from = "/api/stripe-webhook"
+  to = "/.netlify/functions/stripe-webhook"
+  status = 200
