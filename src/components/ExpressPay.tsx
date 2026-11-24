@@ -8,6 +8,7 @@ import "./cart-drawer.css";
 import { ORDER_ERRORS, SHIPPING_CENTS, isSantander } from "../lib/shop";
 
 const PK = import.meta.env.PUBLIC_STRIPE_KEY as string | undefined;
+const BUILD = "24/11 19:02";
 
 type Line = { id: string; name: string; size: string; qty: number; price: number };
 
@@ -21,7 +22,16 @@ export default function ExpressPay({ cart, onPaid, orText = "o elige otra forma 
   const [error, setError] = useState<string | null>(null);
   const elsRef = useRef<StripeElements | null>(null);
   // Diagnóstico: isowear.es/?debugpay → muestra en el carrito por qué sale o no el botón
-  const debug = typeof location !== "undefined" && location.search.includes("debugpay");
+  const debug = (() => {
+    if (typeof location === "undefined") return false;
+    try {
+      if (location.search.includes("debugpay")) localStorage.setItem("iso_debugpay", "1");
+      if (location.search.includes("nodebug")) localStorage.removeItem("iso_debugpay");
+      return localStorage.getItem("iso_debugpay") === "1";
+    } catch {
+      return location.search.includes("debugpay");
+    }
+  })();
   const [diag, setDiag] = useState<string[]>([]);
   const log = (m: string) => { console.log("[ISO pago rápido]", m); if (debug) setDiag((d) => [...d, m]); };
 
@@ -183,7 +193,7 @@ export default function ExpressPay({ cart, onPaid, orText = "o elige otra forma 
   if (!PK && !debug) return null;
   return (
     <>
-    {debug && <pre className="cart-debug">{[`STRIPE_ENABLED ok`, ...diag].join("\n")}</pre>}
+    {debug && <pre className="cart-debug">{[`versión ${BUILD}`, `STRIPE_ENABLED ok`, ...diag].join("\n")}</pre>}
     <div className={`cart-express${available || error ? "" : gaveUp && !debug ? " gone" : " pending"}`}>
       <div ref={box} />
       {error && <p className="cart-error">{error}</p>}
