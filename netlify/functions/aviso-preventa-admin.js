@@ -12,8 +12,11 @@ const json = (data, status = 200) =>
 export default async (req) => {
   if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
 
-  const key = process.env.ADMIN_KEY || process.env.STAFF_PASSCODE;
-  if (!key || req.headers.get('x-staff-passcode') !== key) return json({ error: 'unauthorized' }, 401);
+  const key = (process.env.ADMIN_KEY || process.env.STAFF_PASSCODE || '').trim();
+  if (!key) return json({ error: 'Falta STAFF_PASSCODE en las variables de entorno de Netlify' }, 500);
+  if ((req.headers.get('x-staff-passcode') || '').trim() !== key) return json({ error: 'PIN incorrecto' }, 401);
+  if (!process.env.BREVO_API_KEY) return json({ error: 'Falta BREVO_API_KEY en Netlify' }, 500);
+  if (!process.env.EMAIL_FROM) return json({ error: 'Falta EMAIL_FROM en Netlify' }, 500);
 
   let body = {};
   try { body = await req.json(); } catch {}
