@@ -257,6 +257,7 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
 
   return (
     <>
+      {phase === "soon" && <NotifyForm />}
       {demo && <p className="ps-demo">Vista de prueba: preventa abierta y 5 unidades por prenda. Los pedidos del carrito no se guardan.</p>}
       <ul className="ps-grid" ref={listRef}>
         {items.map((p, i) => (
@@ -353,8 +354,10 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
                 {ctaText}
               </button>
 
+              {phase === "soon" && <NotifyForm compact />}
+
               <ul className="ps-notes">
-                <li><b>{unitsPerItem} unidades</b> por prenda, sin reposición</li>
+                <li><b>Unidades limitadas</b> por prenda, sin reposición</li>
                 <li><b>1 semana</b> de preventa o hasta agotar existencias</li>
                 <li><b>Envío gratis</b> en Santander · resto {eur(shippingCents)}</li>
                 <li>Pagas con <b>Bizum</b>, <b>PayPal</b> o <b>contrarreembolso</b> al finalizar la compra</li>
@@ -366,6 +369,66 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
 
       <SizeGuideModal open={guideOpen} onClose={() => setGuideOpen(false)} />
     </>
+  );
+}
+
+// ---- Aviso por correo cuando abra la preventa (se guarda en la lista de Supabase con source=preventa-isolation) ----
+function NotifyForm({ compact = false }: { compact?: boolean }) {
+  const [email, setEmail] = useState("");
+  const [state, setState] = useState<"idle" | "sending" | "ok" | "error">("idle");
+  const [msg, setMsg] = useState("");
+  const hp = useRef<HTMLInputElement>(null);
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setState("error");
+      setMsg("Revisa el correo");
+      return;
+    }
+    setState("sending");
+    try {
+      const res = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), source: "preventa-isolation", website: hp.current?.value ?? "" }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "No se ha podido guardar");
+      setState("ok");
+    } catch (err) {
+      setState("error");
+      setMsg(err instanceof Error ? err.message : "No se ha podido guardar");
+    }
+  }
+  if (state === "ok")
+    return <p className={`ps-notify ok${compact ? " compact" : ""}`}>Hecho. Te avisamos por correo en cuanto abra la preventa.</p>;
+  return (
+    <form className={`ps-notify${compact ? " compact" : ""}`} onSubmit={submit} noValidate>
+      {!compact && (
+        <p className="ps-notify-t">
+          <b>Avísame cuando abra</b> · te mandamos un correo el 13 de diciembre a las 20:00
+        </p>
+      )}
+      <input ref={hp} type="text" name="website" tabIndex={-1} autoComplete="off" className="ps-hp" aria-hidden="true" />
+      <div className="ps-notify-row">
+        <label className="sr-only" htmlFor={compact ? "ps-mail-c" : "ps-mail"}>Tu correo</label>
+        <input
+          id={compact ? "ps-mail-c" : "ps-mail"}
+          type="email"
+          inputMode="email"
+          autoComplete="email"
+          placeholder="tu@correo.com"
+          value={email}
+          onChange={(e) => {
+            setEmail(e.target.value);
+            if (state === "error") setState("idle");
+          }}
+          required
+        />
+        <button type="submit" disabled={state === "sending"}>{state === "sending" ? "…" : compact ? "Avísame" : "Avísame"}</button>
+      </div>
+      {state === "error" && <p className="ps-notify-err">{msg}</p>}
+    </form>
   );
 }
 
@@ -469,8 +532,8 @@ function Card({
         <span className="ps-cat">
           {p.category} · Isolation
           {left != null && (
-            <span className={`ps-stock${left === 0 ? " out" : left <= LOW_STOCK ? " low" : ""}`}>
-              {left === 0 ? "Agotado" : `Quedan ${left}`}
+            <span className={`ps-stock${left === 0 ? " out" : ""}`}>
+              {left === 0 ? "Agotado" : "Unidades limitadas"}
             </span>
           )}
         </span>

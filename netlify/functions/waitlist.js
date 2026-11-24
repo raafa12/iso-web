@@ -59,7 +59,8 @@ export default async (req) => {
     return new Response(JSON.stringify({ ok: true }), { status: 200 }); // fingimos éxito, no delatamos el honeypot
   }
 
-  if (!name) {
+  // El aviso de la preventa solo pide el correo
+  if (!name && !source.startsWith('preventa')) {
     return new Response(JSON.stringify({ error: 'Falta el nombre' }), { status: 400 });
   }
   const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -88,7 +89,7 @@ export default async (req) => {
     headers,
     body: JSON.stringify([
       {
-        name,
+        name: name || '',
         email,
         instagram: instagram || null,
         size_pref: sizePref || null,

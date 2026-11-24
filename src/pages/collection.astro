@@ -3,7 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
 import CollectionReact, { type Model } from '../components/CollectionReact.tsx';
-import { ISO_CLASSICS } from '../data/isolation-drop';
+import { ISO_CLASSICS, PRESALE } from '../data/isolation-drop';
 
 // Agrupa los básicos por modelo (camiseta / sudadera) con sus colores
 const SWATCH: Record<string, string> = { Black: '#111111', White: '#f2f1ec', Grey: '#a9a9a6', 'Sport Grey': '#b3b3b0' };
@@ -26,10 +26,10 @@ for (const p of ISO_CLASSICS) {
   <Navbar />
   <main class="col">
     <header class="col-head">
-      <h1 class="col-kicker">Siempre disponible</h1>
+      <h1 class="col-kicker">Best sellers</h1>
       <p class="col-sub">Los básicos de ISO. Envío gratis en Santander.</p>
     </header>
-    <CollectionReact client:load models={models} />
+    <CollectionReact client:load models={models} shippingCents={PRESALE.shippingCents} />
     <a href="/preventa" class="col-drop">
       <span>Drop 001 · Isolation</span>
       <b>Ver la preventa →</b>
