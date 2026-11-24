@@ -3,6 +3,9 @@
   publish = "dist"
   functions = "netlify/functions"
 
+[functions]
+  node_bundler = "esbuild"
+
 [[redirects]]
   from = "/api/validar"
   to = "/.netlify/functions/validar"
@@ -11,4 +14,14 @@
 [[redirects]]
   from = "/api/waitlist"
   to = "/.netlify/functions/waitlist"
+  status = 200
+
+[[redirects]]
+  from = "/api/aviso-preventa"
+  to = "/.netlify/functions/aviso-preventa-admin"
+  status = 200
+
+[[redirects]]
+  from = "/api/baja"
+  to = "/.netlify/functions/baja"
   status = 200

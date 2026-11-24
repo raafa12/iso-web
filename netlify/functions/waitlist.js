@@ -78,6 +78,12 @@ export default async (req) => {
   const existing = await existingRes.json();
 
   if (existing.length > 0) {
+    // Si se había dado de baja y se vuelve a apuntar, vuelve a recibir avisos
+    await fetch(`${SUPABASE_URL}/rest/v1/waitlist?email=eq.${encodeURIComponent(email)}&unsubscribed=is.true`, {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify({ unsubscribed: false }),
+    }).catch(() => {});
     return new Response(JSON.stringify({ ok: true, already: true }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
