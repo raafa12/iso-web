@@ -1,0 +1,119 @@
+/* Pago con Bizum: hoja propia con el color de Bizum */
+.bz-overlay {
+  position: fixed; inset: 0; z-index: 320;
+  display: flex; align-items: flex-end; justify-content: center;
+  background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  animation: bz-fade 0.25s ease both;
+}
+@keyframes bz-fade { from { opacity: 0; } }
+
+.bz-sheet {
+  position: relative; width: 100%; max-width: 480px; max-height: 92vh; overflow-y: auto;
+  background: #0d0d0d; color: #f2ede5; border-top: 4px solid #05c3dd;
+  padding: 1.25rem 1.25rem calc(1.5rem + env(safe-area-inset-bottom));
+  font-family: var(--font-body, Helvetica, Arial, sans-serif);
+  animation: bz-up 0.38s cubic-bezier(0.2, 0.9, 0.25, 1) both;
+}
+@media (min-width: 700px) {
+  .bz-overlay { align-items: center; }
+  .bz-sheet { border-radius: 4px; }
+}
+@keyframes bz-up { from { transform: translateY(40px); opacity: 0; } }
+
+.bz-close {
+  position: absolute; top: 0.9rem; right: 0.9rem; width: 36px; height: 36px; border-radius: 50%;
+  display: grid; place-items: center; background: #1a1a1a; border: 1px solid #2a2a2a; color: #c8c2b8; cursor: pointer;
+}
+.bz-head { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.1rem; }
+.bz-logo { font: 800 1.9rem/1 -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; letter-spacing: -0.05em; color: #05c3dd; }
+.bz-steps { display: flex; gap: 5px; }
+.bz-steps i { width: 22px; height: 4px; border-radius: 2px; background: #2a2a2a; transition: background 0.4s; }
+.bz-steps i.on { background: #05c3dd; }
+
+.bz-item { display: grid; grid-template-columns: 56px 1fr auto; gap: 0.8rem; align-items: center; padding: 0.7rem; background: #151515; border: 1px solid #222; margin-bottom: 1.1rem; }
+.bz-item img { width: 56px; height: 64px; object-fit: contain; background: #e7e6e2; }
+.bz-item b { display: block; font-size: 0.92rem; }
+.bz-item span { font-size: 0.8rem; color: #8a857e; }
+.bz-item strong { font-size: 0.95rem; }
+
+.bz-lead { color: #c8c2b8; line-height: 1.5; margin: 0 0 1rem; }
+.bz-lead b { color: #f2ede5; }
+
+/* Paso 1: datos */
+.bz-form { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
+.bz-form .bz-lead, .bz-form .wide, .bz-form .bz-totals, .bz-form .bz-error, .bz-form .bz-cta { grid-column: 1 / -1; }
+.bz-form label { display: grid; gap: 0.3rem; font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: #8a857e; }
+.bz-form label i { text-transform: none; letter-spacing: 0; font-style: normal; color: #5f5b55; }
+.bz-form input {
+  width: 100%; padding: 0.8rem 0.85rem; background: #161616; border: 1px solid #2a2a2a; color: #f2ede5;
+  font: 500 1rem var(--font-body, Helvetica, Arial, sans-serif); border-radius: 0; -webkit-appearance: none;
+}
+.bz-form input:focus { outline: none; border-color: #05c3dd; box-shadow: 0 0 0 3px rgba(5, 195, 221, 0.18); }
+.bz-totals { display: grid; grid-template-columns: 1fr auto; gap: 0.35rem 1rem; padding: 0.9rem 0 0.2rem; border-top: 1px solid #222; margin-top: 0.3rem; color: #8a857e; font-size: 0.9rem; }
+.bz-totals b { color: #f2ede5; font-size: 1.15rem; }
+.bz-error { color: #ff7a7a; font-size: 0.9rem; margin: 0; }
+
+.bz-cta {
+  display: flex; align-items: center; justify-content: center; width: 100%; height: 54px; margin-top: 0.4rem;
+  background: #05c3dd; color: #fff; border: 0; cursor: pointer; text-decoration: none;
+  font: 700 1.05rem -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
+}
+.bz-cta:hover { transform: translateY(-1px); box-shadow: 0 12px 30px rgba(5, 195, 221, 0.3); }
+.bz-cta:active { transform: scale(0.99); }
+.bz-cta:disabled { cursor: wait; filter: saturate(0.6); }
+.bz-cta.ghost { background: transparent; color: #05c3dd; border: 1.5px solid #05c3dd; }
+.bz-spin { width: 20px; height: 20px; border: 2.5px solid rgba(255, 255, 255, 0.35); border-top-color: #fff; border-radius: 50%; animation: bz-rot 0.7s linear infinite; }
+@keyframes bz-rot { to { transform: rotate(360deg); } }
+
+/* Paso 2: haz el Bizum */
+.bz-pay { text-align: center; animation: bz-up 0.4s ease both; }
+.bz-kicker { font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase; color: #05c3dd; font-weight: 700; margin: 0.2rem 0 0.3rem; }
+.bz-amount { font: 800 3.4rem/1 -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; letter-spacing: -0.04em; margin: 0 0 0.4rem; font-variant-numeric: tabular-nums; }
+.bz-copy {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 0.8rem; width: 100%;
+  padding: 0.95rem 1rem; margin-bottom: 0.55rem; background: #151515; border: 1px solid #262626; color: #f2ede5;
+  cursor: pointer; text-align: left; transition: border-color 0.2s, background 0.2s;
+}
+.bz-copy span { font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: #8a857e; width: 5.2rem; }
+.bz-copy b { font: 700 1.15rem -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; letter-spacing: 0.02em; }
+.bz-copy em { font-style: normal; font-size: 0.8rem; font-weight: 700; color: #05c3dd; padding: 0.35rem 0.6rem; border: 1px solid rgba(5, 195, 221, 0.4); border-radius: 999px; }
+.bz-copy.ok { border-color: #05c3dd; background: rgba(5, 195, 221, 0.08); }
+.bz-copy.ok em { background: #05c3dd; color: #fff; border-color: #05c3dd; animation: bz-pop 0.3s ease; }
+@keyframes bz-pop { 50% { transform: scale(1.12); } }
+.bz-how { list-style: none; padding: 0; margin: 1rem 0 0.6rem; display: grid; gap: 0.55rem; text-align: left; }
+.bz-how li { display: flex; gap: 0.7rem; align-items: flex-start; color: #c8c2b8; font-size: 0.92rem; line-height: 1.45; }
+.bz-how li b { flex: none; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: #05c3dd; color: #fff; font-size: 0.75rem; }
+.bz-how strong { color: #f2ede5; }
+.bz-note { color: #6e6a64; font-size: 0.8rem; margin: 0.8rem 0 0; }
+
+/* Paso 3: hecho */
+.bz-done { position: relative; text-align: center; padding-top: 0.5rem; overflow: hidden; }
+.bz-title { font: 900 italic 3rem/1 var(--font-display, "Arial Black", sans-serif); text-transform: uppercase; margin: 0.8rem 0 0.6rem; animation: bz-up 0.5s 0.2s ease both; }
+.bz-check { width: 88px; height: 88px; margin: 0.5rem auto 0; }
+.bz-check svg { width: 100%; height: 100%; fill: none; stroke: #05c3dd; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.bz-check circle { stroke-dasharray: 151; stroke-dashoffset: 151; animation: bz-draw 0.6s ease forwards; }
+.bz-check path { stroke-dasharray: 40; stroke-dashoffset: 40; animation: bz-draw 0.35s 0.5s ease forwards; }
+@keyframes bz-draw { to { stroke-dashoffset: 0; } }
+.bz-link { margin-top: 0.9rem; background: none; border: 0; color: #8a857e; text-decoration: underline; font: inherit; cursor: pointer; }
+
+.bz-confetti { position: absolute; inset: -20px 0 auto; height: 0; pointer-events: none; }
+.bz-confetti i {
+  position: absolute; top: 0; left: var(--x); width: 8px; height: 14px;
+  background: #05c3dd; opacity: 0; border-radius: 2px;
+  animation: bz-fall var(--t) var(--d) cubic-bezier(0.25, 0.5, 0.45, 1) forwards;
+}
+.bz-confetti i:nth-child(3n) { background: #7ec8e3; width: 6px; height: 10px; }
+.bz-confetti i:nth-child(4n) { background: #f2ede5; }
+.bz-confetti i:nth-child(5n) { border-radius: 50%; width: 9px; height: 9px; }
+.bz-confetti i:nth-child(7n) { background: #0a8fa3; }
+@keyframes bz-fall {
+  0% { opacity: 1; transform: translate3d(0, -10px, 0) rotate(0); }
+  85% { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(var(--dx), var(--y), 0) rotate(var(--r)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bz-overlay, .bz-sheet, .bz-pay, .bz-title, .bz-confetti i { animation: none !important; }
+  .bz-check circle, .bz-check path { animation: none; stroke-dashoffset: 0; }
+}
