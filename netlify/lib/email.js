@@ -17,7 +17,8 @@ export const BIZUM_PHONE = '601105483';
 export const PAYPAL_URL = 'https://www.paypal.biz/isoweares';
 
 export function env(name, fallback) {
-  const v = process.env[name] || fallback;
+  // trim: por si al pegar la clave en Netlify se coló un espacio o un salto de línea
+  const v = (process.env[name] || fallback || '').trim();
   if (!v) throw new Error(`Falta la variable de entorno ${name}`);
   return v;
 }
