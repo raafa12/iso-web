@@ -275,50 +275,84 @@ export default function RackReact({ products: initial, title = "El Perchero", pr
   }
 
   // ---- Móvil: al pasar el dedo por encima, la prenda que toca gira y se ve de frente ----
-  const touchIdx = useRef<number | null>(null);
-  function touchTurn(e: React.PointerEvent) {
-    if (e.pointerType !== "touch") return;
-    // la prenda cuyo centro está más cerca del dedo (se solapan un poco, así cada una tiene su zona)
-    let i: number | null = null;
-    let best = Infinity;
-    els.current.forEach((el, k) => {
-      if (!el) return;
-      const r = el.getBoundingClientRect();
-      if (e.clientY < r.top - 20 || e.clientY > r.bottom + 20) return;
-      const d = Math.abs(r.left + r.width / 2 - e.clientX);
-      if (d < best && d < r.width / 2 + 24) {
-        best = d;
-        i = k;
-      }
-    });
-    if (i === touchIdx.current) return;
-    if (touchIdx.current != null) {
-      const prev = bodies.current[touchIdx.current];
-      if (prev) prev.releaseAt = performance.now() + 250;
-    }
-    touchIdx.current = i;
-    if (i != null && hasBack(i)) {
+  // Eventos táctiles del documento (pasivos): siguen llegando aunque la página se desplace,
+  // a diferencia de los pointer events, que se cancelan en cuanto el navegador hace scroll.
+  useEffect(() => {
+    if (status !== "ready") return;
+    let cur: number | null = null;
+    let cand: number | null = null;
+    let candAt = 0;
+    let endTimer = 0;
+    const release = (i: number | null, ms: number) => {
+      if (i == null) return;
       const b = bodies.current[i];
-      if (b) {
-        if (b.target !== 180 && !prefersReducedMotion()) b.vSwing += 30;
-        b.target = 180;
-        b.releaseAt = 0;
+      if (b) b.releaseAt = performance.now() + ms;
+    };
+    const pickAt = (x: number, y: number) => {
+      let best: number | null = null;
+      let dist = Infinity;
+      els.current.forEach((el, k) => {
+        if (!el) return;
+        const r = el.getBoundingClientRect();
+        if (y < r.top - 10 || y > r.bottom + 10) return;
+        const d = Math.abs(r.left + r.width / 2 - x);
+        if (d < dist && d < r.width / 2 + 20) {
+          dist = d;
+          best = k;
+        }
+      });
+      return best;
+    };
+    const onTouch = (e: TouchEvent) => {
+      if (open != null) return;
+      const t = e.touches[0];
+      if (!t) return;
+      window.clearTimeout(endTimer);
+      const i = pickAt(t.clientX, t.clientY);
+      const now = performance.now();
+      if (i !== cand) {
+        cand = i;
+        candAt = now;
       }
-      setHovered(i);
-    }
-    tick();
-  }
-  function touchEnd(e: React.PointerEvent) {
-    if (e.pointerType !== "touch") return;
-    const i = touchIdx.current;
-    touchIdx.current = null;
-    if (i != null) {
-      const b = bodies.current[i];
-      if (b) b.releaseAt = performance.now() + HOLD_MS * 2;
-      setTimeout(() => setHovered((h) => (h === i ? null : h)), HOLD_MS * 2);
+      // pequeño margen para que no parpadee al cruzar el borde entre dos prendas
+      if (cand === cur || (now - candAt < 70 && e.type === "touchmove")) return;
+      release(cur, 200);
+      cur = cand;
+      if (cur != null && hasBack(cur)) {
+        const b = bodies.current[cur];
+        if (b) {
+          if (b.target !== 180 && !prefersReducedMotion()) b.vSwing += 30;
+          b.target = 180;
+          b.releaseAt = 0;
+        }
+      }
+      setHovered(cur);
       tick();
-    }
-  }
+    };
+    const onEnd = () => {
+      if (cur == null) return;
+      const i = cur;
+      release(i, HOLD_MS * 2);
+      tick();
+      endTimer = window.setTimeout(() => {
+        setHovered((h) => (h === i ? null : h));
+        if (cur === i) cur = null;
+        cand = null;
+      }, HOLD_MS * 2);
+    };
+    document.addEventListener("touchstart", onTouch, { passive: true });
+    document.addEventListener("touchmove", onTouch, { passive: true });
+    document.addEventListener("touchend", onEnd, { passive: true });
+    document.addEventListener("touchcancel", onEnd, { passive: true });
+    return () => {
+      document.removeEventListener("touchstart", onTouch);
+      document.removeEventListener("touchmove", onTouch);
+      document.removeEventListener("touchend", onEnd);
+      document.removeEventListener("touchcancel", onEnd);
+      window.clearTimeout(endTimer);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status, open, products]);
 
   function onGarmentClick(i: number, e: React.MouseEvent<HTMLElement>) {
     const touchUI = window.matchMedia("(hover: none), (pointer: coarse)").matches;
@@ -477,10 +511,7 @@ export default function RackReact({ products: initial, title = "El Perchero", pr
         <div className="rack-scroller" ref={railRef} onScroll={onRailScroll}>
           <div
             className="rack-stage"
-            onPointerMove={(e) => { onStageMove(e); touchTurn(e); }}
-            onPointerDown={touchTurn}
-            onPointerUp={touchEnd}
-            onPointerCancel={touchEnd}
+            onPointerMove={onStageMove}
           >
             <div className="rack-bar" aria-hidden="true">
               <span className="rack-knob" />
