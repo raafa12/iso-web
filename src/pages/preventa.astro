@@ -74,14 +74,17 @@ const ticker = ['Call for an ISO', 'Not like them', 'Isolate yourself', 'If you 
           <p class="pv-clock-label" data-clock-label>La preventa abre en</p>
           <div class="pv-clock-nums">
             <span><b data-d>--</b>días</span>
+            <i class="pv-colon" aria-hidden="true">:</i>
             <span><b data-h>--</b>horas</span>
+            <i class="pv-colon" aria-hidden="true">:</i>
             <span><b data-m>--</b>min</span>
-            <span><b data-s>--</b>seg</span>
+            <i class="pv-colon" aria-hidden="true">:</i>
+            <span class="pv-sec"><b data-s>--</b>seg</span>
           </div>
         </div>
 
         <ul class="pv-facts">
-          <li><b>1 semana</b><span>Solo {PRESALE.unitsPerItem} unidades de cada modelo</span></li>
+          <li><b>1 semana</b><span>Unidades limitadas</span></li>
           <li><b>Envío gratis</b><span>En Santander</span></li>
         </ul>
       </div>
@@ -285,24 +288,44 @@ const ticker = ['Call for an ISO', 'Not like them', 'Isolate yourself', 'If you 
     margin-bottom: 0.6rem;
   }
   .pv-clock.is-open .pv-clock-label { color: var(--accent); }
-  .pv-clock-nums { display: flex; gap: clamp(1rem, 3vw, 2rem); }
+  /* Reloj estilo ISO: cifras como el título (Barlow 900 cursiva), dos puntos en contorno
+     y los segundos en azul, como el balón del logo */
+  .pv-clock-nums { display: flex; align-items: flex-start; gap: clamp(0.35rem, 1.2vw, 0.9rem); }
   .pv-clock-nums span {
     display: flex;
     flex-direction: column;
     font-family: var(--font-display);
+    font-weight: 700;
+    font-style: italic;
     font-size: 0.7rem;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
     color: var(--white-dim);
   }
   .pv-clock-nums b {
+    font-family: var(--font-display);
     font-weight: 900;
     font-style: italic;
-    font-size: clamp(2.2rem, 5vw, 3.4rem);
-    line-height: 1;
+    font-size: clamp(3rem, 8vw, 6rem);
+    line-height: 0.86;
+    letter-spacing: -0.03em;
     color: var(--white);
     font-variant-numeric: tabular-nums;
+    margin-bottom: 0.45rem;
   }
+  .pv-sec b { color: var(--accent); text-shadow: 0 0 28px rgba(126, 200, 227, 0.35); }
+  .pv-sec { color: var(--accent); }
+  .pv-colon {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-style: italic;
+    font-size: clamp(2.6rem, 7vw, 5.2rem);
+    line-height: 0.86;
+    color: var(--accent);
+    opacity: 0.8;
+  }
+  .pv-clock.is-open .pv-sec b { animation: pv-tick 1s steps(1) infinite; }
+  @keyframes pv-tick { 50% { opacity: 0.75; } }
 
   .pv-facts {
     list-style: none;

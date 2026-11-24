@@ -406,7 +406,7 @@ function NotifyForm({ compact = false }: { compact?: boolean }) {
     <form className={`ps-notify${compact ? " compact" : ""}`} onSubmit={submit} noValidate>
       {!compact && (
         <p className="ps-notify-t">
-          <b>Avísame cuando abra</b> · te mandamos un correo el 13 de diciembre a las 20:00
+          <b>Avísame cuando abra</b>
         </p>
       )}
       <input ref={hp} type="text" name="website" tabIndex={-1} autoComplete="off" className="ps-hp" aria-hidden="true" />
