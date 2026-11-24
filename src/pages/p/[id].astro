@@ -21,7 +21,7 @@ export function getStaticPaths() {
 const { id } = Astro.params;
 const { title, price, to, desc } = Astro.props;
 const site = "https://isowear.es";
-const image = `${site}/og/${id}.jpg`;
+const image = `${site}/og/${id}.jpg?v=2`;
 const full = `${title} · ${price}`;
 ---
 
@@ -33,6 +33,9 @@ const full = `${title} · ${price}`;
     <title>{full} — ISO</title>
     <meta name="description" content={desc} />
     <meta name="robots" content="noindex" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32-v10.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192-v10.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon-180-v10.png" />
     <link rel="canonical" href={`${site}${to}`} />
     <meta property="og:type" content="product" />
     <meta property="og:site_name" content="ISO" />

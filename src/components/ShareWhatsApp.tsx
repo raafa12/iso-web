@@ -5,7 +5,8 @@ import "./buy-now.css";
 export default function ShareWhatsApp({ id, name, price }: { id: string; name: string; price: string }) {
   function share() {
     const url = `${location.origin}/p/${id}`;
-    const text = `${name} · ${price} — ISO\n${url}`;
+    // La vista previa ya enseña la foto, el nombre y el precio
+    const text = `Mira esta de ISO 👇\n${url}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener");
   }
   return (
