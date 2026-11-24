@@ -210,6 +210,13 @@
 }
 .rack-caption-price { margin-left: 0.9em; color: var(--ink); }
 
+/* ---- Prendas con foto real de lado ----
+   Cuelgan de lado, juntas como en un perchero de verdad; al girar se ven de frente (más anchas, por encima de las vecinas). */
+.rack-item.has-side { margin-inline: calc(var(--gh) * -0.03); }
+.rack-face.side { filter: brightness(var(--shade)) drop-shadow(0 16px 14px rgba(0, 0, 0, 0.6)); }
+.rack:has(.rack-item.has-side) { --gh: clamp(250px, 24vw, 400px); }
+.rack-stage { touch-action: pan-y; }
+
 /* ============ DETALLE ============ */
 .rack-detail {
   --ink: var(--white, #f2ede5);
@@ -495,4 +502,12 @@
   .rack-tag { animation: none; }
   .rack-detail,
   .rack-detail.is-closing { animation: none; }
+}
+
+/* Perchero con fotos de lado en móvil: caben todas, centradas y sin desplazamiento */
+@media (max-width: 760px) {
+  .rack:has(.rack-item.has-side) { --gh: 225px; }
+  .rack:has(.rack-item.has-side) .rack-scroller { scroll-snap-type: none; }
+  .rack:has(.rack-item.has-side) .rack-stage { justify-content: center; padding-inline: 1rem; }
+  .rack-item.has-side { margin-inline: calc(var(--gh) * -0.06); }
 }

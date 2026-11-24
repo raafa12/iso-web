@@ -11,6 +11,7 @@ export interface DropProduct {
   image_url: string;
   image_back_url?: string | null;
   image_mono_url?: string | null; // delante con el logo de un solo color (sin el balón azul)
+  image_side_url?: string | null; // foto real de lado en la percha (perchero de la home)
   color?: string | null;
 }
 
@@ -77,6 +78,7 @@ const classicTee = (color: string, slug: string, sizes: string[] = SIZES): DropP
   description: "El logo de ISO en grande en el pecho. Basketball clothing brand. Oversize.",
   image_url: `/rack/classic-tee-${slug}-front.webp`,
   image_mono_url: `/rack/classic-tee-${slug}-front-mono.webp`,
+  image_side_url: `/rack/classic-tee-${slug}-side.webp`,
   image_back_url: `/rack/classic-tee-${slug}-back.webp`,
   color,
 });
@@ -89,6 +91,7 @@ const classicHoodie = (color: string, slug: string): DropProduct => ({
   description: "Sudadera oversize con el logo de ISO en el pecho.",
   image_url: `/rack/classic-hoodie-${slug}-front.webp`,
   image_mono_url: `/rack/classic-hoodie-${slug}-front-mono.webp`,
+  image_side_url: `/rack/classic-hoodie-${slug}-side.webp`,
   image_back_url: `/rack/classic-hoodie-${slug}-back.webp`,
   color,
 });

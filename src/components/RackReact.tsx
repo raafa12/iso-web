@@ -18,6 +18,7 @@ export interface RackProduct {
   image_url: string; // PNG/WebP con fondo transparente
   image_back_url?: string | null; // espalda; sin ella la prenda solo se balancea
   image_mono_url?: string | null; // delante con el logo de un solo color (opción de logo)
+  image_side_url?: string | null; // foto real de lado: así cuelga en el perchero y al pasar por encima gira hasta verse de frente
   color?: string | null;
 }
 
@@ -177,7 +178,8 @@ export default function RackReact({ products: initial, title = "El Perchero", pr
 
   useEffect(() => () => { if (raf.current) cancelAnimationFrame(raf.current); }, []);
 
-  const hasBack = (i: number) => Boolean(products[i]?.image_back_url);
+  // Prendas con foto de lado: cuelgan de lado y giran hasta verse de frente. Sin ella: delante → espalda.
+  const hasBack = (i: number) => Boolean(products[i]?.image_side_url || products[i]?.image_back_url);
 
   function turnTo(i: number, back: boolean, holdMs = 0) {
     const b = bodies.current[i];
@@ -272,9 +274,56 @@ export default function RackReact({ products: initial, title = "El Perchero", pr
     return best;
   }
 
+  // ---- Móvil: al pasar el dedo por encima, la prenda que toca gira y se ve de frente ----
+  const touchIdx = useRef<number | null>(null);
+  function touchTurn(e: React.PointerEvent) {
+    if (e.pointerType !== "touch") return;
+    // la prenda cuyo centro está más cerca del dedo (se solapan un poco, así cada una tiene su zona)
+    let i: number | null = null;
+    let best = Infinity;
+    els.current.forEach((el, k) => {
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      if (e.clientY < r.top - 20 || e.clientY > r.bottom + 20) return;
+      const d = Math.abs(r.left + r.width / 2 - e.clientX);
+      if (d < best && d < r.width / 2 + 24) {
+        best = d;
+        i = k;
+      }
+    });
+    if (i === touchIdx.current) return;
+    if (touchIdx.current != null) {
+      const prev = bodies.current[touchIdx.current];
+      if (prev) prev.releaseAt = performance.now() + 250;
+    }
+    touchIdx.current = i;
+    if (i != null && hasBack(i)) {
+      const b = bodies.current[i];
+      if (b) {
+        if (b.target !== 180 && !prefersReducedMotion()) b.vSwing += 30;
+        b.target = 180;
+        b.releaseAt = 0;
+      }
+      setHovered(i);
+    }
+    tick();
+  }
+  function touchEnd(e: React.PointerEvent) {
+    if (e.pointerType !== "touch") return;
+    const i = touchIdx.current;
+    touchIdx.current = null;
+    if (i != null) {
+      const b = bodies.current[i];
+      if (b) b.releaseAt = performance.now() + HOLD_MS * 2;
+      setTimeout(() => setHovered((h) => (h === i ? null : h)), HOLD_MS * 2);
+      tick();
+    }
+  }
+
   function onGarmentClick(i: number, e: React.MouseEvent<HTMLElement>) {
     const touchUI = window.matchMedia("(hover: none), (pointer: coarse)").matches;
-    if (touchUI && centeredIndex() !== i) {
+    const scrolls = (railRef.current?.scrollWidth ?? 0) > (railRef.current?.clientWidth ?? 0) + 4;
+    if (touchUI && scrolls && centeredIndex() !== i) {
       els.current[i]?.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", inline: "center", block: "nearest" });
       return;
     }
@@ -287,7 +336,7 @@ export default function RackReact({ products: initial, title = "El Perchero", pr
     const b = bodies.current[i];
     // En escritorio se abre por el lado que estabas viendo; en móvil siempre por delante
     const hover = window.matchMedia("(hover: hover)").matches;
-    setSide(hover && b && b.turn > 90 ? "back" : "front");
+    setSide(!products[i]?.image_side_url && hover && b && b.turn > 90 ? "back" : "front");
     setSize(null);
     setAdded(false);
     setOpen(i);
@@ -416,8 +465,8 @@ export default function RackReact({ products: initial, title = "El Perchero", pr
       <div className="rack-head">
         {title && <h2 className="rack-title">{title}</h2>}
         <p className="rack-hint">
-          <span className="hint-hover">Pasa el cursor para darles la vuelta · pincha para verla</span>
-          <span className="hint-touch">Desliza el perchero · toca la del centro para verla</span>
+          <span className="hint-hover">Pasa el cursor para verlas de frente · pincha para verla</span>
+          <span className="hint-touch">Pasa el dedo para verlas de frente · toca para verla</span>
         </p>
       </div>
 
@@ -426,7 +475,13 @@ export default function RackReact({ products: initial, title = "El Perchero", pr
 
       {status === "ready" && (
         <div className="rack-scroller" ref={railRef} onScroll={onRailScroll}>
-          <div className="rack-stage" onPointerMove={onStageMove}>
+          <div
+            className="rack-stage"
+            onPointerMove={(e) => { onStageMove(e); touchTurn(e); }}
+            onPointerDown={touchTurn}
+            onPointerUp={touchEnd}
+            onPointerCancel={touchEnd}
+          >
             <div className="rack-bar" aria-hidden="true">
               <span className="rack-knob" />
               <span className="rack-knob" />
@@ -435,7 +490,8 @@ export default function RackReact({ products: initial, title = "El Perchero", pr
               {products.map((p, i) => (
                 <li
                   key={p.id}
-                  className={`rack-item${hovered === i ? " is-hover" : ""}${open === i ? " is-picked" : ""}`}
+                  className={`rack-item${p.image_side_url ? " has-side" : ""}${hovered === i ? " is-hover" : ""}${open === i ? " is-picked" : ""}`}
+                  data-i={i}
                   ref={(el) => (els.current[i] = el)}
                   style={{ zIndex: hovered === i ? 50 : 10 + (i % 2) }}
                 >
@@ -452,9 +508,19 @@ export default function RackReact({ products: initial, title = "El Perchero", pr
                     <span className="rack-swing">
                       <Hanger />
                       <span className="rack-flip" ref={(el) => (garmentEls.current[i] = el)}>
-                        <img className="rack-face front" src={frontOf(p)} alt="" draggable={false} />
-                        {p.image_back_url && (
-                          <img className="rack-face back" src={p.image_back_url} alt="" draggable={false} loading="lazy" />
+                        {p.image_side_url ? (
+                          <>
+                            {/* De lado (foto real) y, al girar, de frente */}
+                            <img className="rack-face front side" src={p.image_side_url} alt="" draggable={false} />
+                            <img className="rack-face back" src={frontOf(p)} alt="" draggable={false} />
+                          </>
+                        ) : (
+                          <>
+                            <img className="rack-face front" src={frontOf(p)} alt="" draggable={false} />
+                            {p.image_back_url && (
+                              <img className="rack-face back" src={p.image_back_url} alt="" draggable={false} loading="lazy" />
+                            )}
+                          </>
                         )}
                       </span>
                     </span>
