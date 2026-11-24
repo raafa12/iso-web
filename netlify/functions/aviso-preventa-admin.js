@@ -15,7 +15,7 @@ export default async (req) => {
   const keys = [process.env.ADMIN_KEY, process.env.STAFF_PASSCODE].map((k) => (k || '').trim()).filter(Boolean);
   if (!keys.length) return json({ error: 'Falta STAFF_PASSCODE en las variables de entorno de Netlify' }, 500);
   const given = (req.headers.get('x-staff-passcode') || '').trim();
-  if (!keys.includes(given)) return json({ error: 'PIN incorrecto', pin_length_expected: keys.map((k) => k.length), pin_length_given: given.length }, 401);
+  if (!keys.includes(given)) return json({ error: 'PIN incorrecto' }, 401);
   if (!process.env.BREVO_API_KEY) return json({ error: 'Falta BREVO_API_KEY en Netlify' }, 500);
   if (!process.env.EMAIL_FROM) return json({ error: 'Falta EMAIL_FROM en Netlify' }, 500);
 
