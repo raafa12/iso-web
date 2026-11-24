@@ -3,7 +3,7 @@ import { SizeGuideModal } from "./ProductsReact.tsx";
 import BuyNow from "./BuyNow";
 import ShareWhatsApp from "./ShareWhatsApp";
 import DropFirst from "./DropFirst";
-import { CLASSICS_ON_SALE, isClassic } from "../lib/shop";
+import { canBuy } from "../lib/shop";
 import "./rack.css";
 
 const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL;
@@ -651,7 +651,7 @@ export default function RackReact({ products: initial, title = "El Perchero", pr
                 ))}
               </div>
 
-              {!CLASSICS_ON_SALE && isClassic(current.id) ? (
+              {!canBuy(current.id) ? (
                 <DropFirst />
               ) : !soon && size && !preview ? (
                 <BuyNow line={lineFor(current, size)} qty={1} close={closeDetail} onAddToCart={addToCart} added={added} />

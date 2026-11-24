@@ -18,6 +18,11 @@ export const STRIPE_ENABLED = import.meta.env.PUBLIC_STRIPE_ENABLED === "1";
 // Para volver a venderlos: poner true aquí y en Supabase "update public.shop_products set active = true;"
 export const CLASSICS_ON_SALE = false;
 export const isClassic = (id: string) => id.startsWith("iso-classic");
+// Excepciones que sí se pueden comprar aunque los clásicos estén parados (pruebas)
+export const CLASSICS_TEST_IDS = ["iso-classic-tee-black"];
+// ¿Esta prenda se puede comprar ahora? (las variantes "-mono" cuentan como su prenda)
+export const canBuy = (id: string) =>
+  CLASSICS_ON_SALE || !isClassic(id) || CLASSICS_TEST_IDS.includes(id.replace(/-mono$/, ""));
 export const PAYPAL_URL = "https://www.paypal.biz/isoweares";
 export const BIZUM_PHONE = PRESALE.bizumPhone; // único sitio donde va el teléfono del Bizum
 export const SHIPPING_CENTS = PRESALE.shippingCents;

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { SizeGuideModal } from "./ProductsReact.tsx";
-import { CLASSICS_ON_SALE, STRIPE_ENABLED, eur } from "../lib/shop";
+import { STRIPE_ENABLED, canBuy, eur } from "../lib/shop";
 import BuyNow from "./BuyNow";
 import ShareWhatsApp from "./ShareWhatsApp";
 import MoreProducts from "./MoreProducts";
@@ -309,7 +309,7 @@ export default function CollectionReact({
             <div className="ps-info">
               <p className="ps-kicker">
                 <span className="ps-dot" aria-hidden="true" />
-                {CLASSICS_ON_SALE ? "Best seller · Siempre disponible" : "Best seller"}
+                {canBuy(item.id) ? "Best seller · Siempre disponible" : "Best seller"}
               </p>
               <h3 className="ps-title">{item.model.name}</h3>
               <p className="ps-desc">{item.model.description}</p>
@@ -375,7 +375,7 @@ export default function CollectionReact({
                 </div>
               </div>
 
-              <div className="ps-field" hidden={!CLASSICS_ON_SALE}>
+              <div className="ps-field" hidden={!canBuy(item.id)}>
                 <div className="ps-label"><span>Cantidad</span></div>
                 <div className="ps-qty">
                   <button type="button" onClick={() => setQty((q) => Math.max(1, q - 1))} aria-label="Una menos" disabled={qty <= 1}>−</button>
@@ -384,7 +384,7 @@ export default function CollectionReact({
                 </div>
               </div>
 
-              {!CLASSICS_ON_SALE ? (
+              {!canBuy(item.id) ? (
                 <DropFirst />
               ) : size ? (
                 <BuyNow line={lineFor(item, size)} qty={qty} close={closeItem} onAddToCart={addToCart} added={added} />
