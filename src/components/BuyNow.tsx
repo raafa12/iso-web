@@ -22,34 +22,29 @@ export default function BuyNow({
   added?: boolean;
 }) {
   const total = eur(line.price * qty);
-  const checkout = (pay: "bizum" | "tarjeta") => {
+  const checkout = (pay: "bizum" | "tarjeta" | "paypal") => {
     window.ISOCart?.add(line, qty);
     close();
     window.setTimeout(() => window.ISOCart?.checkout?.(pay), 50);
   };
   return (
     <div className="buy-now">
+      <button type="button" className="buy-cart" onClick={onAddToCart} disabled={added}>
+        {added ? "Añadido ✓" : `Añadir al carrito · ${total}`}
+      </button>
       {STRIPE_ENABLED && (
         <ExpressPay
           cart={[{ ...line, qty }]}
-          orText="o paga con"
+          orText={null}
           onPaid={(code) => (location.href = `/pago?estado=ok&code=${code}`)}
         />
       )}
-      <button type="button" className="buy-bizum" onClick={() => checkout("bizum")}>
-        Pagar {total} con <span className="buy-bizum-logo">bizum</span>
+      <button type="button" className="buy-bizum" onClick={() => checkout("bizum")} aria-label="Comprar con Bizum">
+        <span>Comprar con</span> <span className="buy-bizum-logo">bizum</span>
       </button>
-      <div className="buy-more">
-        <button type="button" onClick={onAddToCart} disabled={added}>
-          {added ? "Añadido ✓" : "Añadir al carrito"}
-        </button>
-        {STRIPE_ENABLED && (
-          <>
-            <span aria-hidden="true">·</span>
-            <button type="button" onClick={() => checkout("tarjeta")}>Pagar con tarjeta</button>
-          </>
-        )}
-      </div>
+      <button type="button" className="buy-more" onClick={() => checkout(STRIPE_ENABLED ? "tarjeta" : "paypal")}>
+        Más opciones de pago
+      </button>
     </div>
   );
 }

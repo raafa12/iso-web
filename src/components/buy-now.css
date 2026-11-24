@@ -1,17 +1,31 @@
-/* Comprar desde la ficha: Apple Pay / Google Pay, Bizum y añadir al carrito */
+/* Comprar desde la ficha: añadir al carrito, Apple Pay / Google Pay, Bizum y más opciones */
 .buy-now { display: grid; gap: 0.6rem; margin-top: 0.25rem; }
 .buy-now .cart-express { margin: 0; }
-.buy-now .cart-express-or { margin-top: 0.75rem; }
-.buy-bizum {
-  display: flex; align-items: center; justify-content: center; gap: 0.4rem;
-  width: 100%; height: 50px; border: 0; cursor: pointer;
-  background: #05c3dd; color: #fff;
-  font-family: var(--font-body); font-weight: 600; font-size: 1rem;
+
+.buy-cart {
+  width: 100%; height: 52px; border: 0; cursor: pointer;
+  background: var(--accent); color: #071820;
+  font-family: var(--font-display); font-weight: 900; font-style: italic;
+  font-size: 1.05rem; letter-spacing: 0.12em; text-transform: uppercase;
   transition: transform 0.15s, box-shadow 0.15s;
 }
-.buy-bizum:hover { transform: translateY(-1px); box-shadow: 0 10px 30px rgba(5, 195, 221, 0.25); }
-.buy-bizum-logo { font-weight: 800; font-size: 1.15rem; letter-spacing: -0.03em; }
-.buy-more { display: flex; justify-content: center; align-items: center; gap: 0.6rem; color: var(--muted-light); font-size: 0.85rem; }
-.buy-more button { background: none; border: 0; color: var(--white-dim); font: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; padding: 0.35rem 0; }
-.buy-more button:hover { color: var(--white); }
-.buy-more button:disabled { text-decoration: none; color: var(--accent); cursor: default; }
+.buy-cart:hover { transform: translateY(-1px); box-shadow: 0 10px 30px rgba(126, 200, 227, 0.25); }
+.buy-cart:disabled { cursor: default; transform: none; box-shadow: none; }
+
+/* Botón de Bizum con su color de marca */
+.buy-bizum {
+  display: flex; align-items: center; justify-content: center; gap: 0.45rem;
+  width: 100%; height: 50px; border: 0; cursor: pointer;
+  background: #05c3dd; color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 1.15rem; font-weight: 500;
+}
+.buy-bizum:hover { filter: brightness(1.05); }
+.buy-bizum-logo { font-weight: 800; font-size: 1.45rem; letter-spacing: -0.04em; line-height: 1; margin-top: -0.1em; }
+
+.buy-more {
+  justify-self: center; background: none; border: 0; cursor: pointer; padding: 0.4rem 0;
+  color: var(--white-dim); font: 500 0.9rem var(--font-body);
+  text-decoration: underline; text-underline-offset: 3px;
+}
+.buy-more:hover { color: var(--white); }

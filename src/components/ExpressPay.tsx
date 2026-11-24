@@ -11,7 +11,7 @@ const PK = import.meta.env.PUBLIC_STRIPE_KEY as string | undefined;
 
 type Line = { id: string; name: string; size: string; qty: number; price: number };
 
-export default function ExpressPay({ cart, onPaid, orText = "o elige otra forma de pago" }: { cart: Line[]; onPaid: (code: string) => void; orText?: string }) {
+export default function ExpressPay({ cart, onPaid, orText = "o elige otra forma de pago" }: { cart: Line[]; onPaid: (code: string) => void; orText?: string | null }) {
   const box = useRef<HTMLDivElement>(null);
   const cartRef = useRef(cart);
   const [available, setAvailable] = useState(false);
@@ -57,7 +57,7 @@ export default function ExpressPay({ cart, onPaid, orText = "o elige otra forma 
 
       ece = elements.create("expressCheckout", {
         buttonType: { applePay: "buy", googlePay: "buy" },
-        buttonTheme: { applePay: "white", googlePay: "white" },
+        buttonTheme: { applePay: "white", googlePay: "white" }, // el fondo de la web es negro: el botón negro no se vería
         buttonHeight: 50,
         emailRequired: true,
         phoneNumberRequired: false,
@@ -162,7 +162,7 @@ export default function ExpressPay({ cart, onPaid, orText = "o elige otra forma 
     <div className="cart-express" hidden={!available && !error}>
       <div ref={box} />
       {error && <p className="cart-error">{error}</p>}
-      {available && <p className="cart-express-or"><span>{orText}</span></p>}
+      {available && orText && <p className="cart-express-or"><span>{orText}</span></p>}
     </div>
     </>
   );
