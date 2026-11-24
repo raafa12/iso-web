@@ -12,7 +12,7 @@ import { createHmac, timingSafeEqual } from 'node:crypto';
 export const SITE = 'https://isowear.es';
 export const WHATSAPP = '34690342138';
 // Mantener igual que PRESALE.bizumPhone en src/data/isolation-drop.ts
-export const BIZUM_PHONE = '';
+export const BIZUM_PHONE = '601105483';
 
 export function env(name, fallback) {
   const v = process.env[name] || fallback;

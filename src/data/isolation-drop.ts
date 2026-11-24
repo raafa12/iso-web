@@ -109,7 +109,7 @@ export const PRESALE = {
   close: "2026-12-20T23:59:59+01:00",
   shipping: "Envío gratis en Santander",
   // ⬇︎ Único dato que falta: el teléfono del Bizum (9 cifras, con o sin espacios). Vacío = "te lo enviamos por WhatsApp".
-  bizumPhone: "",
+  bizumPhone: "601105483",
   shippingCents: 499, // envío fuera de Santander
   unitsPerItem: 25, // unidades por prenda (tiene que coincidir con supabase/preventa-isolation.sql)
 };
