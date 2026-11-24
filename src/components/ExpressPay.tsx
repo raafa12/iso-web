@@ -11,10 +11,8 @@ const PK = import.meta.env.PUBLIC_STRIPE_KEY as string | undefined;
 
 type Line = { id: string; name: string; size: string; qty: number; price: number };
 
-// Limpia el modo diagnóstico que se usó para configurar Apple Pay
-if (typeof localStorage !== "undefined") {
-  try { localStorage.removeItem("iso_debugpay"); } catch {}
-}
+// Diagnóstico solo si la dirección lleva ?debugpay (no se queda guardado)
+const DEBUG = typeof location !== "undefined" && location.search.includes("debugpay");
 
 export default function ExpressPay({
   cart,
@@ -30,7 +28,11 @@ export default function ExpressPay({
   const prRef = useRef<PaymentRequest | null>(null);
   const [available, setAvailable] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const log = (m: string) => console.log("[ISO pago rápido]", m);
+  const [diag, setDiag] = useState<string[]>([]);
+  const log = (m: string) => {
+    console.log("[ISO pago rápido]", m);
+    if (DEBUG) setDiag((d) => [...d, m]);
+  };
 
   cartRef.current = cart;
   const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
@@ -185,9 +187,14 @@ export default function ExpressPay({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subtotal === 0]);
 
-  if (!PK) return null;
+  if (!PK && !DEBUG) return null;
   return (
     <>
+      {DEBUG && (
+        <pre className="cart-debug">
+          {[`modo: ${PK?.startsWith("pk_live") ? "LIVE (real)" : PK?.startsWith("pk_test") ? "TEST (prueba)" : "sin clave"}`, ...diag].join("\n")}
+        </pre>
+      )}
       <div className="cart-express" hidden={!available && !error}>
         <div ref={box} />
         {error && <p className="cart-error">{error}</p>}
