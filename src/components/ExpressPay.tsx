@@ -15,6 +15,7 @@ export default function ExpressPay({ cart, onPaid, orText = "o elige otra forma 
   const box = useRef<HTMLDivElement>(null);
   const cartRef = useRef(cart);
   const [available, setAvailable] = useState(false);
+  const [gaveUp, setGaveUp] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const elsRef = useRef<StripeElements | null>(null);
   // Diagnóstico: isowear.es/?debugpay → muestra en el carrito por qué sale o no el botón
@@ -155,6 +156,13 @@ export default function ExpressPay({ cart, onPaid, orText = "o elige otra forma 
 
       ece.mount(box.current);
       log("botón montado");
+      // Si en 6 s no aparece ningún monedero, se recoge el hueco
+      window.setTimeout(() => {
+        setAvailable((a) => {
+          if (!a) { log("sin respuesta del botón tras 6 s"); setGaveUp(true); }
+          return a;
+        });
+      }, 6000);
      } catch (e) {
       log(`ERROR: ${e instanceof Error ? e.message : String(e)}`);
      }
@@ -173,7 +181,7 @@ export default function ExpressPay({ cart, onPaid, orText = "o elige otra forma 
   return (
     <>
     {debug && <pre className="cart-debug">{[`STRIPE_ENABLED ok`, ...diag].join("\n")}</pre>}
-    <div className={`cart-express${available || error ? "" : " pending"}`}>
+    <div className={`cart-express${available || error ? "" : gaveUp && !debug ? " gone" : " pending"}`}>
       <div ref={box} />
       {error && <p className="cart-error">{error}</p>}
       {available && orText && <p className="cart-express-or"><span>{orText}</span></p>}

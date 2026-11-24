@@ -375,4 +375,5 @@
 .cart-express-or::before, .cart-express-or::after { content: ""; flex: 1; height: 1px; background: var(--border-light); }
 .cart-debug { white-space: pre-wrap; font: 12px/1.5 ui-monospace, monospace; background: #1a1a1a; color: #9be39b; padding: 0.6rem; margin-bottom: 0.75rem; border: 1px dashed #3a3a3a; }
 /* Mientras carga no se oculta con display:none (Safari no inicializa Apple Pay así) */
-.cart-express.pending { height: 0; overflow: hidden; margin: 0; }
+.cart-express.pending { min-height: 50px; opacity: 0; pointer-events: none; }
+.cart-express.gone { height: 0; overflow: hidden; margin: 0; }
