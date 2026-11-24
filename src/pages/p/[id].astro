@@ -5,7 +5,7 @@
 import { ISO_CLASSICS, ISOLATION_DROP } from "../../data/isolation-drop";
 
 export function getStaticPaths() {
-  const eur = (c: number) => (c / 100).toLocaleString("es-ES", { style: "currency", currency: "EUR" });
+  const eur = (c: number) => (c / 100).toLocaleString("es-ES", { style: "currency", currency: "EUR", minimumFractionDigits: c % 100 ? 2 : 0 });
   return [
     ...ISO_CLASSICS.map((p) => ({
       params: { id: p.id },

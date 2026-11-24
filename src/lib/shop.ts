@@ -25,7 +25,8 @@ export const MAX_PER_ITEM = 5;
 
 export const PAY_LABEL: Record<Payment, string> = { tarjeta: "tarjeta / Apple Pay", bizum: "Bizum", paypal: "PayPal", contrarreembolso: "contrarreembolso" };
 
-export const eur = (c: number) => (c / 100).toLocaleString("es-ES", { style: "currency", currency: "EUR" });
+// 25 € en vez de 25,00 €; con céntimos se muestran (4,99 €)
+export const eur = (c: number) => (c / 100).toLocaleString("es-ES", { style: "currency", currency: "EUR", minimumFractionDigits: c % 100 ? 2 : 0 });
 // Santander (municipio): CP 39001–39012 → envío gratis
 export const isSantander = (cp: string) => /^390(0[1-9]|1[0-2])$/.test(cp.trim());
 export const shippingFor = (cp: string) => (cp.trim().length === 5 && !isSantander(cp) ? SHIPPING_CENTS : 0);

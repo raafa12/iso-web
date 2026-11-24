@@ -25,15 +25,15 @@ create table if not exists public.presale_stock (
 );
 alter table public.presale_stock add column if not exists sizes text[] not null default array['S','M','L','XL'];
 insert into public.presale_stock (product_id, name, price_cents, initial, stock) values
-  ('isolation-isolate-yourself', 'Isolate Yourself Tee', 2499, 25, 25),
-  ('isolation-drip-hoodie',      'ISO Drip Hoodie',      3499, 25, 25),
-  ('isolation-not-like-them',    'Not Like Them Tee',    2499, 25, 25),
-  ('isolation-if-you-miss-her',  'If You Miss Her Tee',  2499, 25, 25)
+  ('isolation-isolate-yourself', 'Isolate Yourself Tee', 2500, 25, 25),
+  ('isolation-drip-hoodie',      'ISO Drip Hoodie',      3500, 25, 25),
+  ('isolation-not-like-them',    'Not Like Them Tee',    2500, 25, 25),
+  ('isolation-if-you-miss-her',  'If You Miss Her Tee',  2500, 25, 25)
 on conflict (product_id) do nothing;
 -- Not Like Them sustituye a Out Of My Waaay (solo se borra si no se ha vendido ninguna)
 delete from public.presale_stock where product_id = 'isolation-out-of-my-way' and stock = initial;
 -- precio actualizado (no toca el stock)
-update public.presale_stock set price_cents = 3499 where product_id = 'isolation-drip-hoodie';
+update public.presale_stock set price_cents = 3500 where product_id = 'isolation-drip-hoodie';
 
 -- ---------- Básicos: siempre a la venta (sin límite) ----------
 create table if not exists public.shop_products (
@@ -44,17 +44,17 @@ create table if not exists public.shop_products (
   active       boolean not null default true
 );
 insert into public.shop_products (product_id, name, price_cents, sizes) values
-  ('iso-classic-tee-black',    'ISO Classic Tee · Black',         1999, array['S','M','L','XL']),
-  ('iso-classic-tee-white',    'ISO Classic Tee · White',         1999, array['S','M','L','XL']),
-  ('iso-classic-tee-grey',     'ISO Classic Tee · Grey',          1999, array['M','L']),
-  ('iso-classic-hoodie-black', 'ISO Classic Hoodie · Black',      3499, array['S','M','L','XL']),
-  ('iso-classic-hoodie-grey',  'ISO Classic Hoodie · Sport Grey', 3499, array['S','M','L','XL']),
+  ('iso-classic-tee-black',    'ISO Classic Tee · Black',         2000, array['S','M','L','XL']),
+  ('iso-classic-tee-white',    'ISO Classic Tee · White',         2000, array['S','M','L','XL']),
+  ('iso-classic-tee-grey',     'ISO Classic Tee · Grey',          2000, array['M','L']),
+  ('iso-classic-hoodie-black', 'ISO Classic Hoodie · Black',      3000, array['S','M','L','XL']),
+  ('iso-classic-hoodie-grey',  'ISO Classic Hoodie · Sport Grey', 3000, array['S','M','L','XL']),
   -- misma prenda con el logo de un solo color (sin el balón azul)
-  ('iso-classic-tee-black-mono',    'ISO Classic Tee · Black · Logo blanco',          1999, array['S','M','L','XL']),
-  ('iso-classic-tee-white-mono',    'ISO Classic Tee · White · Logo negro',           1999, array['S','M','L','XL']),
-  ('iso-classic-tee-grey-mono',     'ISO Classic Tee · Grey · Logo negro',            1999, array['M','L']),
-  ('iso-classic-hoodie-black-mono', 'ISO Classic Hoodie · Black · Logo blanco',       3499, array['S','M','L','XL']),
-  ('iso-classic-hoodie-grey-mono',  'ISO Classic Hoodie · Sport Grey · Logo negro',   3499, array['S','M','L','XL'])
+  ('iso-classic-tee-black-mono',    'ISO Classic Tee · Black · Logo blanco',          2000, array['S','M','L','XL']),
+  ('iso-classic-tee-white-mono',    'ISO Classic Tee · White · Logo negro',           2000, array['S','M','L','XL']),
+  ('iso-classic-tee-grey-mono',     'ISO Classic Tee · Grey · Logo negro',            2000, array['M','L']),
+  ('iso-classic-hoodie-black-mono', 'ISO Classic Hoodie · Black · Logo blanco',       3000, array['S','M','L','XL']),
+  ('iso-classic-hoodie-grey-mono',  'ISO Classic Hoodie · Sport Grey · Logo negro',   3000, array['S','M','L','XL'])
 on conflict (product_id) do update
   set name = excluded.name, price_cents = excluded.price_cents, sizes = excluded.sizes;
 

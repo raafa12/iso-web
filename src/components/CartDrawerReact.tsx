@@ -82,7 +82,7 @@ function getStoredCart(): CartItem[] {
 }
 
 function formatPrice(cents: number): string {
-  return (cents / 100).toLocaleString("es-ES", { style: "currency", currency: "EUR" });
+  return (cents / 100).toLocaleString("es-ES", { style: "currency", currency: "EUR", minimumFractionDigits: cents % 100 ? 2 : 0 });
 }
 
 export default function CartDrawerReact() {

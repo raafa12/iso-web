@@ -68,3 +68,5 @@
 .drop-first-text b { color: var(--white); }
 .drop-first-cta { display: flex; align-items: center; justify-content: center; text-decoration: none; }
 .ps-field[hidden] { display: none; }
+.drop-first-off { background: #232323; color: var(--muted-light); cursor: not-allowed; }
+.drop-first-off:hover { transform: none; box-shadow: none; }
