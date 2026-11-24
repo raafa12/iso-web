@@ -95,3 +95,65 @@ export async function sendOrderEmails(order) {
 }
 
 export { WHATSAPP };
+
+// ---------- Cambios de estado (los manda el panel /pedidos) ----------
+
+const STATUS_MAIL = {
+  pagado: (o) => ({
+    subject: `Pago recibido · ${o.code}`,
+    kicker: 'Pago recibido',
+    title: 'Pagado.',
+    body:
+      p(`${hi(o)}hemos recibido tu pago de ${b(eur(o.total_cents))}. Tu pedido ${b(o.code)} está confirmado.`) +
+      p(o.has_presale
+        ? `Las prendas de ${b('preventa')} se preparan al cerrar la preventa. Te escribimos cuando salgan.`
+        : 'Lo preparamos y te escribimos cuando salga.'),
+  }),
+  enviado: (o) => ({
+    subject: `Tu pedido ${o.code} va en camino`,
+    kicker: 'Pedido enviado',
+    title: 'En camino.',
+    body:
+      p(`${hi(o)}tu pedido ${b(o.code)} ya ha salido hacia ${b(`${esc(o.address)}, ${esc(o.postal_code)} ${esc(o.city)}`)}.`) +
+      (o.tracking
+        ? box(`<span style="font-family:${F.body};font-size:12px;letter-spacing:2px;text-transform:uppercase;color:${C.accent};font-weight:bold;">Seguimiento</span><br><br>${
+            /^https?:\/\//.test(o.tracking) ? `<a href="${esc(o.tracking)}" style="color:${C.text};">${esc(o.tracking)}</a>` : b(esc(o.tracking))
+          }`)
+        : '') +
+      (o.payment === 'contrarreembolso' ? p(`Recuerda tener ${b(eur(o.total_cents))} en efectivo para cuando llegue.`) : '') +
+      p('Gracias por apoyar a ISO. Si lo subes a redes, etiquétanos en @isowear_.'),
+  }),
+  cancelado: (o) => ({
+    subject: `Pedido ${o.code} cancelado`,
+    kicker: 'Pedido cancelado',
+    title: 'Cancelado.',
+    body:
+      p(`${hi(o)}hemos cancelado tu pedido ${b(o.code)}${o.payment !== 'contrarreembolso' ? ' porque no nos ha llegado el pago' : ''}.`) +
+      p('Si crees que es un error o ya habías pagado, responde a este correo y lo arreglamos.'),
+  }),
+  recordatorio: (o) => ({
+    subject: `Tu pedido ${o.code} está pendiente de pago`,
+    kicker: 'Pendiente de pago',
+    title: 'Falta el pago.',
+    body:
+      p(`${hi(o)}tu pedido ${b(o.code)} sigue reservado, pero aún no nos ha llegado el pago. Si no lo recibimos en las próximas horas, se cancela y las unidades vuelven a estar disponibles.`) +
+      box(howToPay(o)),
+  }),
+};
+
+function hi(o) {
+  const first = String(o.name || '').trim().split(/\s+/)[0];
+  return first ? `${esc(first)}, ` : '';
+}
+
+export async function sendStatusEmail(order, kind) {
+  const make = STATUS_MAIL[kind];
+  if (!make) return 'sin-correo';
+  const m = make(order);
+  // "hi" va en minúscula tras el nombre; sin nombre, primera letra en mayúscula
+  const body = m.body.replace(/(<p[^>]*>)([a-záéíóú])/, (_, tag, ch) => (hi(order) ? tag + ch : tag + ch.toUpperCase()));
+  const html = layout({ subject: m.subject, preheader: m.subject, kicker: m.kicker, title: m.title, body });
+  const text = `${m.subject}\n\n${body.replace(/<[^>]+>/g, '').replace(/\s+\n/g, '\n')}`;
+  await sendEmail({ to: order.email, subject: m.subject, html, text, tags: [`pedido-${kind}`] });
+  return 'enviado';
+}

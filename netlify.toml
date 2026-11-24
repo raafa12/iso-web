@@ -30,3 +30,8 @@
   from = "/api/pedido"
   to = "/.netlify/functions/pedido"
   status = 200
+
+[[redirects]]
+  from = "/api/admin/pedidos"
+  to = "/.netlify/functions/pedidos-admin"
+  status = 200
