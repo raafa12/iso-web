@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { SizeGuideModal } from "./ProductsReact.tsx";
 import { STRIPE_ENABLED, eur } from "../lib/shop";
 import BuyNow from "./BuyNow";
+import ShareWhatsApp from "./ShareWhatsApp";
 import "./presale.css";
 import "./collection.css";
 
@@ -118,6 +119,19 @@ export default function CollectionReact({ models, shippingCents = 499 }: { model
   }, []);
 
   const item = current != null ? items[current] : null;
+
+  // Enlace compartido (/p/<id> → /collection?p=<id>): abre esa prenda directamente
+  useEffect(() => {
+    const id = new URLSearchParams(location.search).get("p");
+    const i = id ? items.findIndex((it) => it.id === id) : -1;
+    if (i >= 0) {
+      setCurrent(i);
+      setSide("front");
+      setSize(null);
+      setQty(1);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function openItem(i: number, e: React.MouseEvent<HTMLElement>, presetSize: string | null = null) {
     returnFocus.current = e.currentTarget;
@@ -262,6 +276,7 @@ export default function CollectionReact({ models, shippingCents = 499 }: { model
               <h3 className="ps-title">{item.model.name}</h3>
               <p className="ps-desc">{item.model.description}</p>
               <p className="ps-big-price">{eur(item.model.price_cents)}</p>
+              <ShareWhatsApp id={item.id} name={`${item.model.name} · ${item.color}`} price={eur(item.model.price_cents)} />
 
               {siblings.length > 1 && (
                 <div className="ps-field">

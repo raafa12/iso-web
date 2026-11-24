@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { SizeGuideModal } from "./ProductsReact.tsx";
 import BuyNow from "./BuyNow";
+import ShareWhatsApp from "./ShareWhatsApp";
 import "./rack.css";
 
 const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL;
@@ -617,6 +618,7 @@ export default function RackReact({ products: initial, title = "El Perchero", pr
               <p className="rack-info-cat">{current.category}</p>
               <h3 className="rack-info-name">{current.name}</h3>
               <p className="rack-info-price">{formatPrice(current.price_cents)}</p>
+              <ShareWhatsApp id={current.id} name={current.color ? `${current.name} · ${current.color}` : current.name} price={formatPrice(current.price_cents)} />
 
               {current.image_back_url && (
                 <div className="rack-toggle" role="group" aria-label="Vista">

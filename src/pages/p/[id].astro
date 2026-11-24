@@ -1,0 +1,54 @@
+---
+// Enlace para compartir una prenda: /p/<id>
+// WhatsApp lee el título y la foto de aquí (vista previa) y la persona que lo abre
+// va directa a la prenda en /collection o /preventa.
+import { ISO_CLASSICS, ISOLATION_DROP } from "../../data/isolation-drop";
+
+export function getStaticPaths() {
+  const eur = (c: number) => (c / 100).toLocaleString("es-ES", { style: "currency", currency: "EUR" });
+  return [
+    ...ISO_CLASSICS.map((p) => ({
+      params: { id: p.id },
+      props: { title: `${p.name} · ${p.color}`, price: eur(p.price_cents), to: `/collection?p=${p.id}`, desc: p.description },
+    })),
+    ...ISOLATION_DROP.map((p) => ({
+      params: { id: p.id },
+      props: { title: p.name, price: eur(p.price_cents), to: `/preventa?p=${p.id}`, desc: `Preventa Isolation · Unidades limitadas. ${p.description ?? ""}` },
+    })),
+  ];
+}
+
+const { id } = Astro.params;
+const { title, price, to, desc } = Astro.props;
+const site = "https://isowear.es";
+const image = `${site}/og/${id}.jpg`;
+const full = `${title} · ${price}`;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>{full} — ISO</title>
+    <meta name="description" content={desc} />
+    <meta name="robots" content="noindex" />
+    <link rel="canonical" href={`${site}${to}`} />
+    <meta property="og:type" content="product" />
+    <meta property="og:site_name" content="ISO" />
+    <meta property="og:title" content={full} />
+    <meta property="og:description" content={desc} />
+    <meta property="og:image" content={image} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:url" content={`${site}/p/${id}`} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={image} />
+    <meta http-equiv="refresh" content={`0; url=${to}`} />
+    <script is:inline define:vars={{ to }}>location.replace(to);</script>
+    <style>body{margin:0;background:#070707;color:#f2ede5;font-family:Helvetica,Arial,sans-serif;display:grid;place-items:center;min-height:100vh}a{color:#7ec8e3}</style>
+  </head>
+  <body>
+    <a href={to}>Ver {title}</a>
+  </body>
+</html>

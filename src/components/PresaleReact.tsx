@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { SizeGuideModal } from "./ProductsReact.tsx";
 import BuyNow from "./BuyNow";
+import ShareWhatsApp from "./ShareWhatsApp";
 import "./presale.css";
 import { SB_HEADERS, STRIPE_ENABLED, SUPABASE_ANON_KEY, SUPABASE_URL, eur } from "../lib/shop";
 
@@ -173,6 +174,19 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
 
   const item = current != null ? items[current] : null;
 
+  // Enlace compartido (/p/<id> → /preventa?p=<id>): abre esa prenda directamente
+  useEffect(() => {
+    const id = new URLSearchParams(location.search).get("p");
+    const i = id ? items.findIndex((it) => it.id === id) : -1;
+    if (i >= 0) {
+      setCurrent(i);
+      setSide(firstSide(items[i]));
+      setSize(null);
+      setQty(1);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   function openItem(i: number, e: React.MouseEvent<HTMLElement>, presetSize: string | null = null) {
     returnFocus.current = e.currentTarget;
     setCurrent(i);
@@ -322,6 +336,7 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
                   </span>
                 )}
               </p>
+              <ShareWhatsApp id={item.id} name={item.name} price={eur(item.price_cents)} />
 
               <div className="ps-field">
                 <div className="ps-label">
