@@ -28,7 +28,7 @@ interface Props {
   title?: string;
   // Vista previa: el botón no toca el carrito real (productos de prueba)
   preview?: boolean;
-  // Antes de abrir la venta: el botón queda desactivado con este texto (p. ej. "Preventa · 13 dic")
+  // Antes de abrir la venta: el botón queda desactivado con este texto (p. ej. "Preventa · 14 dic")
   soon?: string;
   // Fecha ISO a partir de la cual se puede comprar (se comprueba en el navegador)
   opensAt?: string;

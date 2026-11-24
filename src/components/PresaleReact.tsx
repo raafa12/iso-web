@@ -248,7 +248,7 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
   const ctaText = (() => {
     if (!item) return "";
     if (soldOut) return "Agotado";
-    if (phase === "soon") return "Abre el 13 dic · 20:00";
+    if (phase === "soon") return "Abre el 14 dic · 20:00";
     if (phase === "closed") return "Preventa cerrada";
     if (!size) return "Elige tu talla";
     if (added) return "Añadido ✓";
