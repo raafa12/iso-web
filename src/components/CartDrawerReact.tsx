@@ -228,6 +228,13 @@ export default function CartDrawerReact() {
         return;
       }
       setOrder({ code: data.code, total: data.total_cents, payment, lines, presale: hasPresale });
+      // Correo de confirmación al cliente + aviso a ISO (si falla, el pedido ya está hecho)
+      fetch("/api/pedido", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: data.code }),
+        keepalive: true,
+      }).catch(() => {});
       persist([]);
       setView("done");
       window.dispatchEvent(new CustomEvent("iso-order-placed"));
@@ -393,6 +400,7 @@ export default function CartDrawerReact() {
           <div className="cart-done">
             <p className="cart-done-code">{order.code}</p>
             <p className="cart-done-total">Total: <b>{eur(order.total)}</b></p>
+            <p className="cart-done-mail">Te hemos mandado el resumen a tu correo.</p>
             <div className="cart-howto">
               {order.payment === "bizum" &&
                 (BIZUM_PHONE ? (

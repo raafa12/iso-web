@@ -79,6 +79,7 @@ create table if not exists public.orders (
                   check (status in ('pendiente', 'pagado', 'enviado', 'entregado', 'cancelado'))
 );
 
+alter table public.orders add column if not exists confirmation_sent_at timestamptz;
 alter table public.orders drop constraint if exists orders_payment_check;
 alter table public.orders add constraint orders_payment_check
   check (payment in ('bizum', 'paypal', 'contrarreembolso'));

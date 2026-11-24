@@ -25,3 +25,8 @@
   from = "/api/baja"
   to = "/.netlify/functions/baja"
   status = 200
+
+[[redirects]]
+  from = "/api/pedido"
+  to = "/.netlify/functions/pedido"
+  status = 200

@@ -5,6 +5,9 @@
 // configuradas en Netlify desde el sistema de invitaciones):
 //   SUPABASE_URL          -> Project URL de Supabase
 //   SUPABASE_SERVICE_KEY  -> service_role key de Supabase
+//   BREVO_API_KEY, EMAIL_FROM -> para el correo de bienvenida (si faltan, se apunta igual)
+
+import { sendWelcome } from '../lib/welcome-mail.js';
 
 export default async (req) => {
   const SUPABASE_URL = process.env.SUPABASE_URL;
@@ -108,6 +111,15 @@ export default async (req) => {
     const errText = await insertRes.text();
     console.error('Supabase insert error:', errText);
     return new Response(JSON.stringify({ error: 'Error al guardar' }), { status: 502 });
+  }
+
+  // Correo de bienvenida (si falla, el registro ya está guardado)
+  if (process.env.BREVO_API_KEY && process.env.EMAIL_FROM) {
+    try {
+      await sendWelcome({ email, name, source });
+    } catch (e) {
+      console.error('Bienvenida: no se pudo enviar', e);
+    }
   }
 
   return new Response(JSON.stringify({ ok: true, already: false }), {

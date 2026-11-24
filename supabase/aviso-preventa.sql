@@ -4,3 +4,6 @@
 alter table public.waitlist add column if not exists notified_at timestamptz;
 alter table public.waitlist add column if not exists unsubscribed boolean not null default false;
 create index if not exists waitlist_pending_idx on public.waitlist (id) where notified_at is null and unsubscribed = false;
+
+-- Confirmación de pedido por correo: cuándo se mandó (evita mandarlo dos veces)
+alter table public.orders add column if not exists confirmation_sent_at timestamptz;
