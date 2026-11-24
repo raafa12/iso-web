@@ -16,6 +16,10 @@ export default function ExpressPay({ cart, onPaid }: { cart: Line[]; onPaid: (co
   const [available, setAvailable] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const elsRef = useRef<StripeElements | null>(null);
+  // Diagnóstico: isowear.es/?debugpay → muestra en el carrito por qué sale o no el botón
+  const debug = typeof location !== "undefined" && location.search.includes("debugpay");
+  const [diag, setDiag] = useState<string[]>([]);
+  const log = (m: string) => { console.log("[ISO pago rápido]", m); if (debug) setDiag((d) => [...d, m]); };
 
   const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
   cartRef.current = cart;
@@ -26,12 +30,14 @@ export default function ExpressPay({ cart, onPaid }: { cart: Line[]; onPaid: (co
   }, [subtotal]);
 
   useEffect(() => {
+    log(`clave pública: ${PK ? PK.slice(0, 8) + "…" : "FALTA (PUBLIC_STRIPE_KEY)"}`);
     if (!PK || !box.current || subtotal === 0) return;
     let ece: StripeExpressCheckoutElement | null = null;
     let cancelled = false;
 
     (async () => {
-      const stripe: Stripe | null = await loadStripe(PK, { locale: "es" });
+      const stripe: Stripe | null = await loadStripe(PK, { locale: "es" }).catch((e) => { log(`Stripe.js no carga: ${e}`); return null; });
+      log(stripe ? "Stripe.js cargado" : "Stripe.js no disponible");
       if (!stripe || cancelled || !box.current) return;
       const sub = () => cartRef.current.reduce((s, i) => s + i.price * i.qty, 0);
       const elements = stripe.elements({
@@ -61,7 +67,12 @@ export default function ExpressPay({ cart, onPaid }: { cart: Line[]; onPaid: (co
         layout: { maxColumns: 1, maxRows: 3, overflow: "never" },
       });
 
-      ece.on("availablepaymentmethodschange", ({ paymentMethods }) => setAvailable(!!paymentMethods));
+      ece.on("availablepaymentmethodschange", ({ paymentMethods }) => {
+        log(`monederos disponibles: ${paymentMethods ? Object.entries(paymentMethods).filter(([, v]) => v).map(([k]) => k).join(", ") || "ninguno" : "ninguno"}`);
+        setAvailable(!!paymentMethods);
+      });
+      ece.on("loaderror", (e) => log(`error al cargar el botón: ${e.error?.message}`));
+      ece.on("ready", () => log("botón listo"));
 
       ece.on("click", (event) => {
         setError(null);
@@ -143,12 +154,15 @@ export default function ExpressPay({ cart, onPaid }: { cart: Line[]; onPaid: (co
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subtotal === 0]);
 
-  if (!PK) return null;
+  if (!PK && !debug) return null;
   return (
+    <>
+    {debug && <pre className="cart-debug">{[`STRIPE_ENABLED ok`, ...diag].join("\n")}</pre>}
     <div className="cart-express" hidden={!available && !error}>
       <div ref={box} />
       {error && <p className="cart-error">{error}</p>}
       {available && <p className="cart-express-or"><span>o elige otra forma de pago</span></p>}
     </div>
+    </>
   );
 }
