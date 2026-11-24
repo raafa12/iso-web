@@ -6,6 +6,8 @@ import {
   BIZUM_PHONE,
   PAYPAL_URL,
   STRIPE_ENABLED,
+  CLASSICS_ON_SALE,
+  isClassic,
   ORDER_ERRORS,
   PAY_LABEL,
   SB_HEADERS,
@@ -71,7 +73,9 @@ declare global {
 function getStoredCart(): CartItem[] {
   try {
     const raw = localStorage.getItem(CART_KEY);
-    return raw ? (JSON.parse(raw) as CartItem[]) : [];
+    const items = raw ? (JSON.parse(raw) as CartItem[]) : [];
+    // Mientras los clásicos no estén a la venta, se quitan de carritos guardados
+    return CLASSICS_ON_SALE ? items : items.filter((i) => !isClassic(i.id));
   } catch {
     return [];
   }
@@ -105,6 +109,7 @@ export default function CartDrawerReact() {
   }
 
   function addToCart(item: NewCartItem, qty: number = 1) {
+    if (!CLASSICS_ON_SALE && isClassic(item.id)) return;
     const items = getStoredCart();
     const existing = items.find((i) => i.id === item.id && i.size === item.size);
     if (existing) {

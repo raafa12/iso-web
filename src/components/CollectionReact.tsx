@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { SizeGuideModal } from "./ProductsReact.tsx";
-import { STRIPE_ENABLED, eur } from "../lib/shop";
+import { CLASSICS_ON_SALE, STRIPE_ENABLED, eur } from "../lib/shop";
 import BuyNow from "./BuyNow";
 import ShareWhatsApp from "./ShareWhatsApp";
 import MoreProducts from "./MoreProducts";
+import DropFirst from "./DropFirst";
 import "./presale.css";
 import "./collection.css";
 
@@ -338,7 +339,7 @@ export default function CollectionReact({ models, shippingCents = 499 }: { model
                 </div>
               </div>
 
-              <div className="ps-field">
+              <div className="ps-field" hidden={!CLASSICS_ON_SALE}>
                 <div className="ps-label"><span>Cantidad</span></div>
                 <div className="ps-qty">
                   <button type="button" onClick={() => setQty((q) => Math.max(1, q - 1))} aria-label="Una menos" disabled={qty <= 1}>−</button>
@@ -347,7 +348,9 @@ export default function CollectionReact({ models, shippingCents = 499 }: { model
                 </div>
               </div>
 
-              {size ? (
+              {!CLASSICS_ON_SALE ? (
+                <DropFirst />
+              ) : size ? (
                 <BuyNow line={lineFor(item, size)} qty={qty} close={closeItem} onAddToCart={addToCart} added={added} />
               ) : (
                 <button type="button" className="ps-cta" disabled>Elige tu talla</button>

@@ -14,6 +14,10 @@ export const SB_HEADERS = {
 export const WHATSAPP = "34690342138";
 // La opción de tarjeta solo aparece cuando Stripe está configurado (PUBLIC_STRIPE_ENABLED=1 en Netlify)
 export const STRIPE_ENABLED = import.meta.env.PUBLIC_STRIPE_ENABLED === "1";
+// Clásicos (camisetas y sudaderas con el logo) a la venta. false = se ven pero no se compran (prioridad al drop).
+// Para volver a venderlos: poner true aquí y en Supabase "update public.shop_products set active = true;"
+export const CLASSICS_ON_SALE = false;
+export const isClassic = (id: string) => id.startsWith("iso-classic");
 export const PAYPAL_URL = "https://www.paypal.biz/isoweares";
 export const BIZUM_PHONE = PRESALE.bizumPhone; // único sitio donde va el teléfono del Bizum
 export const SHIPPING_CENTS = PRESALE.shippingCents;

@@ -2,6 +2,8 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import { SizeGuideModal } from "./ProductsReact.tsx";
 import BuyNow from "./BuyNow";
 import ShareWhatsApp from "./ShareWhatsApp";
+import DropFirst from "./DropFirst";
+import { CLASSICS_ON_SALE, isClassic } from "../lib/shop";
 import "./rack.css";
 
 const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL;
@@ -645,7 +647,9 @@ export default function RackReact({ products: initial, title = "El Perchero", pr
                 ))}
               </div>
 
-              {!soon && size && !preview ? (
+              {!CLASSICS_ON_SALE && isClassic(current.id) ? (
+                <DropFirst />
+              ) : !soon && size && !preview ? (
                 <BuyNow line={lineFor(current, size)} qty={1} close={closeDetail} onAddToCart={addToCart} added={added} />
               ) : (
                 <button type="button" className="rack-cta" disabled={!!soon || !size || added} onClick={addToCart}>

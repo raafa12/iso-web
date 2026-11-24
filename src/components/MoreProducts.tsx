@@ -2,7 +2,7 @@
 // Las prendas de la misma página se abren ahí mismo; las de la otra página
 // (colección ↔ preventa) llevan a esa prenda en su página.
 import { ISO_CLASSICS, ISOLATION_DROP } from "../data/isolation-drop";
-import { eur } from "../lib/shop";
+import { CLASSICS_ON_SALE, eur } from "../lib/shop";
 import "./buy-now.css";
 
 export type MoreItem = { id: string; name: string; price_cents: number; image: string };
@@ -35,10 +35,10 @@ export default function MoreProducts({
 }) {
   const local = here === "collection" ? classics : drop;
   const other = here === "collection" ? drop : classics;
-  const list = [
-    ...local.filter((p) => p.id !== currentId).map((p) => ({ ...p, href: null as string | null })),
-    ...other.map((p) => ({ ...p, href: `/${here === "collection" ? "preventa" : "collection"}?p=${p.id}` })),
-  ];
+  const mine = local.filter((p) => p.id !== currentId).map((p) => ({ ...p, href: null as string | null }));
+  const theirs = other.map((p) => ({ ...p, href: `/${here === "collection" ? "preventa" : "collection"}?p=${p.id}` }));
+  // Con los clásicos fuera de venta: en la colección el drop va primero y en la preventa no se enseñan los clásicos
+  const list = CLASSICS_ON_SALE ? [...mine, ...theirs] : here === "collection" ? [...theirs, ...mine] : mine;
   return (
     <section className="more" aria-label="Más productos">
       <p className="more-title">Más productos</p>

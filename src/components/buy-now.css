@@ -61,3 +61,10 @@
 /* La fila de "Más productos" no debe ensanchar la ficha */
 .ps-info { min-width: 0; }
 @media (max-width: 860px) { .ps-sheet { grid-template-columns: minmax(0, 1fr) !important; } }
+
+/* Clásicos fuera de venta: aviso y botón a la preventa */
+.drop-first { display: grid; gap: 0.8rem; margin-top: 0.25rem; }
+.drop-first-text { margin: 0; color: var(--white-dim); font-size: 0.95rem; line-height: 1.5; }
+.drop-first-text b { color: var(--white); }
+.drop-first-cta { display: flex; align-items: center; justify-content: center; text-decoration: none; }
+.ps-field[hidden] { display: none; }
