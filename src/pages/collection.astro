@@ -2,20 +2,11 @@
 import Layout from '../layouts/Layout.astro';
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
-import CollectionReact, { type Model } from '../components/CollectionReact.tsx';
+import CollectionReact from '../components/CollectionReact.tsx';
+import { CLASSIC_MODELS as models } from '../data/collection-models';
 import { ISO_CLASSICS, PRESALE } from '../data/isolation-drop';
 
-// Agrupa los básicos por modelo (camiseta / sudadera) con sus colores
-const SWATCH: Record<string, string> = { Black: '#111111', White: '#f2f1ec', Grey: '#a9a9a6', 'Sport Grey': '#b3b3b0' };
-const models: Model[] = [];
-for (const p of ISO_CLASSICS) {
-  let m = models.find((x) => x.name === p.name);
-  if (!m) {
-    m = { name: p.name, category: p.category.split(' · ')[0], description: p.description, price_cents: p.price_cents, variants: [] };
-    models.push(m);
-  }
-  m.variants.push({ id: p.id, color: p.color ?? '', swatch: SWATCH[p.color ?? ''] ?? '#888', sizes: p.sizes, front: p.image_url, back: p.image_back_url, frontMono: p.image_mono_url });
-}
+
 ---
 
 <Layout

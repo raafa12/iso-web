@@ -5,6 +5,9 @@ import HeroISO from '../components/HeroISO.astro';
 import TournamentRecap from '../components/TournamentRecap.astro';
 import About from '../components/About.astro';
 import RackReact from '../components/RackReact.tsx';
+import CollectionReact from '../components/CollectionReact.tsx';
+import { CLASSIC_MODELS } from '../data/collection-models';
+import { PRESALE } from '../data/isolation-drop';
 import { ISO_CLASSICS } from '../data/isolation-drop';
 // Orden en el perchero: camiseta negra, sudadera gris, camiseta blanca, camiseta gris, sudadera negra
 const RACK_ORDER = [0, 4, 1, 2, 3].map((i) => ISO_CLASSICS[i]);
@@ -17,6 +20,7 @@ import Footer from '../components/Footer.astro';
     <HeroISO />
     <div id="perchero">
       <RackReact client:visible products={RACK_ORDER} title="" />
+      <CollectionReact client:load models={CLASSIC_MODELS} shippingCents={PRESALE.shippingCents} modalOnly />
     </div>
     <TournamentRecap />
     <About />

@@ -36,7 +36,17 @@ const ALL_SIZES = ["S", "M", "L", "XL"];
 // en prendas oscuras el logo de un color es blanco; en claras, negro
 const monoName = (v: Variant) => (v.swatch === "#111111" ? "Blanco" : "Negro");
 
-export default function CollectionReact({ models, shippingCents = 499 }: { models: Model[]; shippingCents?: number }) {
+// modalOnly: solo la ficha, sin la cuadrícula (la usa el perchero de la home para abrir
+// la misma ficha que la colección al pulsar una prenda)
+export default function CollectionReact({
+  models,
+  shippingCents = 499,
+  modalOnly = false,
+}: {
+  models: Model[];
+  shippingCents?: number;
+  modalOnly?: boolean;
+}) {
   const items: Item[] = models.flatMap((m) => m.variants.map((v) => ({ ...v, model: m })));
   const [current, setCurrent] = useState<number | null>(null);
   const [side, setSide] = useState<"front" | "back">("front");
@@ -121,6 +131,30 @@ export default function CollectionReact({ models, shippingCents = 499 }: { model
   }, []);
 
   const item = current != null ? items[current] : null;
+
+  // El perchero de la home pide abrir una prenda con esta misma ficha
+  useEffect(() => {
+    if (!modalOnly) return;
+    (window as any).__isoProductModal = true;
+    const onOpen = (e: Event) => {
+      const d = (e as CustomEvent<{ id: string; handled?: boolean }>).detail;
+      const i = items.findIndex((it) => it.id === d.id);
+      if (i < 0) return;
+      d.handled = true;
+      returnFocus.current = document.activeElement as HTMLElement | null;
+      setCurrent(i);
+      setSide("front");
+      setSize(null);
+      setQty(1);
+      setAdded(false);
+    };
+    window.addEventListener("iso-open-product", onOpen);
+    return () => {
+      window.removeEventListener("iso-open-product", onOpen);
+      (window as any).__isoProductModal = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [modalOnly]);
 
   // Enlace compartido (/p/<id> → /collection?p=<id>): abre esa prenda directamente
   useEffect(() => {
@@ -230,6 +264,7 @@ export default function CollectionReact({ models, shippingCents = 499 }: { model
 
   return (
     <>
+      {!modalOnly && (
       <ul className="ps-grid cl-ps-grid" ref={listRef}>
         {items.map((it, i) => (
           <li key={it.id} className={`ps-item${shown[i] ? " is-in" : ""}`} style={{ transitionDelay: `${i * 0.08}s` }}>
@@ -237,6 +272,7 @@ export default function CollectionReact({ models, shippingCents = 499 }: { model
           </li>
         ))}
       </ul>
+      )}
 
       {item && (
         <div
@@ -273,7 +309,7 @@ export default function CollectionReact({ models, shippingCents = 499 }: { model
             <div className="ps-info">
               <p className="ps-kicker">
                 <span className="ps-dot" aria-hidden="true" />
-                Best seller · Siempre disponible
+                {CLASSICS_ON_SALE ? "Best seller · Siempre disponible" : "Best seller"}
               </p>
               <h3 className="ps-title">{item.model.name}</h3>
               <p className="ps-desc">{item.model.description}</p>

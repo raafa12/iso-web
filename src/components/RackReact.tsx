@@ -369,6 +369,10 @@ export default function RackReact({ products: initial, title = "El Perchero", pr
   }
 
   function openDetail(i: number, e: React.MouseEvent<HTMLElement>) {
+    // Si en la página está la ficha de la colección, se abre esa (misma ficha en toda la web)
+    const ev = new CustomEvent<{ id: string; handled?: boolean }>("iso-open-product", { detail: { id: products[i]?.id } });
+    window.dispatchEvent(ev);
+    if (ev.detail.handled) return;
     returnFocus.current = e.currentTarget;
     srcRect.current = garmentEls.current[i]?.getBoundingClientRect() ?? null;
     const b = bodies.current[i];
