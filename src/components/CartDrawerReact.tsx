@@ -366,7 +366,6 @@ export default function CartDrawerReact() {
                 Envío gratis en Santander · resto de España {eur(SHIPPING_CENTS)}.
                 {hasPresale && " Las prendas de preventa se envían al cerrar la preventa."}
               </p>
-              {cart.length > 0 && typeof location !== "undefined" && !STRIPE_ENABLED && location.search.includes("debugpay") && <pre className="cart-debug">Falta PUBLIC_STRIPE_ENABLED=1 (o no se ha vuelto a desplegar)</pre>}
               {STRIPE_ENABLED && cart.length > 0 && (
                 <ExpressPay
                   cart={cart}

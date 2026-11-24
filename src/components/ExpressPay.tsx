@@ -8,20 +8,13 @@ import "./cart-drawer.css";
 import { ORDER_ERRORS, SHIPPING_CENTS, isSantander } from "../lib/shop";
 
 const PK = import.meta.env.PUBLIC_STRIPE_KEY as string | undefined;
-const BUILD = "24/11 19:10";
 
 type Line = { id: string; name: string; size: string; qty: number; price: number };
 
-const isDebug = () => {
-  if (typeof location === "undefined") return false;
-  try {
-    if (location.search.includes("debugpay")) localStorage.setItem("iso_debugpay", "1");
-    if (location.search.includes("nodebug")) localStorage.removeItem("iso_debugpay");
-    return localStorage.getItem("iso_debugpay") === "1";
-  } catch {
-    return location.search.includes("debugpay");
-  }
-};
+// Limpia el modo diagnóstico que se usó para configurar Apple Pay
+if (typeof localStorage !== "undefined") {
+  try { localStorage.removeItem("iso_debugpay"); } catch {}
+}
 
 export default function ExpressPay({
   cart,
@@ -37,13 +30,7 @@ export default function ExpressPay({
   const prRef = useRef<PaymentRequest | null>(null);
   const [available, setAvailable] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const debug = isDebug();
-  const t0 = useRef(Date.now());
-  const [diag, setDiag] = useState<string[]>([]);
-  const log = (m: string) => {
-    console.log("[ISO pago rápido]", m);
-    if (debug) setDiag((d) => [...d, `${((Date.now() - t0.current) / 1000).toFixed(1)}s ${m}`]);
-  };
+  const log = (m: string) => console.log("[ISO pago rápido]", m);
 
   cartRef.current = cart;
   const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
@@ -198,10 +185,9 @@ export default function ExpressPay({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subtotal === 0]);
 
-  if (!PK && !debug) return null;
+  if (!PK) return null;
   return (
     <>
-      {debug && <pre className="cart-debug">{[`versión ${BUILD}`, ...diag].join("\n")}</pre>}
       <div className="cart-express" hidden={!available && !error}>
         <div ref={box} />
         {error && <p className="cart-error">{error}</p>}

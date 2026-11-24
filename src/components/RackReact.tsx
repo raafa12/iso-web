@@ -611,10 +611,6 @@ export default function RackReact({ products: initial, title = "El Perchero", pr
                   <img className="rack-face back" src={current.image_back_url} alt={`${current.name}, espalda`} />
                 )}
               </div>
-              <div className="rack-tags" aria-hidden="true">
-                {current.color && <span className="rack-tag dark">{current.color}</span>}
-                {current.tag && <span className="rack-tag">{current.tag}</span>}
-              </div>
             </div>
 
             <div className="rack-info">
