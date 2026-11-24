@@ -359,6 +359,7 @@
   font-weight: 700;
   font-size: 1.05rem;
   letter-spacing: 0.06em;
+  color: var(--accent);
 }
 
 .rack-toggle,

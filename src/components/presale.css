@@ -148,7 +148,7 @@
   letter-spacing: 0.08em;
   font-size: 0.82rem;
 }
-.ps-price { font-family: var(--font-body); font-size: 0.85rem; color: var(--white-dim); white-space: nowrap; }
+.ps-price { font-family: var(--font-body); font-size: 0.85rem; font-weight: 600; color: var(--accent); white-space: nowrap; }
 
 /* ---- Ficha ---- */
 .ps-modal {
@@ -322,6 +322,7 @@
   font-weight: 900;
   font-style: italic;
   font-size: 1.6rem;
+  color: var(--accent);
 }
 
 .ps-field { display: flex; flex-direction: column; gap: 0.55rem; }
