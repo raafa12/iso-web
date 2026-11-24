@@ -86,10 +86,9 @@
 }
 
 .cart-item-img {
-  width: 64px;
-  height: 76px;
-  background: var(--surface);
-  border: 1px solid var(--border);
+  width: 76px;
+  height: 92px;
+  background: #e7e6e2; /* mismo fondo claro que las fichas: las prendas negras se ven */
   flex-shrink: 0;
   overflow: hidden;
 }
@@ -97,7 +96,7 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
-  padding: 0.4rem;
+  padding: 0.3rem;
 }
 
 .cart-item-info {

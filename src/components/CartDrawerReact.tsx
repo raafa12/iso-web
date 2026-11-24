@@ -19,6 +19,15 @@ import {
   type Payment,
 } from "../lib/shop";
 
+// La foto del carrito sale del id del producto (no de la que se guardó al añadirlo),
+// así un carrito guardado con una versión anterior de la web sigue viéndose bien.
+function cartImage(item: { id: string; image: string }) {
+  const classic = item.id.match(/^iso-classic-(tee|hoodie)-([a-z]+)(-mono)?$/);
+  if (classic) return `/rack/classic-${classic[1]}-${classic[2]}-front${classic[3] ?? ""}.webp`;
+  if (item.id.startsWith("isolation-")) return `/drop/${item.id.slice("isolation-".length)}-front.webp`;
+  return item.image;
+}
+
 const CART_KEY = "iso_cart";
 
 // --- Tipos ---
@@ -301,7 +310,7 @@ export default function CartDrawerReact() {
                 cart.map((item) => (
                   <div className="cart-item" key={`${item.id}-${item.size}`}>
                     <div className="cart-item-img">
-                      <img src={item.image} alt={item.name} />
+                      <img src={cartImage(item)} alt={item.name} onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/logo-mark.png"; }} />
                     </div>
                     <div className="cart-item-info">
                       <p className="cart-item-name">{item.name}</p>
