@@ -8,7 +8,7 @@ import "./cart-drawer.css";
 import { ORDER_ERRORS, SHIPPING_CENTS, isSantander } from "../lib/shop";
 
 const PK = import.meta.env.PUBLIC_STRIPE_KEY as string | undefined;
-const BUILD = "24/11 19:02";
+const BUILD = "24/11 19:05";
 
 type Line = { id: string; name: string; size: string; qty: number; price: number };
 
@@ -33,7 +33,8 @@ export default function ExpressPay({ cart, onPaid, orText = "o elige otra forma 
     }
   })();
   const [diag, setDiag] = useState<string[]>([]);
-  const log = (m: string) => { console.log("[ISO pago rápido]", m); if (debug) setDiag((d) => [...d, m]); };
+  const t0 = useRef(Date.now());
+  const log = (m: string) => { console.log("[ISO pago rápido]", m); if (debug) setDiag((d) => [...d, `${((Date.now() - t0.current) / 1000).toFixed(1)}s ${m}`]); };
 
   const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
   cartRef.current = cart;
@@ -194,7 +195,7 @@ export default function ExpressPay({ cart, onPaid, orText = "o elige otra forma 
   return (
     <>
     {debug && <pre className="cart-debug">{[`versión ${BUILD}`, `STRIPE_ENABLED ok`, ...diag].join("\n")}</pre>}
-    <div className={`cart-express${available || error ? "" : gaveUp && !debug ? " gone" : " pending"}`}>
+    <div className="cart-express">
       <div ref={box} />
       {error && <p className="cart-error">{error}</p>}
       {available && orText && <p className="cart-express-or"><span>{orText}</span></p>}
