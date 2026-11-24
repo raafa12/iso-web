@@ -16,6 +16,8 @@ export default function ExpressPay({ cart, onPaid, orText = "o elige otra forma 
   const cartRef = useRef(cart);
   const [available, setAvailable] = useState(false);
   const [gaveUp, setGaveUp] = useState(false);
+  const availableRef = useRef(false);
+  availableRef.current = available;
   const [error, setError] = useState<string | null>(null);
   const elsRef = useRef<StripeElements | null>(null);
   // Diagnóstico: isowear.es/?debugpay → muestra en el carrito por qué sale o no el botón
@@ -156,12 +158,13 @@ export default function ExpressPay({ cart, onPaid, orText = "o elige otra forma 
 
       ece.mount(box.current);
       log("botón montado");
+      window.setTimeout(() => {
+        const fr = box.current?.querySelectorAll("iframe") ?? [];
+        log(`a los 3 s: ${fr.length} iframe(s)${fr.length ? `, alto ${Math.round(fr[0].getBoundingClientRect().height)}px` : ""}`);
+      }, 3000);
       // Si en 6 s no aparece ningún monedero, se recoge el hueco
       window.setTimeout(() => {
-        setAvailable((a) => {
-          if (!a) { log("sin respuesta del botón tras 6 s"); setGaveUp(true); }
-          return a;
-        });
+        if (!availableRef.current) { log("sin respuesta del botón tras 6 s"); setGaveUp(true); }
       }, 6000);
      } catch (e) {
       log(`ERROR: ${e instanceof Error ? e.message : String(e)}`);
