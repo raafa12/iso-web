@@ -33,6 +33,8 @@ export default async (req) => {
     return json({ url: session.url });
   } catch (e) {
     console.error('Stripe: no se pudo crear el pago', code, e);
-    return json({ error: 'No se ha podido abrir el pago con tarjeta' }, 502);
+    // El motivo de Stripe ayuda a ver qué falta en la cuenta (no incluye claves)
+    const why = String(e?.message || '').replace(/^Stripe \d+: /, '').replace(/(sk|rk|pk)_(live|test)_[A-Za-z0-9*]+/g, '$1_$2_…');
+    return json({ error: `No se ha podido abrir el pago con tarjeta. ${why}` }, 502);
   }
 };
