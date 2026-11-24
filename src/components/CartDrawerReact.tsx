@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import ExpressPay from "./ExpressPay";
 import "./cart-drawer.css";
 import { PayBadge } from "./PayBadges.tsx";
 import {
@@ -357,6 +358,16 @@ export default function CartDrawerReact() {
                 Envío gratis en Santander · resto de España {eur(SHIPPING_CENTS)}.
                 {hasPresale && " Las prendas de preventa se envían al cerrar la preventa."}
               </p>
+              {STRIPE_ENABLED && cart.length > 0 && (
+                <ExpressPay
+                  cart={cart}
+                  onPaid={(code) => {
+                    persist([]);
+                    window.dispatchEvent(new CustomEvent("iso-order-placed"));
+                    location.href = `/pago?estado=ok&code=${code}`;
+                  }}
+                />
+              )}
               <button className="cart-checkout-btn" disabled={cart.length === 0} onClick={() => setView("checkout")}>
                 Finalizar compra
               </button>

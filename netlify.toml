@@ -45,3 +45,8 @@
   from = "/api/stripe-webhook"
   to = "/.netlify/functions/stripe-webhook"
   status = 200
+
+[[redirects]]
+  from = "/api/pago-express"
+  to = "/.netlify/functions/pago-express"
+  status = 200

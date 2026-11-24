@@ -31,6 +31,20 @@ export default async () => {
       }
     }
     if (rows.length) console.log('Recordatorios de pago:', { candidatos: rows.length, enviados: sent });
+
+    // Pagos con tarjeta/Apple Pay que se quedaron a medias hace más de 2 h: se cancelan
+    // y las unidades vuelven al stock (si se hubieran pagado, Stripe ya los habría marcado)
+    const old = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
+    const t = await fetch(
+      `${url}/rest/v1/orders?select=code&status=eq.pendiente&payment=eq.tarjeta&created_at=lt.${encodeURIComponent(old)}&limit=50`,
+      { headers }
+    );
+    if (t.ok) {
+      for (const { code } of await t.json()) {
+        await fetch(`${url}/rest/v1/rpc/cancel_order`, { method: 'POST', headers, body: JSON.stringify({ p_code: code }) });
+        console.log('Tarjeta sin pagar cancelado:', code);
+      }
+    }
     return new Response(JSON.stringify({ sent }));
   } catch (e) {
     console.error('Recordatorio: error', e);

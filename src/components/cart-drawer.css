@@ -365,3 +365,10 @@
   padding: 0 0.8rem;
 }
 .cart-wa-btn:hover { background: #1fbe5b; }
+
+/* Pago rápido: Apple Pay / Google Pay */
+.cart-express { margin: 0.25rem 0 0.9rem; }
+.cart-express[hidden] { display: none; }
+.cart-express .cart-error { margin-top: 0.6rem; }
+.cart-express-or { display: flex; align-items: center; gap: 0.75rem; margin-top: 0.9rem; color: var(--muted-light); font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; }
+.cart-express-or::before, .cart-express-or::after { content: ""; flex: 1; height: 1px; background: var(--border-light); }

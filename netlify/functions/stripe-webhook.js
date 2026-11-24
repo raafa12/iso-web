@@ -1,5 +1,5 @@
 // Netlify Function: POST /api/stripe-webhook  (lo llama Stripe)
-//   checkout.session.completed / async_payment_succeeded -> pedido pagado + correos
+//   checkout.session.completed / async_payment_succeeded / payment_intent.succeeded -> pedido pagado + correos
 //   checkout.session.expired -> si sigue sin pagar, se cancela y vuelve el stock
 
 import { sb } from '../lib/email.js';
@@ -26,7 +26,8 @@ export default async (req) => {
   try {
     if (
       (event.type === 'checkout.session.completed' && s.payment_status === 'paid') ||
-      event.type === 'checkout.session.async_payment_succeeded'
+      event.type === 'checkout.session.async_payment_succeeded' ||
+      event.type === 'payment_intent.succeeded'
     ) {
       // Solo pasa a pagado si estaba pendiente (Stripe puede repetir el aviso)
       const r = await fetch(`${url}/rest/v1/orders?code=eq.${encodeURIComponent(code)}&status=eq.pendiente`, {
@@ -36,7 +37,7 @@ export default async (req) => {
           status: 'pagado',
           paid_at: new Date().toISOString(),
           confirmation_sent_at: new Date().toISOString(),
-          stripe_payment_intent: s.payment_intent || null,
+          stripe_payment_intent: s.object === 'payment_intent' ? s.id : s.payment_intent || null,
         }),
       });
       const rows = r.ok ? await r.json() : [];
