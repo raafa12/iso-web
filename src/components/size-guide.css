@@ -98,3 +98,13 @@
 .sg-acc .sg-table td:first-child { font-size: 1.05rem; }
 .sg-acc .sg-fit { margin: 0.9rem 0 0.7rem; font-size: 0.86rem; }
 .sg-acc .sg-how { font-size: 0.8rem; }
+
+/* ---- Desplegable "Detalles" ---- */
+.pd-acc { margin-top: 1.4rem; }
+.sg-acc + .pd-acc, .pd-acc + .more { border-top: 0; }
+.pdd { margin: 0; padding: 0.1rem 0 1.1rem; display: grid; gap: 0; }
+.pdd > div { display: grid; grid-template-columns: 6.5rem 1fr; gap: 0.8rem; padding: 0.6rem 0; border-top: 1px solid var(--border, #1f1f1f); }
+.pdd > div:first-child { border-top: 0; }
+.pdd dt { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted-light, #8a857d); padding-top: 0.15rem; }
+.pdd dd { margin: 0; font-size: 0.9rem; line-height: 1.5; color: var(--white, #f2ede5); }
+.pdd dd.qq { color: var(--muted-light, #8a857d); letter-spacing: 0.06em; }

@@ -4,6 +4,7 @@ import { STRIPE_ENABLED, canBuy, eur } from "../lib/shop";
 import BuyNow from "./BuyNow";
 import ShareWhatsApp from "./ShareWhatsApp";
 import MoreProducts from "./MoreProducts";
+import ProductDetails from "./ProductDetails";
 import DropFirst from "./DropFirst";
 import "./presale.css";
 import "./collection.css";
@@ -397,6 +398,7 @@ export default function CollectionReact({
                 <li><b>Envío gratis</b> en Santander</li>
               </ul>
               <ShareWhatsApp id={item.id} name={`${item.model.name} · ${item.color}`} price={eur(item.model.price_cents)} />
+              <ProductDetails key={item.id} id={item.id} />
               <MoreProducts
                 currentId={item.id}
                 here="collection"
