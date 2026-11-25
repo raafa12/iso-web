@@ -7,8 +7,6 @@ import "./size-guide.css";
 type Kind = "tee" | "hoodie";
 
 const kindOf = (id: string): Kind => (/hoodie|sudadera/i.test(id) ? "hoodie" : "tee");
-// Gramaje de las camisetas: las clásicas 200 g/m², las del drop 220 g/m² (como en su descripción)
-const teeGsm = (id: string) => (id.startsWith("isolation-") ? 220 : 200);
 
 function rows(id: string): [string, string][] {
   if (kindOf(id) === "hoodie")
@@ -17,16 +15,14 @@ function rows(id: string): [string, string][] {
       ["Capucha", "Forrada, doble capa, con cordón a juego"],
       ["Detalles", "Bolsillo canguro. Puños y bajo de canalé con elastano"],
       ["Corte", "Regular fit"],
-      ["Estampado", "DTF"],
-      ["Cuidados", "Lavar del revés a 30 °C. Sin secadora. Planchar del revés, sin pasar por el estampado"],
+      ["Cuidados", "Lavar del revés a 30 °C. Sin secadora. Planchar del revés"],
       ["Diseño", "ISO · Santander"],
     ];
   return [
-    ["Tejido", `100% algodón de punto liso, ${teeGsm(id)} g/m²`],
+    ["Tejido", "100% algodón de punto liso, 200 g/m²"],
     ["Cuello", "Canalé 1x1 con elastano y cinta cubrecosturas"],
     ["Corte", "Oversize, manga corta, con costuras laterales"],
-    ["Estampado", "DTF"],
-    ["Cuidados", "Lavar del revés a 30 °C. Sin secadora. Planchar del revés, sin pasar por el estampado"],
+    ["Cuidados", "Lavar del revés a 30 °C. Sin secadora. Planchar del revés"],
     ["Diseño", "ISO · Santander"],
   ];
 }
