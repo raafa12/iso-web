@@ -384,9 +384,8 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
 
               <ul className="ps-notes">
                 <li><b>{unitsPerItem} unidades</b> disponibles</li>
-                <li>Recíbela <b>antes de Navidad</b></li>
+                <li>Recíbelo <b>antes de Navidad</b></li>
                 <li><b>Envío gratis</b> en Santander</li>
-                <li>Pagas con <b>Apple Pay</b>, <b>Bizum</b> o <b>contrarreembolso</b></li>
               </ul>
               <ShareWhatsApp id={item.id} name={item.name} price={eur(item.price_cents)} />
               <MoreProducts
