@@ -46,7 +46,6 @@ const ogImageURL = new URL(image, Astro.site);
     <link rel="apple-touch-icon" sizes="180x180" href="/favicon-180-v10.png" />
     <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192-v10.png" />
     <link rel="icon" type="image/png" sizes="512x512" href="/favicon-512-v10.png" />
-    <link rel="preload" href="/fonts/orbitron-var.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,700;0,900;1,700;1,900&family=Barlow:wght@300;400;500;600&display=swap"
@@ -72,23 +71,6 @@ const ogImageURL = new URL(image, Astro.site);
 </html>
 
 <style is:global>
-  @font-face {
-    font-family: "ISO Title";
-    src: url("/fonts/orbitron-var.woff2") format("woff2");
-    font-weight: 400 900;
-    font-style: normal;
-    font-display: swap;
-  }
-  /* Todos los títulos grandes de la web */
-  .about-title, .recap-title, .torneo-title,
-  .pv-title, .pv-h2, .pv-end-title,
-  .col-title, .ps-title, .rack-info-name, .rack-title, .sg-title {
-    font-family: var(--font-title) !important;
-    font-weight: 900 !important;
-    letter-spacing: -0.01em !important;
-    padding-right: 0.08em; /* que no se corte la cursiva por la derecha */
-  }
-
   :root {
     --bg: #070707;
     --surface: #0d0d0d;
@@ -108,9 +90,6 @@ const ogImageURL = new URL(image, Astro.site);
     --muted-light: #6e6e6e;
 
     --font-display: "Barlow Condensed", sans-serif;
-    /* Títulos: Orbitron (gratis, OFL) hasta tener licencia de Siegra.
-       Para cambiar a Siegra: subir public/fonts/siegra.woff2, cambiar el @font-face de abajo y listo. */
-    --font-title: "ISO Title", "Barlow Condensed", sans-serif;
     --font-body: "Barlow", sans-serif;
 
     --nav-h: 64px;
