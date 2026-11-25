@@ -108,3 +108,8 @@
 .pdd dt { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted-light, #8a857d); padding-top: 0.15rem; }
 .pdd dd { margin: 0; font-size: 0.9rem; line-height: 1.5; color: var(--white, #f2ede5); }
 .pdd dd.qq { color: var(--muted-light, #8a857d); letter-spacing: 0.06em; }
+.pd-acc-next { margin-top: 0; border-top: 0; }
+.pd-text { padding: 0 0 1.1rem; display: grid; gap: 0.55rem; font-size: 0.9rem; line-height: 1.55; color: var(--white-dim, #c9c4bc); }
+.pd-text p { margin: 0; }
+.pd-text b { color: var(--white, #f2ede5); }
+.pd-text a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }

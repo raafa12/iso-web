@@ -3,7 +3,7 @@ import { SizeGuideInline, guideKindOf } from "./SizeGuide.tsx";
 import BuyNow from "./BuyNow";
 import ShareWhatsApp from "./ShareWhatsApp";
 import MoreProducts from "./MoreProducts";
-import ProductDetails from "./ProductDetails";
+import ProductDetails, { ShippingReturns } from "./ProductDetails";
 import "./presale.css";
 import { SB_HEADERS, STRIPE_ENABLED, SUPABASE_ANON_KEY, SUPABASE_URL, eur } from "../lib/shop";
 
@@ -390,6 +390,7 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
               </ul>
               <ShareWhatsApp id={item.id} name={item.name} price={eur(item.price_cents)} />
               <ProductDetails key={item.id} id={item.id} veiled={veiled} />
+              <ShippingReturns presale />
               <MoreProducts
                 currentId={item.id}
                 here="preventa"

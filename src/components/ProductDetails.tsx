@@ -39,3 +39,31 @@ export default function ProductDetails({ id, veiled = false }: { id: string; vei
     </details>
   );
 }
+
+// Desplegables "Envíos" y "Devoluciones" debajo de Detalles
+export function ShippingReturns({ presale = false }: { presale?: boolean }) {
+  const chevron = (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+  );
+  return (
+    <>
+      <details className="sg-acc pd-acc pd-acc-next">
+        <summary><span>Envíos</span>{chevron}</summary>
+        <div className="pd-text">
+          <p>Preparamos tu pedido en <b>24-48 h</b> y llega en <b>5-7 días hábiles</b> en España.</p>
+          <p><b>Envío gratis en Santander.</b></p>
+          {presale && <p>Las prendas de la preventa se preparan cuando cierra la preventa, para que te lleguen <b>antes de Navidad</b>.</p>}
+        </div>
+      </details>
+      <details className="sg-acc pd-acc pd-acc-next">
+        <summary><span>Devoluciones</span>{chevron}</summary>
+        <div className="pd-text">
+          <p>Tienes <b>14 días</b> desde que te llega el pedido para devolverlo.</p>
+          <p>La prenda tiene que estar sin usar, sin lavar y con su etiqueta.</p>
+          <p>Escríbenos por <a href="https://wa.me/34690342138" target="_blank" rel="noopener noreferrer">WhatsApp</a> o a <a href="mailto:hola@isowear.es">hola@isowear.es</a> con tu número de pedido y te decimos cómo enviarla. En Santander nos la puedes dar en mano.</p>
+          <p>Cuando la recibimos, te devolvemos el dinero por el mismo método de pago en un máximo de 14 días. ¿Prefieres otra talla? Te la cambiamos si queda stock.</p>
+        </div>
+      </details>
+    </>
+  );
+}
