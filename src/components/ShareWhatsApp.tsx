@@ -6,7 +6,7 @@ import "./buy-now.css";
 export default function ShareWhatsApp({ id, name, price }: { id: string; name: string; price: string }) {
   const [copied, setCopied] = useState(false);
   async function copy() {
-    const url = `${location.origin}/p/${id}`;
+    const url = `${location.origin}/p/${id}?s=2`;
     try {
       await navigator.clipboard.writeText(url);
     } catch {
@@ -21,7 +21,7 @@ export default function ShareWhatsApp({ id, name, price }: { id: string; name: s
     window.setTimeout(() => setCopied(false), 2000);
   }
   function share() {
-    const url = `${location.origin}/p/${id}`;
+    const url = `${location.origin}/p/${id}?s=2`;
     // La vista previa ya enseña la foto, el nombre y el precio
     const text = `Mira esta de ISO 👇\n${url}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener");
