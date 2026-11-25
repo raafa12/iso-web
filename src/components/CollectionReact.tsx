@@ -400,7 +400,7 @@ export default function CollectionReact({
                       source="stock"
                       productId={item.id.replace(/-mono$/, "")}
                       productName={`${item.model.name} · ${item.color}`}
-                      hint="Cuando vuelva, te enteras antes que nadie."
+                      hint="Cuando vuelva, si quieres te aviso."
                       label="Avísame"
                       okText="Apuntado. Cuando vuelva, eres el primero en saberlo."
                     />
