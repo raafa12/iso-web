@@ -107,6 +107,7 @@ export default async (req) => {
     return json({ code: order.code, client_secret: pi.client_secret, total_cents: order.total_cents });
   } catch (e) {
     console.error('Pago express: error', e);
-    return json({ error: 'stripe', message: 'No se ha podido iniciar el pago. Usa otra forma de pago o escríbenos por WhatsApp.' }, 502);
+    const why = String(e?.message || '').replace(/^Stripe \d+: /, '').replace(/(sk|rk|pk)_(live|test)_[A-Za-z0-9*]+/g, '$1_$2_…');
+    return json({ error: 'stripe', message: `No se ha podido iniciar el pago. ${why}` }, 502);
   }
 };
