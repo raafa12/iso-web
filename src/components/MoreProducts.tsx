@@ -1,11 +1,11 @@
 // "Más productos" al final de la ficha de una prenda: fila con scroll horizontal.
 // Las prendas de la misma página se abren ahí mismo; las de la otra página
 // (colección ↔ preventa) llevan a esa prenda en su página.
-import { ISO_CLASSICS, ISOLATION_DROP } from "../data/isolation-drop";
+import { ISO_CLASSICS, ISOLATION_DROP, PRESALE } from "../data/isolation-drop";
 import { CLASSICS_ON_SALE, eur } from "../lib/shop";
 import "./buy-now.css";
 
-export type MoreItem = { id: string; name: string; price_cents: number; image: string };
+export type MoreItem = { id: string; name: string; price_cents: number; image: string; veiled?: boolean };
 
 // Portada de cada prenda: los clásicos por delante; el drop, por la cara del diseño
 const DROP_COVER: Record<string, string> = {
@@ -22,7 +22,10 @@ const drop: MoreItem[] = ISOLATION_DROP.map((p) => ({
   name: p.name,
   price_cents: p.price_cents,
   image: DROP_COVER[p.id] === "front" || !p.image_back_url ? p.image_url : p.image_back_url,
+  veiled: true,
 }));
+// El drop se ve difuminado hasta que abre la preventa
+const dropHidden = () => Date.now() < Date.parse(PRESALE.open) && !/[?&]demo/.test(typeof location === "undefined" ? "" : location.search);
 
 export default function MoreProducts({
   currentId,
@@ -64,7 +67,7 @@ export default function MoreProducts({
 function Card({ p, tag }: { p: MoreItem; tag: string | null }) {
   return (
     <>
-      <span className="more-img">
+      <span className={`more-img${p.veiled && dropHidden() ? " is-veiled" : ""}`}>
         <img src={p.image} alt="" loading="lazy" draggable={false} />
         {tag && <em>{tag}</em>}
       </span>

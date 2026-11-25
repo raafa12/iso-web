@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { SizeGuideModal, guideKindOf } from "./SizeGuide.tsx";
+import { SizeGuideInline, guideKindOf } from "./SizeGuide.tsx";
 import { STRIPE_ENABLED, canBuy, eur } from "../lib/shop";
 import BuyNow from "./BuyNow";
 import ShareWhatsApp from "./ShareWhatsApp";
@@ -292,6 +292,7 @@ export default function CollectionReact({
             </button>
 
             <div className="ps-media cl-ps-media" onPointerDown={onDown} onPointerUp={onUp}>
+              {!canBuy(item.id) && <span className="ps-badge big">No disponible</span>}
               <div className={`ps-flip${side === "back" ? " show-back" : ""}`}>
                 <img className="ps-face" src={frontOf(item)} alt={`${item.model.name} ${item.color}, delante`} draggable={false} />
                 {item.back && <img className="ps-face back" src={item.back} alt={`${item.model.name} ${item.color}, detrás`} draggable={false} />}
@@ -361,7 +362,6 @@ export default function CollectionReact({
               <div className="ps-field">
                 <div className="ps-label">
                   <span>Talla</span>
-                  <button type="button" className="ps-guide" onClick={() => setGuideOpen(true)}>Guía de tallas</button>
                 </div>
                 <div className="ps-sizes" role="group" aria-label="Elige tu talla">
                   {ALL_SIZES.map((s) => {
@@ -373,6 +373,7 @@ export default function CollectionReact({
                     );
                   })}
                 </div>
+                <SizeGuideInline key={item.id} kind={guideKindOf(item.id)} />
               </div>
 
               <div className="ps-field" hidden={!canBuy(item.id)}>
@@ -416,7 +417,6 @@ export default function CollectionReact({
         </div>
       )}
 
-      <SizeGuideModal open={guideOpen} onClose={() => setGuideOpen(false)} kind={guideKindOf(item?.id)} />
     </>
   );
 }
@@ -488,6 +488,7 @@ function Card({
           aria-label={`${it.model.name} ${it.color}, ${eur(it.model.price_cents)}. Ver y comprar`}
         >
           <span className="ps-thumb">
+            {!canBuy(it.id) && <span className="ps-badge">No disponible</span>}
             {imgs.map((src, k) => (
               <img key={src} className={`ps-img${k === shownIdx ? " on" : ""}`} src={src} alt="" loading="lazy" draggable={false} />
             ))}

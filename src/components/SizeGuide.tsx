@@ -73,27 +73,50 @@ export function SizeGuideModal({ open, onClose, kind = "tee" }: { open: boolean;
           ))}
         </div>
 
-        <div className="sg-main">
-          <Diagram kind={tab} />
-          <table className="sg-table">
-            <thead>
-              <tr><th>Talla</th><th><i className="a">A</i>Ancho</th><th><i className="b">B</i>Largo</th></tr>
-            </thead>
-            <tbody>
-              {g.rows.map(([s, a, b]) => (
-                <tr key={s}><td>{s}</td><td>{a}<small> cm</small></td><td>{b}<small> cm</small></td></tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <p className="sg-fit">{g.fit}</p>
-        <ul className="sg-how">
-          <li><b>A · Ancho:</b> de axila a axila, con la prenda estirada en plano.</li>
-          <li><b>B · Largo:</b> desde lo más alto del hombro hasta el bajo.</li>
-          <li><b>Truco:</b> mide una {tab === "tee" ? "camiseta" : "sudadera"} tuya que te quede bien y compárala con la tabla.</li>
-        </ul>
+        <GuideBody kind={tab} />
       </div>
     </div>
+  );
+}
+
+function GuideBody({ kind }: { kind: GuideKind }) {
+  return (
+    <>
+    <div className="sg-main">
+      <Diagram kind={kind} />
+      <table className="sg-table">
+        <thead>
+          <tr><th>Talla</th><th><i className="a">A</i>Ancho</th><th><i className="b">B</i>Largo</th></tr>
+        </thead>
+        <tbody>
+          {GUIDE[kind].rows.map(([s, a, b]) => (
+            <tr key={s}><td>{s}</td><td>{a}<small> cm</small></td><td>{b}<small> cm</small></td></tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <p className="sg-fit">{GUIDE[kind].fit}</p>
+    <ul className="sg-how">
+      <li><b>A · Ancho:</b> de axila a axila, con la prenda estirada en plano.</li>
+      <li><b>B · Largo:</b> desde lo más alto del hombro hasta el bajo.</li>
+      <li><b>Truco:</b> mide una {kind === "tee" ? "camiseta" : "sudadera"} tuya que te quede bien y compárala con la tabla.</li>
+    </ul>
+    </>
+  );
+}
+
+// Desplegable "Guía de tallas" debajo de las tallas, dentro de la ficha de la prenda
+export function SizeGuideInline({ kind }: { kind: GuideKind }) {
+  return (
+    <details className="sg-acc">
+      <summary>
+        <span>Guía de tallas</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+      </summary>
+      <div className="sg-acc-body">
+        <GuideBody kind={kind} />
+      </div>
+    </details>
   );
 }

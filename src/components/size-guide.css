@@ -80,3 +80,25 @@
   .sg-main { grid-template-columns: 1fr; gap: 0.6rem; }
   .sg-svg { max-width: 160px; }
 }
+
+/* ---- Desplegable dentro de la ficha ---- */
+.sg-acc { margin-top: 0.9rem; border-top: 1px solid var(--border-light, #2a2a2a); border-bottom: 1px solid var(--border-light, #2a2a2a); }
+.sg-acc > summary {
+  list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between;
+  padding: 0.95rem 0; font: 700 0.78rem var(--font-body); letter-spacing: 0.14em; text-transform: uppercase; color: var(--white, #f2ede5);
+}
+.sg-acc > summary::-webkit-details-marker { display: none; }
+.sg-acc > summary svg { transition: transform 0.2s; }
+.sg-acc[open] > summary svg { transform: rotate(180deg); }
+.sg-acc > summary:hover { color: var(--accent); }
+.sg-acc-body { padding: 0.2rem 0 1.1rem; }
+.sg-acc .sg-main { grid-template-columns: 110px 1fr; gap: 1rem; }
+.sg-acc .sg-svg { max-width: 110px; }
+.sg-acc .sg-table td { padding: 0.5rem 0.4rem; font-size: 0.95rem; }
+.sg-acc .sg-table td:first-child { font-size: 1.05rem; }
+.sg-acc .sg-fit { margin: 0.9rem 0 0.7rem; font-size: 0.86rem; }
+.sg-acc .sg-how { font-size: 0.8rem; }
+@media (max-width: 520px) {
+  .sg-acc .sg-main { grid-template-columns: 84px 1fr; gap: 0.6rem; }
+  .sg-acc .sg-svg { max-width: 84px; }
+}

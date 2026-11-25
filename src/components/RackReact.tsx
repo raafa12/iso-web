@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { SizeGuideModal, guideKindOf } from "./SizeGuide.tsx";
+import { SizeGuideInline, guideKindOf } from "./SizeGuide.tsx";
 import BuyNow from "./BuyNow";
 import ShareWhatsApp from "./ShareWhatsApp";
 import DropFirst from "./DropFirst";
@@ -660,16 +660,13 @@ export default function RackReact({ products: initial, title = "El Perchero", pr
                   {soon ? soon : added ? (preview ? "Vista previa · no se añade" : "Añadido ✓") : size ? `Añadir al carrito · ${formatPrice(current.price_cents)}` : "Elige una talla"}
                 </button>
               )}
-              <button type="button" className="rack-guide" onClick={() => setGuideOpen(true)}>
-                Guía de tallas
-              </button>
+              <SizeGuideInline key={current.id} kind={guideKindOf(current.id)} />
               <ShareWhatsApp id={current.id} name={current.color ? `${current.name} · ${current.color}` : current.name} price={formatPrice(current.price_cents)} />
             </div>
           </div>
         </div>
       )}
 
-      <SizeGuideModal open={guideOpen} onClose={() => setGuideOpen(false)} kind={guideKindOf(current?.id)} />
     </section>
   );
 }

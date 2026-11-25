@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { SizeGuideModal, guideKindOf } from "./SizeGuide.tsx";
+import { SizeGuideInline, guideKindOf } from "./SizeGuide.tsx";
 import BuyNow from "./BuyNow";
 import ShareWhatsApp from "./ShareWhatsApp";
 import MoreProducts from "./MoreProducts";
@@ -271,6 +271,9 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
     return `Añadir al carrito · ${eur(item.price_cents * qty)}`;
   })();
 
+  // Antes de que abra, los diseños se ven difuminados
+  const veiled = phase === "soon" && !demo;
+
   return (
     <>
       {phase === "soon" && <NotifyForm />}
@@ -278,7 +281,7 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
       <ul className="ps-grid" ref={listRef}>
         {items.map((p, i) => (
           <li key={p.id} className={`ps-item${shown[i] ? " is-in" : ""}`} style={{ transitionDelay: `${i * 0.08}s` }}>
-            <Card item={p} left={left(p.id)} flipped={fingerOn === p.id} onOpen={(e, sz) => openItem(i, e, sz)} />
+            <Card item={p} left={left(p.id)} flipped={fingerOn === p.id} veiled={veiled} onOpen={(e, sz) => openItem(i, e, sz)} />
           </li>
         ))}
       </ul>
@@ -300,7 +303,8 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
               </svg>
             </button>
 
-            <div className="ps-media" onPointerDown={onDown} onPointerUp={onUp}>
+            <div className={`ps-media${veiled ? " is-veiled" : ""}`} onPointerDown={onDown} onPointerUp={onUp}>
+              {veiled && <Veil />}
               {item.front || item.back ? (
                 <div className={`ps-flip${side === "back" ? " show-back" : ""}`}>
                   {item.front && <img className="ps-face" src={item.front} alt={`${item.name}, delante`} draggable={false} />}
@@ -341,7 +345,6 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
               <div className="ps-field">
                 <div className="ps-label">
                   <span>Talla</span>
-                  <button type="button" className="ps-guide" onClick={() => setGuideOpen(true)}>Guía de tallas</button>
                 </div>
                 <div className="ps-sizes" role="group" aria-label="Elige tu talla">
                   {item.sizes.map((s) => (
@@ -350,6 +353,7 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
                     </button>
                   ))}
                 </div>
+                <SizeGuideInline key={item.id} kind={guideKindOf(item.id)} />
               </div>
 
               <div className="ps-field">
@@ -403,7 +407,6 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
         </div>
       )}
 
-      <SizeGuideModal open={guideOpen} onClose={() => setGuideOpen(false)} kind={guideKindOf(item?.id)} />
     </>
   );
 }
@@ -468,16 +471,28 @@ function NotifyForm({ compact = false }: { compact?: boolean }) {
   );
 }
 
+// Velo sobre la foto mientras la preventa no ha abierto
+export function Veil({ small = false }: { small?: boolean }) {
+  return (
+    <span className={`ps-veil${small ? " small" : ""}`} aria-hidden="true">
+      <img src="/logo-white-nav.png" alt="" />
+      <b><small>Se desvela el</small>14 dic</b>
+    </span>
+  );
+}
+
 // ---- Tarjeta: al pasar el ratón cambia de foto (fundido + zoom suave) y aparecen las tallas ----
 function Card({
   item: p,
   left,
   flipped,
+  veiled = false,
   onOpen,
 }: {
   item: PresaleItem;
   left: number | null;
   flipped: boolean;
+  veiled?: boolean;
   onOpen: (e: React.MouseEvent<HTMLElement>, size: string | null) => void;
 }) {
   const first = p.cover === "front" ? p.front ?? p.back : p.back ?? p.front;
@@ -535,7 +550,8 @@ function Card({
     >
       <div className="ps-mediawrap">
       <button type="button" className="ps-open" onClick={onOpenClick} onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd} onTouchCancel={onTouchEnd} aria-label={`${p.name}, ${eur(p.price_cents)}. Ver y precomprar`}>
-        <span className="ps-thumb" ref={media}>
+        <span className={`ps-thumb${veiled ? " is-veiled" : ""}`} ref={media}>
+          {veiled && <Veil />}
           {imgs.length ? (
             imgs.map((src, k) => (
               <img key={src} className={`ps-img${k === shown ? " on" : ""}`} src={src} alt="" loading="lazy" draggable={false} />
