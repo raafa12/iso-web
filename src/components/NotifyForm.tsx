@@ -73,7 +73,7 @@ export default function NotifyForm({
       {featured && (
         <>
           <p className="ps-pri-kicker">● Lista prioritaria</p>
-          <p className="ps-pri-sub">Los de la lista entran primero. Y con ventaja.</p>
+          <p className="ps-pri-sub">La lista salta primero. El resto, al banquillo.</p>
         </>
       )}
       {!compact && !featured && (
