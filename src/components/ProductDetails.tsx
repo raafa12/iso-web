@@ -12,18 +12,11 @@ function rows(id: string): [string, string][] {
   if (kindOf(id) === "hoodie")
     return [
       ["Tejido", "50% algodón, 50% poliéster. Felpa perchada por dentro, 271 g/m²"],
-      ["Capucha", "Forrada, doble capa, con cordón a juego"],
-      ["Detalles", "Bolsillo canguro. Puños y bajo de canalé con elastano"],
-      ["Corte", "Regular fit"],
       ["Cuidados", "Lavar del revés a 30 °C. Sin secadora. Planchar del revés"],
-      ["Diseño", "ISO · Santander"],
     ];
   return [
     ["Tejido", "100% algodón de punto liso, 200 g/m²"],
-    ["Cuello", "Canalé 1x1 con elastano y cinta cubrecosturas"],
-    ["Corte", "Oversize, manga corta, con costuras laterales"],
     ["Cuidados", "Lavar del revés a 30 °C. Sin secadora. Planchar del revés"],
-    ["Diseño", "ISO · Santander"],
   ];
 }
 
