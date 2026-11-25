@@ -63,7 +63,7 @@ export default function NotifyForm({
     return featured ? (
       <div className="ps-notify featured ok">
         <p className="ps-pri-kicker">● Estás dentro</p>
-        <p className="ps-pri-sub">Nos vemos el <b>14 de diciembre a las 00:00</b>. Mira el correo.</p>
+        <p className="ps-pri-sub">Estás dentro. <b>14.12 · 00:00</b>. No llegues tarde.</p>
       </div>
     ) : (
       <p className={`ps-notify ok${compact ? " compact" : ""}`}>{okText}</p>
@@ -73,7 +73,7 @@ export default function NotifyForm({
       {featured && (
         <>
           <p className="ps-pri-kicker">● Lista prioritaria</p>
-          <p className="ps-pri-sub">La lista salta primero. El resto, al banquillo.</p>
+          <p className="ps-pri-sub">No es para todos. Solo para los de la lista.</p>
         </>
       )}
       {!compact && !featured && (
