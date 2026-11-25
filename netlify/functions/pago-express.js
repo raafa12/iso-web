@@ -88,7 +88,6 @@ export default async (req) => {
         'automatic_payment_methods[enabled]': 'true',
         description: `Pedido ${order.code}`,
         'metadata[code]': order.code,
-        receipt_email: c.email,
         'shipping[name]': c.name || c.email,
         'shipping[address][line1]': c.address,
         'shipping[address][city]': c.city || '',

@@ -7,6 +7,7 @@
 //   POST { code, status: "cancelado" }    -> cancela, devuelve el stock y manda "Cancelado"
 //   POST { code, status: "recordatorio" } -> manda otra vez el recordatorio de pago
 //   POST { ..., silent: true }            -> cambia el estado sin mandar correo
+//   POST { code, action: "borrar" }      -> borra para siempre un pedido ya cancelado
 
 import { sb } from '../lib/email.js';
 import { sendStatusEmail } from '../lib/order-mail.js';
@@ -46,6 +47,13 @@ export default async (req) => {
     };
     let order = await get();
     if (!order) return json({ error: 'No existe ese pedido' }, 404);
+
+    if (body.action === 'borrar') {
+      if (order.status !== 'cancelado') return json({ error: 'Solo se pueden borrar pedidos cancelados' }, 409);
+      const r = await fetch(`${url}/rest/v1/orders?code=eq.${code}&status=eq.cancelado`, { method: 'DELETE', headers });
+      if (!r.ok) throw new Error(`orders ${r.status}: ${await r.text()}`);
+      return json({ ok: true, deleted: code });
+    }
 
     if (status === 'recordatorio') {
       await sendStatusEmail(order, 'recordatorio');
