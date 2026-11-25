@@ -13,7 +13,7 @@ export function getStaticPaths() {
     })),
     ...ISOLATION_DROP.map((p) => ({
       params: { id: p.id },
-      props: { title: p.name, price: "", to: `/preventa?p=${p.id}`, desc: "Drop 001 de ISO: Preventa. Unidades limitadas. 14 de diciembre. Envío gratis en Santander." },
+      props: { title: p.name, price: "", to: `/preventa?p=${p.id}`, desc: "Preventa. Unidades limitadas. 14 de diciembre. Envío gratis en Santander." },
     })),
   ];
 }
