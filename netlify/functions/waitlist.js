@@ -7,9 +7,17 @@
 //   SUPABASE_SERVICE_KEY  -> service_role key de Supabase
 //   BREVO_API_KEY, EMAIL_FROM -> para el correo de bienvenida (si faltan, se apunta igual)
 
-import { sendWelcome } from '../lib/welcome-mail.js';
+import { sendWelcome as _sendWelcome } from '../lib/welcome-mail.js';
+
+// Resultado del último envío (para diagnosticar con ?debugmail en la web)
+let mailStatus = 'no-enviado';
+const sendWelcome = async (args) => {
+  try { await _sendWelcome(args); mailStatus = 'enviado'; }
+  catch (e) { mailStatus = 'error: ' + String(e?.message || e).slice(0, 300); throw e; }
+};
 
 export default async (req) => {
+  mailStatus = process.env.BREVO_API_KEY && process.env.EMAIL_FROM ? 'no-enviado' : 'faltan BREVO_API_KEY o EMAIL_FROM';
   const SUPABASE_URL = process.env.SUPABASE_URL;
   const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
 
@@ -94,7 +102,7 @@ export default async (req) => {
         console.error('Aviso de stock: no se pudo enviar', e);
       }
     }
-    return new Response(JSON.stringify({ ok: true }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    return new Response(JSON.stringify({ ok: true, mail: mailStatus }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   }
 
   // Evita duplicados: si el email ya existe, lo tratamos como éxito
@@ -121,7 +129,7 @@ export default async (req) => {
         console.error('Bienvenida (ya apuntado): no se pudo enviar', e);
       }
     }
-    return new Response(JSON.stringify({ ok: true, already: true }), {
+    return new Response(JSON.stringify({ ok: true, already: true, mail: mailStatus }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
@@ -156,7 +164,7 @@ export default async (req) => {
     }
   }
 
-  return new Response(JSON.stringify({ ok: true, already: false }), {
+  return new Response(JSON.stringify({ ok: true, already: false, mail: mailStatus }), {
     status: 200,
     headers: { 'Content-Type': 'application/json' },
   });

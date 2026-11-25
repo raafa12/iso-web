@@ -54,6 +54,8 @@ export default function NotifyForm({
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || "No se ha podido guardar");
+      // Diagnóstico: con ?debugmail en la URL se ve qué ha pasado con el correo
+      if (/[?&]debugmail/.test(location.search)) alert(`Correo: ${data.mail ?? "sin dato"}${data.already ? " (ya estaba apuntado)" : ""}`);
       setState("ok");
     } catch (err) {
       setState("error");
