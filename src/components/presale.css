@@ -612,3 +612,5 @@
 .ps-pri-sub b { color: var(--white, #f2ede5); }
 .ps-notify.featured.ok .ps-pri-sub { margin: 0; }
 .ps-notify.featured.ok { color: inherit; }
+
+.ps-notify-hint { margin: 0 0 0.5rem; font-size: 0.88rem; color: var(--white-dim, #b9b3a8); }

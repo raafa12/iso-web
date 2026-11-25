@@ -393,14 +393,16 @@ export default function CollectionReact({
                 <>
                   <DropFirst />
                   <div className="stock-notify">
-                    <p className="stock-notify-t">Avísame cuando haya stock</p>
+                    <p className="stock-notify-t">Agotada. Por ahora.</p>
                     <NotifyForm
                       key={item.id}
                       compact
                       source="stock"
                       productId={item.id.replace(/-mono$/, "")}
                       productName={`${item.model.name} · ${item.color}`}
-                      okText={`Hecho. Te escribimos en cuanto vuelva la ${item.model.name} ${item.color}.`}
+                      hint="Cuando vuelva, te enteras antes que nadie."
+                      label="Avísame"
+                      okText="Apuntado. Cuando vuelva, eres el primero en saberlo."
                     />
                   </div>
                 </>

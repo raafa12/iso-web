@@ -384,7 +384,7 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
                 </button>
               )}
 
-              {phase === "soon" && <NotifyForm key={item.id} compact source="preventa-isolation" productId={item.id} productName={item.name} label="Avísame" okText={`Hecho. Te avisamos por la ${item.name} en cuanto abra.`} />}
+              {phase === "soon" && <NotifyForm key={item.id} compact source="preventa-isolation" productId={item.id} productName={item.name} label="La quiero" hint="Esta no la va a tener cualquiera." okText="Apuntado. 14.12 · 00:00. No llegues tarde." />}
 
               <ul className="ps-notes">
                 <li><b>{unitsPerItem} unidades</b> disponibles</li>

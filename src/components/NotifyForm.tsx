@@ -12,6 +12,7 @@ export default function NotifyForm({
   productId,
   productName,
   title = "Avísame cuando abra",
+  hint,
   label = "Avísame",
   okText = "Hecho. Te avisamos por correo en cuanto abra la preventa.",
 }: {
@@ -21,6 +22,7 @@ export default function NotifyForm({
   productId?: string;
   productName?: string;
   title?: string;
+  hint?: string;
   label?: string;
   okText?: string;
 }) {
@@ -81,6 +83,7 @@ export default function NotifyForm({
           <b>{title}</b>
         </p>
       )}
+      {hint && <p className="ps-notify-hint">{hint}</p>}
       <input ref={hp} type="text" name="website" tabIndex={-1} autoComplete="off" className="ps-hp" aria-hidden="true" />
       <div className="ps-notify-row">
         <label className="sr-only" htmlFor={idBase}>Tu correo</label>
