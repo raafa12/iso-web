@@ -87,6 +87,14 @@ export default async (req) => {
       headers,
       body: JSON.stringify({ unsubscribed: false }),
     }).catch(() => {});
+    // Le vuelve a llegar el correo de bienvenida (si no, parece que no ha funcionado)
+    if (process.env.BREVO_API_KEY && process.env.EMAIL_FROM) {
+      try {
+        await sendWelcome({ email, name, source });
+      } catch (e) {
+        console.error('Bienvenida (ya apuntado): no se pudo enviar', e);
+      }
+    }
     return new Response(JSON.stringify({ ok: true, already: true }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
