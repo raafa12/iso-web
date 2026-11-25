@@ -497,7 +497,8 @@ function Card({
   onOpen: (e: React.MouseEvent<HTMLElement>, size: string | null) => void;
 }) {
   const first = p.cover === "front" ? p.front ?? p.back : p.back ?? p.front;
-  const imgs = [first, first === p.front ? p.back : p.front].filter(Boolean) as string[];
+  // Antes de abrir solo una foto (difuminada): al pasar el ratón no se ve la otra cara
+  const imgs = (veiled ? [first] : [first, first === p.front ? p.back : p.front]).filter(Boolean) as string[];
   const [idx, setIdx] = useState(0);
   const [hover, setHover] = useState(false);
   const media = useRef<HTMLSpanElement>(null);
@@ -568,7 +569,7 @@ function Card({
         </span>
       </button>
 
-      <div className="ps-quick" aria-label={`Tallas de ${p.name}`}>
+      <div className="ps-quick" aria-label={`Tallas de ${p.name}`} hidden={veiled}>
         {p.sizes.map((sz) => (
           <button key={sz} type="button" onClick={(e) => onOpen(e, sz)} tabIndex={hover ? 0 : -1}>
             {sz}
