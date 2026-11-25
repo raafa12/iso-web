@@ -72,7 +72,7 @@ function Card({ p, tag }: { p: MoreItem; tag: string | null }) {
         {tag && <em>{tag}</em>}
       </span>
       <span className="more-name">{p.name}</span>
-      <span className="more-price">{eur(p.price_cents)}</span>
+      <span className="more-price">{p.veiled && dropHidden() ? "Próximamente" : eur(p.price_cents)}</span>
     </>
   );
 }

@@ -333,8 +333,8 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
               </p>
               <h3 className="ps-title">{item.name}</h3>
               <p className="ps-desc">{item.description}</p>
-              <p className="ps-big-price">
-                {eur(item.price_cents)}
+              <p className={`ps-big-price${veiled ? " no-price" : ""}`}>
+                {!veiled && eur(item.price_cents)}
                 {itemLeft != null && (
                   <span className={`ps-left${soldOut ? " out" : itemLeft <= LOW_STOCK ? " low" : ""}`}>
                     {soldOut ? "Agotado" : `Quedan ${itemLeft}`}
@@ -476,7 +476,7 @@ export function Veil({ small = false }: { small?: boolean }) {
   return (
     <span className={`ps-veil${small ? " small" : ""}`} aria-hidden="true">
       <img src="/logo-white-nav.png" alt="" />
-      <b><small>Se desvela el</small>14 dic</b>
+      <b>Próximamente</b>
     </span>
   );
 }
@@ -549,7 +549,7 @@ function Card({
       }}
     >
       <div className="ps-mediawrap">
-      <button type="button" className="ps-open" onClick={onOpenClick} onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd} onTouchCancel={onTouchEnd} aria-label={`${p.name}, ${eur(p.price_cents)}. Ver y precomprar`}>
+      <button type="button" className="ps-open" onClick={onOpenClick} onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd} onTouchCancel={onTouchEnd} aria-label={veiled ? `${p.name}. Próximamente` : `${p.name}, ${eur(p.price_cents)}. Ver y precomprar`}>
         <span className={`ps-thumb${veiled ? " is-veiled" : ""}`} ref={media}>
           {veiled && <Veil />}
           {imgs.length ? (
@@ -579,7 +579,7 @@ function Card({
       <button type="button" className="ps-meta-btn" onClick={(e) => onOpen(e, null)} tabIndex={-1} aria-hidden="true">
         <span className="ps-meta">
           <span className="ps-name">{p.name}</span>
-          <span className="ps-price">{eur(p.price_cents)}</span>
+          {!veiled && <span className="ps-price">{eur(p.price_cents)}</span>}
         </span>
         <span className="ps-cat">
           {p.category} · Isolation
