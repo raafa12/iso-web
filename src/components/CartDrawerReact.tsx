@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import ExpressPay from "./ExpressPay";
+import PayButtons from "./PayButtons";
 import "./cart-drawer.css";
 import { PayBadge } from "./PayBadges.tsx";
 import {
@@ -370,19 +371,28 @@ export default function CartDrawerReact() {
                 Envío gratis en Santander · resto de España {eur(SHIPPING_CENTS)}.
                 {hasPresale && " Las prendas de preventa se envían al cerrar la preventa."}
               </p>
-              {STRIPE_ENABLED && cart.length > 0 && (
-                <ExpressPay
-                  cart={cart}
-                  onPaid={(code) => {
-                    persist([]);
-                    window.dispatchEvent(new CustomEvent("iso-order-placed"));
-                    location.href = `/pago?estado=ok&code=${code}`;
-                  }}
-                />
+              {cart.length > 0 && (
+                <div className="cart-paybtns">
+                  {STRIPE_ENABLED && (
+                    <ExpressPay
+                      cart={cart}
+                      orText={null}
+                      onPaid={(code) => {
+                        persist([]);
+                        window.dispatchEvent(new CustomEvent("iso-order-placed"));
+                        location.href = `/pago?estado=ok&code=${code}`;
+                      }}
+                    />
+                  )}
+                  <PayButtons
+                    card={STRIPE_ENABLED}
+                    onPick={(m) => { setPayment(m); setError(null); setView("checkout"); }}
+                  />
+                  <button type="button" className="pb-other" onClick={() => { setPayment("contrarreembolso"); setError(null); setView("checkout"); }}>
+                    Pagar en efectivo al recibirlo
+                  </button>
+                </div>
               )}
-              <button className="cart-checkout-btn" disabled={cart.length === 0} onClick={() => setView("checkout")}>
-                Finalizar compra
-              </button>
             </div>
           </>
         )}
