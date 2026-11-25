@@ -604,3 +604,18 @@
 .ps-head .ps-big-price { flex: none; white-space: nowrap; line-height: 1; margin-top: 0.25em; }
 .ps-left-line { margin-top: -0.4rem; }
 .ps-left-line .ps-left { margin-left: 0; }
+
+/* Lista prioritaria (aviso grande de la preventa) */
+.ps-notify.featured { padding: clamp(1.3rem, 3vw, 2rem); border: 1px solid var(--accent, #7ec8e3); background: linear-gradient(135deg, rgba(126, 200, 227, 0.14), rgba(126, 200, 227, 0.03) 60%); position: relative; overflow: hidden; }
+.ps-notify.featured::after { content: ""; position: absolute; right: -40px; top: -40px; width: 160px; height: 160px; border-radius: 50%; border: 1px solid rgba(126, 200, 227, 0.25); box-shadow: 0 0 0 24px rgba(126, 200, 227, 0.04); pointer-events: none; }
+.ps-pri-kicker { margin: 0 0 0.5rem; font: 800 0.72rem var(--font-body); letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent, #7ec8e3); }
+.ps-pri-title { margin: 0 0 0.9rem; font-family: var(--font-display); font-weight: 900; font-style: italic; text-transform: uppercase; font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 0.92; letter-spacing: -0.01em; color: var(--white, #f2ede5); }
+.ps-pri-list { list-style: none; margin: 0 0 1.1rem; padding: 0; display: grid; gap: 0.45rem; font-size: 0.95rem; color: var(--white-dim, #b9b3a8); }
+.ps-pri-list li { position: relative; padding-left: 1.3rem; }
+.ps-pri-list li::before { content: "→"; position: absolute; left: 0; color: var(--accent, #7ec8e3); font-weight: 700; }
+.ps-pri-list b { color: var(--white, #f2ede5); }
+.ps-pri-sub { margin: 0; font-size: 0.95rem; color: var(--white-dim, #b9b3a8); line-height: 1.5; }
+.ps-pri-sub b { color: var(--white, #f2ede5); }
+.ps-notify.featured .ps-notify-row button { background: var(--accent, #7ec8e3); color: #071820; font-weight: 800; }
+.ps-notify.featured.ok { color: inherit; }
+@media (max-width: 520px) { .ps-notify.featured .ps-notify-row { flex-direction: column; } .ps-notify.featured .ps-notify-row button { padding: 0.9rem; } }

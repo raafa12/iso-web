@@ -42,21 +42,21 @@ export function renderWelcome({ email, name = '', source = 'web', productName = 
     title = 'Tienes buen ojo.';
     body =
       p(`${hi ? `${hi}te` : 'Te'} guardamos el sitio para la ${b(prod)}.`) +
-      p(`El ${b(open)} te llega el enlace directo, antes que a nadie. Unidades limitadas: entra pronto.`) +
+      p(`El ${b(open)} te llega tu enlace personal con ${b('precio especial')} las primeras 24 h, antes que a nadie. Unidades limitadas: entra pronto.`) +
       button('Ver la cuenta atrás', countdown) +
       p(b('Call for an ISO.'), 'margin-top:24px;');
-    text = `Tienes buen ojo.\nTe guardamos el sitio para la ${productName}.\nEl ${open} te llega el enlace directo, antes que a nadie. Unidades limitadas.\n\n${countdown}\n\nCall for an ISO.`;
+    text = `Tienes buen ojo.\nTe guardamos el sitio para la ${productName}.\nEl ${open} te llega tu enlace personal con precio especial las primeras 24 h, antes que a nadie. Unidades limitadas.\n\n${countdown}\n\nCall for an ISO.`;
   } else if (source.startsWith('preventa')) {
     // Antes de abrir no se enseñan los diseños (en la web también están tapados)
     subject = 'Estás dentro 🏀';
     kicker = 'Drop 001 · Isolation';
     title = 'Estás dentro.';
     body =
-      p(`${hi ? `${hi}tienes` : 'Tienes'} ${b('prioridad')}. El ${b(open)} te llega el enlace antes que a nadie.`) +
+      p(`${hi ? `${hi}tienes` : 'Tienes'} ${b('prioridad')}. El ${b(open)} te llega tu enlace personal con ${b('precio especial')} las primeras 24 h, antes que a nadie.`) +
       p(`4 modelos. Unidades limitadas.`) +
       button('Ver la cuenta atrás', countdown) +
       p(b('Call for an ISO.'), 'margin-top:24px;');
-    text = `Estás dentro.\nTienes prioridad: el ${open} te llega el enlace antes que a nadie.\n4 modelos. Unidades limitadas.\n\n${countdown}\n\nCall for an ISO.`;
+    text = `Estás dentro.\nTienes prioridad: el ${open} te llega tu enlace personal con precio especial las primeras 24 h, antes que a nadie.\n4 modelos. Unidades limitadas.\n\n${countdown}\n\nCall for an ISO.`;
   } else {
     subject = 'Estás dentro · Acceso prioritario ISO';
     kicker = 'Acceso prioritario';

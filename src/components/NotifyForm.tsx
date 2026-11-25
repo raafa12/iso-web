@@ -7,6 +7,7 @@ import "./presale.css";
 
 export default function NotifyForm({
   compact = false,
+  featured = false,
   source = "preventa-isolation",
   productId,
   productName,
@@ -15,6 +16,7 @@ export default function NotifyForm({
   okText = "Hecho. Te avisamos por correo en cuanto abra la preventa.",
 }: {
   compact?: boolean;
+  featured?: boolean;
   source?: string;
   productId?: string;
   productName?: string;
@@ -57,10 +59,30 @@ export default function NotifyForm({
     }
   }
 
-  if (state === "ok") return <p className={`ps-notify ok${compact ? " compact" : ""}`}>{okText}</p>;
+  if (state === "ok")
+    return featured ? (
+      <div className="ps-notify featured ok">
+        <p className="ps-pri-kicker">● Estás dentro</p>
+        <p className="ps-pri-title">Ya eres de la lista.</p>
+        <p className="ps-pri-sub">El <b>14 de diciembre a las 00:00</b> te llega tu enlace con el precio especial. Mira el correo (y el spam, por si acaso).</p>
+      </div>
+    ) : (
+      <p className={`ps-notify ok${compact ? " compact" : ""}`}>{okText}</p>
+    );
   return (
-    <form className={`ps-notify${compact ? " compact" : ""}`} onSubmit={submit} noValidate>
-      {!compact && (
+    <form className={`ps-notify${compact ? " compact" : ""}${featured ? " featured" : ""}`} onSubmit={submit} noValidate>
+      {featured && (
+        <>
+          <p className="ps-pri-kicker">● Lista prioritaria</p>
+          <p className="ps-pri-title">Precio especial<br />para la lista.</p>
+          <ul className="ps-pri-list">
+            <li><b>Precio rebajado</b> solo para la lista, las primeras 24 h</li>
+            <li>El <b>14 dic a las 00:00</b> te llega tu enlace, antes de que lo subamos a redes</li>
+            <li><b>25 unidades</b> por modelo</li>
+          </ul>
+        </>
+      )}
+      {!compact && !featured && (
         <p className="ps-notify-t">
           <b>{title}</b>
         </p>
