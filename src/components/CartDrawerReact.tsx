@@ -368,7 +368,7 @@ export default function CartDrawerReact() {
                 <span className="cart-subtotal-amount">{formatPrice(subtotal)}</span>
               </div>
               <p className="cart-shipping-note">
-                Envío gratis en Santander · resto de España {eur(SHIPPING_CENTS)}.
+                Envío gratis en Santander.
                 {hasPresale && " Las prendas de preventa se envían al cerrar la preventa."}
               </p>
               {cart.length > 0 && (

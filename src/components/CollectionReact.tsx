@@ -394,7 +394,7 @@ export default function CollectionReact({
               )}
 
               <ul className="ps-notes">
-                <li><b>Envío gratis</b> en Santander · resto {eur(shippingCents)}</li>
+                <li><b>Envío gratis</b> en Santander</li>
               </ul>
               <ShareWhatsApp id={item.id} name={`${item.model.name} · ${item.color}`} price={eur(item.model.price_cents)} />
               <MoreProducts
