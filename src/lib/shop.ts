@@ -19,7 +19,7 @@ export const STRIPE_ENABLED = import.meta.env.PUBLIC_STRIPE_ENABLED === "1";
 export const CLASSICS_ON_SALE = false;
 export const isClassic = (id: string) => id.startsWith("iso-classic");
 // Excepciones que sí se pueden comprar aunque los clásicos estén parados (pruebas)
-export const CLASSICS_TEST_IDS = ["iso-classic-tee-black"];
+export const CLASSICS_TEST_IDS: string[] = [];
 // ¿Esta prenda se puede comprar ahora? (las variantes "-mono" cuentan como su prenda)
 export const canBuy = (id: string) =>
   CLASSICS_ON_SALE || !isClassic(id) || CLASSICS_TEST_IDS.includes(id.replace(/-mono$/, ""));
