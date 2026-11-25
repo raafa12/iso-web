@@ -92,13 +92,9 @@
 .sg-acc[open] > summary svg { transform: rotate(180deg); }
 .sg-acc > summary:hover { color: var(--accent); }
 .sg-acc-body { padding: 0.2rem 0 1.1rem; }
-.sg-acc .sg-main { grid-template-columns: 110px 1fr; gap: 1rem; }
-.sg-acc .sg-svg { max-width: 110px; }
+.sg-acc .sg-main { display: block; }
+.sg-acc .sg-svg { display: none; }
 .sg-acc .sg-table td { padding: 0.5rem 0.4rem; font-size: 0.95rem; }
 .sg-acc .sg-table td:first-child { font-size: 1.05rem; }
 .sg-acc .sg-fit { margin: 0.9rem 0 0.7rem; font-size: 0.86rem; }
 .sg-acc .sg-how { font-size: 0.8rem; }
-@media (max-width: 520px) {
-  .sg-acc .sg-main { grid-template-columns: 84px 1fr; gap: 0.6rem; }
-  .sg-acc .sg-svg { max-width: 84px; }
-}

@@ -9,7 +9,7 @@ export type GuideKind = "tee" | "hoodie";
 const GUIDE: Record<GuideKind, { label: string; fit: string; rows: [string, number, number][] }> = {
   tee: {
     label: "Camiseta",
-    fit: "Corte oversize: con tu talla de siempre te queda ancha y con el hombro caído. Si la quieres más ajustada, pide una talla menos.",
+    fit: "Corte oversize: se recomienda pedir una talla menos de la habitual.",
     rows: [["S", 56, 74], ["M", 59, 76], ["L", 62, 78], ["XL", 65, 80]],
   },
   hoodie: {
