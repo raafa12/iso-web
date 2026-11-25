@@ -70,3 +70,13 @@
 .ps-field[hidden] { display: none; }
 .drop-first-off { background: #232323; color: var(--muted-light); cursor: not-allowed; }
 .drop-first-off:hover { transform: none; box-shadow: none; }
+
+/* Ordenador: la foto se queda fija a la izquierda (centrada y con Delante/Detrás a la vista)
+   y solo se desplaza la columna de la derecha (tallas, colores, pago…) */
+@media (min-width: 861px) {
+  .ps-modal { overflow: hidden; }
+  .ps-sheet { height: min(860px, calc(100dvh - 4rem)); }
+  .ps-sheet > .ps-media { min-height: 0; height: 100%; }
+  .ps-sheet > .ps-info { height: 100%; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+  .ps-sheet > .ps-info > * { flex-shrink: 0; }
+}
