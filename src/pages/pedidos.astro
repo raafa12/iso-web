@@ -158,6 +158,9 @@ import Layout from '../layouts/Layout.astro';
   .pd-block ul { list-style: none; display: grid; gap: 0.55rem; font-size: 0.9rem; color: var(--white-dim); line-height: 1.45; }
   .pd-block li { display: flex; gap: 0.6rem; align-items: baseline; }
   .pd-block li b { color: var(--white); }
+  .pd-danger { border-color: #4a2222; }
+  .pd-danger p { font-size: 0.88rem; color: var(--white-dim); line-height: 1.5; margin-bottom: 0.8rem; }
+  .pd-danger p b { color: var(--white); }
 
   .pd-toast { position: fixed; left: 50%; bottom: 1.25rem; transform: translateX(-50%); background: var(--white); color: var(--bg); padding: 0.8rem 1.1rem; font-weight: 600; font-size: 0.9rem; z-index: 20; max-width: calc(100% - 2rem); box-shadow: 0 8px 30px rgba(0,0,0,.5); }
   .pd-toast.err { background: #ff7a7a; }
@@ -504,7 +507,10 @@ import Layout from '../layouts/Layout.astro';
       <li><i class="dot wait"></i><span><b>Pago sin terminar</b> · abrió el pago con tarjeta y no lo acabó. Se cancela solo a las 2 h.</span></li>
       <li><i class="dot cancel"></i><span><b>Cancelado</b> · el stock vuelve solo. Si estaba cobrado con tarjeta, devuélvelo en Stripe.</span></li>
     </ul></div>`;
-    return stats + tally + legend;
+    const reset = `<div class="pd-block pd-danger"><h3>Empezar de cero</h3>
+      <p>Borra <b>todos</b> los pedidos (por ejemplo, los de prueba) y deja el stock de la preventa como al principio. No se puede deshacer.</p>
+      <button type="button" class="pd-btn danger" data-wipe>Vaciar pedidos</button></div>`;
+    return stats + tally + legend + reset;
   }
 
   const pl = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
@@ -556,6 +562,22 @@ import Layout from '../layouts/Layout.astro';
     }
   }
 
+  async function wipe(btn: HTMLButtonElement) {
+    const t = prompt(`Vas a borrar los ${orders.length} pedidos para siempre.\n\nEscribe BORRAR para confirmar:`);
+    if (t === null) return;
+    if (t.trim().toUpperCase() !== 'BORRAR') { toast('No se ha borrado nada', true); return; }
+    btn.disabled = true;
+    try {
+      await api('POST', { action: 'vaciar', confirm: 'BORRAR' });
+      tab = 'todos';
+      await load();
+      toast('Pedidos borrados · empezamos de cero');
+    } catch (e) {
+      btn.disabled = false;
+      toast(e instanceof Error ? e.message : 'Error', true);
+    }
+  }
+
   // ---------- eventos ----------
   $('[data-login]').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -595,6 +617,8 @@ import Layout from '../layouts/Layout.astro';
     const chip = t.closest<HTMLButtonElement>('[data-filter]');
     if (chip) { filter = chip.dataset.filter!; shown = PAGE; render(); return; }
     if (t.closest('[data-more]')) { shown += PAGE; renderRows(); return; }
+    const w = t.closest<HTMLButtonElement>('[data-wipe]');
+    if (w) { wipe(w); return; }
     const a = t.closest<HTMLButtonElement>('[data-act]');
     if (a) { e.preventDefault(); act(a.dataset.code!, a.dataset.act!, a); return; }
     const c = t.closest<HTMLButtonElement>('[data-copy]');

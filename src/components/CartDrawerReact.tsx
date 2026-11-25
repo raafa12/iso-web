@@ -414,7 +414,6 @@ export default function CartDrawerReact() {
                 [
                   ["tarjeta", "Tarjeta · Apple Pay · Google Pay"],
                   ["bizum", "Bizum"],
-                  ["paypal", "PayPal"],
                   ["contrarreembolso", "Contrarreembolso"],
                 ] as [Payment, string][]
               ).filter(([k]) => k !== "tarjeta" || STRIPE_ENABLED).map(([k, title]) => (

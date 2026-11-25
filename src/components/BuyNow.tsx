@@ -25,7 +25,7 @@ export default function BuyNow({
 }) {
   const total = eur(line.price * qty);
   const [bizum, setBizum] = useState(false);
-  const checkout = (pay: "bizum" | "tarjeta" | "paypal") => {
+  const checkout = (pay: "bizum" | "tarjeta") => {
     window.ISOCart?.add(line, qty);
     close();
     window.setTimeout(() => window.ISOCart?.checkout?.(pay), 50);
@@ -46,7 +46,7 @@ export default function BuyNow({
         <span>Comprar con</span> <span className="buy-bizum-logo">bizum</span>
       </button>
       {bizum && <BizumSheet line={line} qty={qty} onClose={() => setBizum(false)} />}
-      <button type="button" className="buy-more" onClick={() => checkout(STRIPE_ENABLED ? "tarjeta" : "paypal")}>
+      <button type="button" className="buy-more" onClick={() => checkout(STRIPE_ENABLED ? "tarjeta" : "bizum")}>
         Más opciones de pago
       </button>
     </div>

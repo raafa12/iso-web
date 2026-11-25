@@ -8,6 +8,7 @@
 //   POST { code, status: "recordatorio" } -> manda otra vez el recordatorio de pago
 //   POST { ..., silent: true }            -> cambia el estado sin mandar correo
 //   POST { code, action: "borrar" }      -> borra para siempre un pedido ya cancelado
+//   POST { action: "vaciar", confirm: "BORRAR" } -> borra TODOS los pedidos y deja el stock de la preventa como al principio
 
 import { sb } from '../lib/email.js';
 import { sendStatusEmail } from '../lib/order-mail.js';
@@ -36,6 +37,21 @@ export default async (req) => {
 
     if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
     const body = await req.json().catch(() => ({}));
+
+    // Empezar de cero (para quitar los pedidos de prueba antes de abrir)
+    if (body.action === 'vaciar') {
+      if (body.confirm !== 'BORRAR') return json({ error: 'Falta la confirmación' }, 400);
+      const d = await fetch(`${url}/rest/v1/orders?code=like.ISO-*`, { method: 'DELETE', headers });
+      if (!d.ok) throw new Error(`orders ${d.status}: ${await d.text()}`);
+      const s = await fetch(`${url}/rest/v1/presale_stock?select=product_id,initial`, { headers });
+      for (const row of s.ok ? await s.json() : []) {
+        await fetch(`${url}/rest/v1/presale_stock?product_id=eq.${encodeURIComponent(row.product_id)}`, {
+          method: 'PATCH', headers, body: JSON.stringify({ stock: row.initial }),
+        });
+      }
+      return json({ ok: true, emptied: true });
+    }
+
     const code = String(body.code || '').trim().toUpperCase();
     const status = String(body.status || '');
     if (!/^ISO-[0-9A-F]{5}$/.test(code)) return json({ error: 'Código no válido' }, 400);
