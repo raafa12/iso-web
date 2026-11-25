@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { SizeGuideModal } from "./ProductsReact.tsx";
+import { SizeGuideModal, guideKindOf } from "./SizeGuide.tsx";
 import BuyNow from "./BuyNow";
 import ShareWhatsApp from "./ShareWhatsApp";
 import DropFirst from "./DropFirst";
@@ -669,7 +669,7 @@ export default function RackReact({ products: initial, title = "El Perchero", pr
         </div>
       )}
 
-      <SizeGuideModal open={guideOpen} onClose={() => setGuideOpen(false)} />
+      <SizeGuideModal open={guideOpen} onClose={() => setGuideOpen(false)} kind={guideKindOf(current?.id)} />
     </section>
   );
 }

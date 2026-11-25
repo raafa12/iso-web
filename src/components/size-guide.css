@@ -1,0 +1,82 @@
+/* Guía de tallas (estilo ISO, oscura) */
+.size-guide-overlay {
+  position: fixed; inset: 0; z-index: 300;
+  background: rgba(0, 0, 0, 0.72); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center; padding: 1rem;
+  opacity: 0; pointer-events: none; transition: opacity 0.2s;
+}
+.size-guide-overlay[hidden] { display: none; }
+.size-guide-overlay.open { opacity: 1; pointer-events: auto; }
+.sg {
+  position: relative;
+  width: min(560px, 100%);
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  background: var(--bg, #0a0a0a);
+  color: var(--white, #f2ede5);
+  border: 1px solid var(--border-light, #2a2a2a);
+  padding: clamp(1.4rem, 4vw, 2.2rem);
+  font-family: var(--font-body);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+}
+.sg-close {
+  position: absolute; top: 0.9rem; right: 0.9rem;
+  width: 38px; height: 38px; display: grid; place-items: center;
+  background: none; border: 1px solid var(--border-light, #2a2a2a); color: var(--white-dim, #c9c4bc); cursor: pointer;
+}
+.sg-close:hover { color: var(--white, #fff); border-color: var(--white-dim, #c9c4bc); }
+.sg-kicker {
+  font-family: var(--font-display); font-weight: 700; font-size: 0.72rem; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--accent); margin: 0 0 0.6rem;
+}
+.sg-title {
+  font-family: var(--font-display); font-weight: 900; font-style: italic; text-transform: uppercase;
+  font-size: clamp(2rem, 8vw, 2.8rem); line-height: 0.9; letter-spacing: -0.02em; margin: 0 0 1.2rem;
+}
+
+.sg-tabs { display: inline-flex; border: 1px solid var(--border-light, #2a2a2a); margin-bottom: 1.2rem; }
+.sg-tabs button {
+  background: none; border: 0; color: var(--muted-light, #8a857d); cursor: pointer;
+  padding: 0.6rem 1.1rem; font: 800 italic 0.82rem var(--font-display); letter-spacing: 0.1em; text-transform: uppercase;
+}
+.sg-tabs button[aria-selected="true"] { background: var(--white, #f2ede5); color: var(--bg, #0a0a0a); }
+
+.sg-main { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 1.2rem; align-items: center; }
+.sg-svg { width: 100%; max-width: 220px; justify-self: center; overflow: visible; }
+.sg-body { fill: var(--surface2, #171717); stroke: var(--white-dim, #c9c4bc); stroke-width: 2; stroke-linejoin: round; }
+.sg-line { fill: var(--surface2, #171717); stroke: var(--white-dim, #c9c4bc); stroke-width: 2; stroke-linejoin: round; }
+.sg-a path, .sg-b path { fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+.sg-a path { stroke: var(--accent); }
+.sg-b path { stroke: #f0b35a; stroke-dasharray: 0; }
+.sg-a text, .sg-b text { font: 900 italic 18px var(--font-display); text-anchor: middle; }
+.sg-a text { fill: var(--accent); }
+.sg-b text { fill: #f0b35a; }
+
+.sg-table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.sg-table th {
+  text-align: left; padding: 0 0.4rem 0.55rem; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--muted-light, #8a857d); white-space: nowrap;
+}
+.sg-table th i {
+  font: 900 italic 0.8rem var(--font-display); margin-right: 0.35rem;
+}
+.sg-table th i.a { color: var(--accent); }
+.sg-table th i.b { color: #f0b35a; }
+.sg-table td { padding: 0.7rem 0.4rem; border-top: 1px solid var(--border, #1f1f1f); font-size: 1.05rem; font-weight: 600; }
+.sg-table td:first-child {
+  font-family: var(--font-display); font-weight: 900; font-style: italic; font-size: 1.25rem; color: var(--white, #fff); width: 3.2rem;
+}
+.sg-table td small { font-size: 0.75rem; font-weight: 500; color: var(--muted-light, #8a857d); }
+.sg-table tbody tr:hover td { background: var(--surface, #111); }
+
+.sg-fit {
+  margin: 1.3rem 0 0.9rem; padding: 0.8rem 1rem; border-left: 3px solid var(--accent);
+  background: rgba(126, 200, 227, 0.08); font-size: 0.92rem; line-height: 1.5; color: var(--white, #f2ede5);
+}
+.sg-how { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.4rem; font-size: 0.85rem; line-height: 1.5; color: var(--muted-light, #8a857d); }
+.sg-how b { color: var(--white-dim, #c9c4bc); font-weight: 700; }
+
+@media (max-width: 520px) {
+  .sg-main { grid-template-columns: 1fr; gap: 0.6rem; }
+  .sg-svg { max-width: 160px; }
+}

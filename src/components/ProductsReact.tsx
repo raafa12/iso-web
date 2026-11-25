@@ -27,32 +27,8 @@ interface CartItemToAdd {
 
 type LoadStatus = "loading" | "error" | "ready";
 
-interface SizeGuideModalProps {
-  open: boolean;
-  onClose: () => void;
-}
-
-export function SizeGuideModal({ open, onClose }: SizeGuideModalProps) {
-  return (
-    <div
-      className={`size-guide-overlay${open ? " open" : ""}`}
-      hidden={!open}
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
-    >
-      <div className="size-guide-modal">
-        <button type="button" className="size-guide-close" aria-label="Cerrar guía de tallas" onClick={onClose}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-            <path d="M18 6 6 18M6 6l12 12" />
-          </svg>
-        </button>
-        <h3>Guía de tallas</h3>
-        <img src="/tallas.png" alt="Tabla de tallas ISO: ancho y largo en cm para XS, S, M, L, XL y 2XL" />
-      </div>
-    </div>
-  );
-}
+export { SizeGuideModal } from "./SizeGuide.tsx";
+import { SizeGuideModal } from "./SizeGuide.tsx";
 
 interface ProductCardProps {
   product: Product;

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { SizeGuideModal } from "./ProductsReact.tsx";
+import { SizeGuideModal, guideKindOf } from "./SizeGuide.tsx";
 import { STRIPE_ENABLED, canBuy, eur } from "../lib/shop";
 import BuyNow from "./BuyNow";
 import ShareWhatsApp from "./ShareWhatsApp";
@@ -416,7 +416,7 @@ export default function CollectionReact({
         </div>
       )}
 
-      <SizeGuideModal open={guideOpen} onClose={() => setGuideOpen(false)} />
+      <SizeGuideModal open={guideOpen} onClose={() => setGuideOpen(false)} kind={guideKindOf(item?.id)} />
     </>
   );
 }

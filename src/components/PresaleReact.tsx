@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { SizeGuideModal } from "./ProductsReact.tsx";
+import { SizeGuideModal, guideKindOf } from "./SizeGuide.tsx";
 import BuyNow from "./BuyNow";
 import ShareWhatsApp from "./ShareWhatsApp";
 import MoreProducts from "./MoreProducts";
@@ -379,7 +379,7 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
 
               <ul className="ps-notes">
                 <li><b>Unidades limitadas</b> por prenda, sin reposición</li>
-                <li><b>1 semana</b> de preventa o hasta agotar existencias</li>
+                <li><b>1 semana</b> de preventa · del 14 al 20 de diciembre</li>
                 <li><b>Envío gratis</b> en Santander · resto {eur(shippingCents)}</li>
                 <li>Pagas con {STRIPE_ENABLED && <><b>tarjeta</b>, <b>Apple Pay</b>, <b>Google Pay</b>, </>}<b>Bizum</b>, <b>PayPal</b> o <b>contrarreembolso</b></li>
               </ul>
@@ -403,7 +403,7 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
         </div>
       )}
 
-      <SizeGuideModal open={guideOpen} onClose={() => setGuideOpen(false)} />
+      <SizeGuideModal open={guideOpen} onClose={() => setGuideOpen(false)} kind={guideKindOf(item?.id)} />
     </>
   );
 }
