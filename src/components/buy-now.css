@@ -40,6 +40,17 @@
   transition: background 0.15s, color 0.15s;
 }
 .share-wa:hover { background: #25d366; color: #052e16; }
+.share-row { display: flex; flex-wrap: wrap; gap: 0.5rem; align-self: stretch; margin-top: 1.1rem; }
+.share-row .share-wa { margin: 0; }
+.share-row .share-wa, .share-row .share-link { padding: 0.45rem 0.7rem; font-size: 0.8rem; gap: 0.35rem; }
+.share-link {
+  display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.5rem 0.85rem;
+  background: transparent; border: 1px solid rgba(242, 237, 229, 0.35); border-radius: 999px;
+  color: var(--white-dim, #c9c4bc); font: 600 0.85rem var(--font-body); cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.share-link:hover { border-color: var(--white, #f2ede5); color: var(--white, #f2ede5); }
+.share-link.done { border-color: var(--accent); color: var(--accent); }
 
 /* Más productos al final de la ficha */
 .more { width: 100%; max-width: 100%; overflow: hidden; margin-top: 1.6rem; padding-top: 1.4rem; border-top: 1px solid rgba(242, 237, 229, 0.1); min-width: 0; }
