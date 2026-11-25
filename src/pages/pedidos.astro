@@ -183,6 +183,7 @@ import Layout from '../layouts/Layout.astro';
     reminder_sent_at?: string | null; stripe_payment_intent?: string | null;
   };
   type Stock = { product_id: string; name: string; initial: number; stock: number };
+  type Alert = { product_id: string; product_name: string | null; kind: string; notified_at: string | null };
   type Tab = 'cobrar' | 'enviar' | 'todos' | 'numeros';
 
   const API = '/api/admin/pedidos';
@@ -246,6 +247,7 @@ import Layout from '../layouts/Layout.astro';
   try { lastSeen = Number(localStorage.getItem('iso_pd_seen')) || 0; } catch {}
   let orders: Order[] = [];
   let stock: Stock[] = [];
+  let alerts: Alert[] = [];
   let tab: Tab | null = null;
   let filter = 'todos';
   let query = '';
@@ -274,6 +276,7 @@ import Layout from '../layouts/Layout.astro';
     const data = await api('GET');
     orders = (data.orders as Order[]).sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at));
     stock = data.stock;
+    alerts = data.alerts || [];
     // Al entrar, se abre la pestaña donde hay trabajo
     if (!tab) tab = count('charge') ? 'cobrar' : count('ship') ? 'enviar' : 'todos';
     render();
@@ -510,7 +513,27 @@ import Layout from '../layouts/Layout.astro';
     const reset = `<div class="pd-block pd-danger"><h3>Empezar de cero</h3>
       <p>Borra <b>todos</b> los pedidos (por ejemplo, los de prueba) y deja el stock de la preventa como al principio. No se puede deshacer.</p>
       <button type="button" class="pd-btn danger" data-wipe>Vaciar pedidos</button></div>`;
-    return stats + tally + legend + reset;
+    // Avisos por prenda: interesados del drop y gente esperando stock de los clásicos
+    const groups = new Map<string, { name: string; kind: string; waiting: number; done: number }>();
+    for (const a of alerts) {
+      const g = groups.get(a.product_id) ?? { name: a.product_name || a.product_id, kind: a.kind, waiting: 0, done: 0 };
+      a.notified_at ? g.done++ : g.waiting++;
+      groups.set(a.product_id, g);
+    }
+    const arow = ([id, g]: [string, { name: string; kind: string; waiting: number; done: number }]) =>
+      `<tr><td>${esc(short(g.name))}</td><td class="tot">${g.waiting}</td><td>${
+        g.kind === 'stock'
+          ? (g.waiting ? `<button type="button" class="pd-btn" style="padding:.45rem .7rem;font-size:.72rem" data-alert="${esc(id)}">Ya hay stock · avisar</button>` : (g.done ? `${g.done} avisados` : ''))
+          : 'Drop'
+      }</td></tr>`;
+    const list = [...groups.entries()].sort((a, b) => b[1].waiting - a[1].waiting);
+    const avisos = `<div class="pd-block"><h3>Avisos por prenda</h3>${
+      list.length
+        ? `<div class="wrap"><table><thead><tr><th>Prenda</th><th>Esperando</th><th></th></tr></thead><tbody>${list.map(arow).join('')}</tbody></table></div>
+           <p style="margin-top:.7rem;font-size:.82rem;color:var(--muted-light)">Drop: quién quiere cada prenda. Clásicos: cuando vuelvas a ponerlos a la venta, pulsa el botón y les llega el correo.</p>`
+        : '<p style="font-size:.88rem;color:var(--muted-light)">Todavía nadie ha pedido aviso de una prenda.</p>'
+    }</div>`;
+    return stats + avisos + tally + legend + reset;
   }
 
   const pl = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
@@ -556,6 +579,21 @@ import Layout from '../layouts/Layout.astro';
       else { const i = orders.findIndex((x) => x.code === code); if (r.order) orders[i] = r.order; render(); }
       const done: Record<string, string> = { pagado: 'Cobrado · pasa a Enviar', enviado: 'Enviado', entregado: 'Entregado', cancelado: 'Cancelado', recordatorio: 'Recordatorio enviado' };
       toast(r.email === 'error' ? 'Hecho, pero el correo ha fallado' : `${done[status] || 'Hecho'}${r.email === 'enviado' && status !== 'recordatorio' ? ' · correo enviado' : ''}`, r.email === 'error');
+    } catch (e) {
+      btn.disabled = false;
+      toast(e instanceof Error ? e.message : 'Error', true);
+    }
+  }
+
+  async function sendAlerts(btn: HTMLButtonElement) {
+    const id = btn.dataset.alert!;
+    const n = alerts.filter((a) => a.product_id === id && !a.notified_at).length;
+    if (!confirm(`¿Ya está a la venta otra vez?\nSe manda el correo "Ha vuelto" a ${n} ${n === 1 ? 'persona' : 'personas'}.`)) return;
+    btn.disabled = true;
+    try {
+      const r = await api('POST', { action: 'avisar-stock', product_id: id });
+      await load();
+      toast(r.failed ? `Enviados ${r.sent}, fallaron ${r.failed}` : `Aviso enviado a ${r.sent}`, !!r.failed);
     } catch (e) {
       btn.disabled = false;
       toast(e instanceof Error ? e.message : 'Error', true);
@@ -617,6 +655,8 @@ import Layout from '../layouts/Layout.astro';
     const chip = t.closest<HTMLButtonElement>('[data-filter]');
     if (chip) { filter = chip.dataset.filter!; shown = PAGE; render(); return; }
     if (t.closest('[data-more]')) { shown += PAGE; renderRows(); return; }
+    const al = t.closest<HTMLButtonElement>('[data-alert]');
+    if (al) { sendAlerts(al); return; }
     const w = t.closest<HTMLButtonElement>('[data-wipe]');
     if (w) { wipe(w); return; }
     const a = t.closest<HTMLButtonElement>('[data-act]');

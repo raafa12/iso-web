@@ -8,7 +8,7 @@ const fmt = (iso) =>
     day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid',
   }).format(new Date(iso)).replace(',', ' a las');
 
-export function renderWelcome({ email, name = '', source = 'web', now = Date.now() }) {
+export function renderWelcome({ email, name = '', source = 'web', productName = '', productId = '', now = Date.now() }) {
   const first = String(name).trim().split(/\s+/)[0];
   const hi = first ? `${esc(first)}, ` : '';
   const open = fmt(PRESALE_OPEN);
@@ -19,8 +19,34 @@ export function renderWelcome({ email, name = '', source = 'web', now = Date.now
   const countdown = `${SITE}/cuenta-atras?utm_source=email&utm_medium=bienvenida`;
 
   let subject, kicker, title, body, text;
+  let unsub = email;
+  const prod = esc(productName);
 
-  if (source.startsWith('preventa')) {
+  if (source === 'stock') {
+    // Clásico sin stock: solo se le avisará cuando vuelva esa prenda
+    const back = `${SITE}/collection?p=${encodeURIComponent(productId)}&utm_source=email&utm_medium=aviso-stock`;
+    subject = `Te avisamos cuando vuelva 🏀`;
+    kicker = 'Aviso de stock';
+    title = 'Apuntado.';
+    body =
+      p(`En cuanto la ${b(prod)} vuelva a estar disponible, eres de los primeros en saberlo.`) +
+      p('Solo ese correo. Nada más.') +
+      button('Ver la colección', back) +
+      p(b('Call for an ISO.'), 'margin-top:24px;');
+    text = `Apuntado.\nEn cuanto la ${productName} vuelva a estar disponible, te escribimos.\n\n${back}\n\nCall for an ISO.`;
+    unsub = null;
+  } else if (source.startsWith('preventa') && productName && presaleSoon) {
+    // Ha pedido una prenda concreta del drop
+    subject = `La ${productName} tiene tu nombre 🏀`;
+    kicker = 'Drop 001 · Isolation';
+    title = 'Tienes buen ojo.';
+    body =
+      p(`${hi ? `${hi}te` : 'Te'} guardamos el sitio para la ${b(prod)}.`) +
+      p(`El ${b(open)} te llega el enlace directo, antes que a nadie. Unidades limitadas: entra pronto.`) +
+      button('Ver la cuenta atrás', countdown) +
+      p(b('Call for an ISO.'), 'margin-top:24px;');
+    text = `Tienes buen ojo.\nTe guardamos el sitio para la ${productName}.\nEl ${open} te llega el enlace directo, antes que a nadie. Unidades limitadas.\n\n${countdown}\n\nCall for an ISO.`;
+  } else if (source.startsWith('preventa')) {
     // Antes de abrir no se enseñan los diseños (en la web también están tapados)
     subject = 'Estás dentro 🏀';
     kicker = 'Drop 001 · Isolation';
@@ -47,10 +73,10 @@ export function renderWelcome({ email, name = '', source = 'web', now = Date.now
     text = `Estás dentro.\nTe escribimos antes que a nadie cuando saquemos algo nuevo.\n\n${link}`;
   }
 
-  return { subject, html: layout({ subject, preheader: text.split('\n')[1] || '', kicker, title, body, unsub: email }), text };
+  return { subject, html: layout({ subject, preheader: text.split('\n')[1] || '', kicker, title, body, unsub }), text, unsub };
 }
 
 export async function sendWelcome(args) {
-  const { subject, html, text } = renderWelcome(args);
-  await sendEmail({ to: args.email, subject, html, text, unsub: args.email, tags: ['bienvenida'] });
+  const { subject, html, text, unsub } = renderWelcome(args);
+  await sendEmail({ to: args.email, subject, html, text, unsub: unsub || undefined, tags: [args.source === 'stock' ? 'aviso-stock' : 'bienvenida'] });
 }

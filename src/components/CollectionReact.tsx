@@ -6,6 +6,7 @@ import ShareWhatsApp from "./ShareWhatsApp";
 import MoreProducts from "./MoreProducts";
 import ProductDetails, { ShippingReturns } from "./ProductDetails";
 import DropFirst from "./DropFirst";
+import NotifyForm from "./NotifyForm";
 import "./presale.css";
 import "./collection.css";
 
@@ -389,7 +390,20 @@ export default function CollectionReact({
               </div>
 
               {!canBuy(item.id) ? (
-                <DropFirst />
+                <>
+                  <DropFirst />
+                  <div className="stock-notify">
+                    <p className="stock-notify-t">Avísame cuando haya stock</p>
+                    <NotifyForm
+                      key={item.id}
+                      compact
+                      source="stock"
+                      productId={item.id.replace(/-mono$/, "")}
+                      productName={`${item.model.name} · ${item.color}`}
+                      okText={`Hecho. Te escribimos en cuanto vuelva la ${item.model.name} ${item.color}.`}
+                    />
+                  </div>
+                </>
               ) : size ? (
                 <BuyNow line={lineFor(item, size)} qty={qty} close={closeItem} onAddToCart={addToCart} added={added} />
               ) : (

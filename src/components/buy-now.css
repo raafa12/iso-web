@@ -91,3 +91,8 @@
   .ps-sheet > .ps-info { height: 100%; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
   .ps-sheet > .ps-info > * { flex-shrink: 0; }
 }
+
+/* Aviso de stock en los clásicos */
+.stock-notify { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(242, 237, 229, 0.1); }
+.stock-notify-t { margin: 0 0 0.6rem; font: 700 0.75rem var(--font-body); letter-spacing: 0.14em; text-transform: uppercase; color: var(--white); }
+.stock-notify .ps-notify.compact { margin-top: 0; }

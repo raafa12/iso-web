@@ -12,6 +12,7 @@
 
 import { sb } from '../lib/email.js';
 import { sendStatusEmail } from '../lib/order-mail.js';
+import { sendStockAlerts } from '../lib/stock-mail.js';
 
 const json = (data, status = 200) =>
   new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } });
@@ -27,16 +28,24 @@ export default async (req) => {
 
   try {
     if (req.method === 'GET') {
-      const [o, s] = await Promise.all([
+      const [o, s, a] = await Promise.all([
         fetch(`${url}/rest/v1/orders?select=*&order=created_at.desc&limit=1000`, { headers }),
         fetch(`${url}/rest/v1/presale_stock?select=product_id,name,initial,stock&order=product_id`, { headers }),
+        fetch(`${url}/rest/v1/stock_alerts?select=product_id,product_name,kind,notified_at&limit=5000`, { headers }).catch(() => null),
       ]);
       if (!o.ok) throw new Error(`orders ${o.status}: ${await o.text()}`);
-      return json({ orders: await o.json(), stock: s.ok ? await s.json() : [] });
+      return json({ orders: await o.json(), stock: s.ok ? await s.json() : [], alerts: a && a.ok ? await a.json() : [] });
     }
 
     if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
     const body = await req.json().catch(() => ({}));
+
+    // Avisar a quien esperaba stock de una prenda
+    if (body.action === 'avisar-stock') {
+      const pid = String(body.product_id || '').trim();
+      if (!pid) return json({ error: 'Falta la prenda' }, 400);
+      return json({ ok: true, ...(await sendStockAlerts(pid)) });
+    }
 
     // Empezar de cero (para quitar los pedidos de prueba antes de abrir)
     if (body.action === 'vaciar') {

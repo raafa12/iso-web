@@ -56,19 +56,45 @@ export default async (req) => {
   const instagram = (body.instagram || '').trim().replace(/^@/, '');
   const sizePref = (body.size_pref || '').trim();
   const source = (body.source || 'web').trim();
+  // Aviso de una prenda concreta (drop) o de stock de un clásico
+  const productId = String(body.product_id || '').trim().slice(0, 80);
+  const productName = String(body.product_name || '').trim().slice(0, 120);
+  const stockOnly = source === 'stock';
 
   // Honeypot anti-spam: campo oculto que un humano nunca rellena.
   if (body.website) {
     return new Response(JSON.stringify({ ok: true }), { status: 200 }); // fingimos éxito, no delatamos el honeypot
   }
 
-  // El aviso de la preventa solo pide el correo
-  if (!name && !source.startsWith('preventa')) {
+  // El aviso de la preventa (y el de stock) solo pide el correo
+  if (!name && !source.startsWith('preventa') && !stockOnly) {
     return new Response(JSON.stringify({ error: 'Falta el nombre' }), { status: 400 });
   }
   const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   if (!emailOk) {
     return new Response(JSON.stringify({ error: 'Email no válido' }), { status: 400 });
+  }
+
+  // Guarda qué prenda quiere (si falla, p. ej. porque falta la tabla, sigue adelante)
+  if (productId) {
+    await fetch(`${SUPABASE_URL}/rest/v1/stock_alerts?on_conflict=email,product_id`, {
+      method: 'POST',
+      headers: { ...headers, Prefer: 'resolution=merge-duplicates,return=minimal' },
+      body: JSON.stringify([{ email, product_id: productId, product_name: productName || productId, kind: stockOnly ? 'stock' : 'drop', notified_at: null }]),
+    }).then(async (r) => { if (!r.ok) console.error('stock_alerts:', r.status, await r.text()); }).catch((e) => console.error('stock_alerts:', e));
+  }
+
+  // Aviso de stock de un clásico: no se apunta a la lista de la preventa, solo se le confirma
+  if (stockOnly) {
+    if (!productId) return new Response(JSON.stringify({ error: 'Falta la prenda' }), { status: 400 });
+    if (process.env.BREVO_API_KEY && process.env.EMAIL_FROM) {
+      try {
+        await sendWelcome({ email, source, productName: productName || productId, productId });
+      } catch (e) {
+        console.error('Aviso de stock: no se pudo enviar', e);
+      }
+    }
+    return new Response(JSON.stringify({ ok: true }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   }
 
   // Evita duplicados: si el email ya existe, lo tratamos como éxito
@@ -90,7 +116,7 @@ export default async (req) => {
     // Le vuelve a llegar el correo de bienvenida (si no, parece que no ha funcionado)
     if (process.env.BREVO_API_KEY && process.env.EMAIL_FROM) {
       try {
-        await sendWelcome({ email, name, source });
+        await sendWelcome({ email, name, source, productName, productId });
       } catch (e) {
         console.error('Bienvenida (ya apuntado): no se pudo enviar', e);
       }
@@ -124,7 +150,7 @@ export default async (req) => {
   // Correo de bienvenida (si falla, el registro ya está guardado)
   if (process.env.BREVO_API_KEY && process.env.EMAIL_FROM) {
     try {
-      await sendWelcome({ email, name, source });
+      await sendWelcome({ email, name, source, productName, productId });
     } catch (e) {
       console.error('Bienvenida: no se pudo enviar', e);
     }
