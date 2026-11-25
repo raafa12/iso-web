@@ -5,7 +5,7 @@ import Layout from '../layouts/Layout.astro';
 <Layout title="ISO — Pedidos" description="Panel de pedidos" noindex={true}>
   <main class="pd">
     <header class="pd-top">
-      <a href="/" class="pd-logo"><img src="/logocami-nav.png" alt="ISO" width="88" /></a>
+      <a href="/" class="pd-logo"><img src="/logocami-nav.png" alt="ISO" width="80" /></a>
       <h1>Pedidos</h1>
       <div class="pd-top-actions" hidden data-when-in>
         <button type="button" class="pd-icon" data-refresh title="Actualizar">↻</button>
@@ -22,34 +22,12 @@ import Layout from '../layouts/Layout.astro';
     </form>
 
     <section data-app hidden>
-      <div class="pd-stats" data-stats></div>
+      <p class="pd-hello" data-hello></p>
+      <p class="pd-kpis" data-kpis></p>
 
-      <div class="pd-bar">
-        <div class="pd-chips" data-chips></div>
-        <input type="search" class="pd-search" placeholder="Buscar nombre, código, email, teléfono…" data-search />
-      </div>
+      <nav class="pd-tabs" data-tabs></nav>
 
-      <div class="pd-list" data-list></div>
-      <button type="button" class="pd-more" data-more hidden>Ver más pedidos</button>
-
-      <!-- 2) Lo demás -->
-      <details class="pd-tally" style="margin-top:2rem">
-        <summary>Preventa · unidades por talla</summary>
-        <div data-tally></div>
-      </details>
-
-      <details class="pd-help">
-        <summary>¿Qué significa cada estado?</summary>
-        <ul>
-          <li><i class="dot charge"></i><b>Comprobar Bizum / PayPal</b> · mira en el banco o en PayPal si ha llegado el dinero y dale a <em>Ya ha pagado</em>.</li>
-          <li><i class="dot wait"></i><b>Pago sin terminar</b> · abrió el pago con tarjeta y no lo acabó. Se cancela solo a las 2 h. No hay que hacer nada.</li>
-          <li><i class="dot ship"></i><b>Toca enviar</b> · está pagado. Prepáralo, envíalo y dale a <em>Enviado</em>.</li>
-          <li><i class="dot sent"></i><b>Enviado</b> · cuando lo reciba, dale a <em>Entregado</em>.</li>
-          <li><i class="dot done"></i><b>Entregado</b> · terminado.</li>
-          <li><i class="dot cancel"></i><b>Cancelado</b> · el stock de preventa ya ha vuelto. Lo puedes borrar.</li>
-        </ul>
-        <p>Si un pedido con tarjeta se cancela después de cobrarlo, devuelve el dinero desde Stripe (botón <em>Ver en Stripe</em>).</p>
-      </details>
+      <div data-view></div>
     </section>
 
     <div class="pd-toast" data-toast hidden></div>
@@ -57,11 +35,12 @@ import Layout from '../layouts/Layout.astro';
 </Layout>
 
 <style is:global>
-  .pd { min-height: 100vh; background: var(--bg); color: var(--white); padding: 0 var(--pad) 4rem; max-width: 860px; margin: 0 auto; font-family: var(--font-body); }
+  .pd { --c-charge: #f0b35a; --c-wait: #8a857d; --c-ship: var(--accent); --c-sent: #9be39b; --c-done: #6f6b65; --c-cancel: #ff7a7a;
+    min-height: 100vh; background: var(--bg); color: var(--white); padding: 0 var(--pad) 5rem; max-width: 760px; margin: 0 auto; font-family: var(--font-body); }
   .pd [hidden] { display: none !important; }
-  .pd-top { display: flex; align-items: center; gap: 1rem; padding: 1.1rem 0; border-bottom: 1px solid var(--border-light); margin-bottom: 1.25rem; position: sticky; top: 0; background: var(--bg); z-index: 5; }
+  .pd-top { display: flex; align-items: center; gap: 0.9rem; padding: 1rem 0 0.9rem; }
   .pd-logo img { display: block; height: auto; }
-  .pd-top h1 { font-family: var(--font-display); font-weight: 900; font-style: italic; text-transform: uppercase; font-size: 1.6rem; letter-spacing: 0.02em; flex: 1; }
+  .pd-top h1 { font-family: var(--font-display); font-weight: 900; font-style: italic; text-transform: uppercase; font-size: 1.5rem; letter-spacing: 0.02em; flex: 1; }
   .pd-top-actions { display: flex; gap: 0.5rem; }
   .pd-icon { background: none; border: 1px solid var(--border-light); color: var(--white-dim); padding: 0.45rem 0.8rem; font: 600 0.85rem var(--font-body); cursor: pointer; }
   .pd-icon:hover { color: var(--white); border-color: var(--white-dim); }
@@ -69,96 +48,126 @@ import Layout from '../layouts/Layout.astro';
   .pd-login { max-width: 320px; margin: 18vh auto 0; display: grid; gap: 0.75rem; }
   .pd-login label { font-family: var(--font-display); font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; font-size: 0.8rem; color: var(--white-dim); }
   .pd-login input, .pd-search { background: var(--surface2); border: 1px solid var(--border-light); color: var(--white); padding: 0.8rem 1rem; font: 500 1rem var(--font-body); width: 100%; }
-  .pd-btn { background: var(--accent); color: #071820; border: 0; padding: 0.8rem 1.1rem; font: 900 italic 0.9rem var(--font-display); letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; text-decoration: none; display: inline-block; }
-  .pd-btn:disabled { opacity: 0.5; cursor: wait; }
-  .pd-btn.ghost { background: none; color: var(--white-dim); border: 1px solid var(--border-light); }
-  .pd-btn.ghost:hover { color: var(--white); border-color: var(--white-dim); }
-  .pd-btn.danger { background: none; color: #ff7a7a; border: 1px solid #4a2222; }
   .pd-err { color: #ff7a7a; font-size: 0.9rem; }
 
-  /* Colores de cada estado */
-  .pd { --c-charge: #f0b35a; --c-wait: #8a857d; --c-ship: var(--accent); --c-sent: #9be39b; --c-done: #6f6b65; --c-cancel: #ff7a7a; }
-  .dot { display: inline-block; width: 0.6rem; height: 0.6rem; border-radius: 50%; flex: none; }
+  .pd-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--accent); color: #071820; border: 0; padding: 0.85rem 1.1rem; font: 900 italic 0.88rem var(--font-display); letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; text-decoration: none; }
+  .pd-btn:disabled { opacity: 0.5; cursor: wait; }
+  .pd-btn.big { width: 100%; padding: 1rem; font-size: 1rem; }
+  .pd-btn.ghost { background: none; color: var(--white-dim); border: 1px solid var(--border-light); }
+  .pd-btn.ghost:hover { color: var(--white); border-color: var(--white-dim); }
+  .pd-btn.wa { background: #25d366; color: #062b14; }
+  .pd-btn.danger { background: none; color: #ff7a7a; border: 1px solid #4a2222; }
+  .pd-link { background: none; border: 0; padding: 0.3rem 0; color: var(--muted-light); font: 500 0.82rem var(--font-body); text-decoration: underline; cursor: pointer; }
+  .pd-link:hover { color: var(--white); }
+  .pd-link.red { color: #c76363; }
+
+  .dot { display: inline-block; width: 0.55rem; height: 0.55rem; border-radius: 50%; background: var(--c); flex: none; }
   .charge { --c: var(--c-charge); } .wait { --c: var(--c-wait); } .ship { --c: var(--c-ship); }
   .sent { --c: var(--c-sent); } .done { --c: var(--c-done); } .cancel { --c: var(--c-cancel); }
-  .dot { background: var(--c); }
 
+  /* Frase de arriba */
+  .pd-hello { font-family: var(--font-display); font-weight: 900; font-style: italic; text-transform: uppercase; font-size: clamp(1.6rem, 6vw, 2.2rem); line-height: 1.02; letter-spacing: -0.01em; margin: 0.6rem 0 1.1rem; }
+  .pd-hello em { font-style: italic; color: var(--accent); }
+  .pd-hello .y { color: var(--c-charge); }
+  .pd-kpis { display: flex; flex-wrap: wrap; gap: 0.3rem 1.1rem; margin: -0.4rem 0 1.1rem; color: var(--muted-light); font-size: 0.85rem; }
+  .pd-kpis b { color: var(--white); font-weight: 800; }
 
+  /* Pestañas */
+  .pd-tabs { position: sticky; top: 0; z-index: 5; background: var(--bg); display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 1px solid var(--border-light); margin: 0 calc(var(--pad) * -1) 1.25rem; padding: 0 var(--pad); }
+  .pd-tab { background: none; border: 0; border-bottom: 3px solid transparent; color: var(--muted-light); padding: 0.9rem 0.25rem 0.75rem; font: 800 italic 0.85rem var(--font-display); letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; }
+  .pd-tab[aria-selected="true"] { color: var(--white); border-bottom-color: var(--white); }
+  .pd-tab .n { font-style: normal; font-family: var(--font-body); font-size: 0.72rem; font-weight: 800; min-width: 1.35rem; padding: 0.12rem 0.35rem; border-radius: 99px; background: var(--surface2); color: var(--white-dim); }
+  .pd-tab .n.on { background: var(--c); color: #111; }
+
+  .pd-intro { color: var(--muted-light); font-size: 0.9rem; margin-bottom: 1rem; line-height: 1.5; }
+  .pd-empty { text-align: center; padding: 3rem 1rem; color: var(--muted-light); }
+  .pd-empty b { display: block; font-family: var(--font-display); font-style: italic; font-weight: 900; text-transform: uppercase; font-size: 1.6rem; color: var(--white); margin-bottom: 0.4rem; }
+
+  /* Tarjetas de tarea (Cobrar / Enviar) */
+  .pd-task { background: var(--surface2); border: 1px solid var(--border); border-top: 3px solid var(--c); padding: 1rem 1rem 1.1rem; margin-bottom: 0.9rem; }
+  .pd-task-head { display: flex; align-items: baseline; gap: 0.6rem; }
+  .pd-task-name { font-weight: 800; font-size: 1.15rem; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pd-task-total { font-family: var(--font-display); font-weight: 900; font-style: italic; font-size: 1.5rem; }
+  .pd-task-meta { color: var(--muted-light); font-size: 0.8rem; margin: 0.15rem 0 0.8rem; }
+  .pd-task-meta b { color: var(--c-charge); }
+  .pd-new { background: var(--accent); color: #071820; font-size: 0.6rem; font-weight: 800; letter-spacing: 0.1em; padding: 0.15rem 0.4rem; vertical-align: 0.2em; margin-right: 0.35rem; }
+  .pd-check { background: var(--surface); border: 1px dashed var(--border-light); padding: 0.75rem 0.9rem; margin-bottom: 0.9rem; font-size: 0.9rem; color: var(--white-dim); line-height: 1.5; }
+  .pd-check b { color: var(--white); }
+  .pd-check code { font: 800 1rem var(--font-body); color: var(--white); letter-spacing: 0.04em; }
+  .pd-copy { background: none; border: 1px solid var(--border-light); color: var(--white-dim); font: 600 0.72rem var(--font-body); padding: 0.15rem 0.45rem; margin-left: 0.35rem; cursor: pointer; }
+  .pd-copy:hover { color: var(--white); }
+  .pd-garments { list-style: none; display: grid; gap: 0.35rem; margin-bottom: 0.9rem; }
+  .pd-garments li { display: flex; align-items: center; gap: 0.6rem; font-size: 1rem; }
+  .pd-size { flex: none; min-width: 2.3rem; text-align: center; background: var(--white); color: var(--bg); font: 900 0.9rem var(--font-display); padding: 0.3rem 0.4rem; }
+  .pd-garments em { font-style: normal; color: var(--muted-light); }
+  .pd-addr { background: var(--surface); padding: 0.75rem 0.9rem; margin-bottom: 0.9rem; font-size: 0.92rem; line-height: 1.5; color: var(--white-dim); position: relative; }
+  .pd-addr b { color: var(--white); }
+  .pd-addr .pd-copy { position: absolute; top: 0.6rem; right: 0.6rem; }
+  .pd-tagline { display: inline-block; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.15rem 0.45rem; margin-bottom: 0.35rem; background: var(--border); color: var(--white-dim); }
+  .pd-tagline.hand { background: rgba(126, 200, 227, 0.15); color: var(--accent); }
+  .pd-note { margin-bottom: 0.9rem; padding: 0.6rem 0.8rem; border-left: 3px solid var(--c-charge); background: rgba(240, 179, 90, 0.08); color: var(--white); font-size: 0.92rem; }
+  .pd-task-actions { display: grid; grid-template-columns: 1fr auto; gap: 0.5rem; }
+  .pd-task-more { display: flex; gap: 1rem; margin-top: 0.6rem; flex-wrap: wrap; }
+
+  /* Lista para preparar */
+  .pd-pick { background: var(--surface); border: 1px solid var(--border); padding: 0.9rem 1rem; margin-bottom: 1.25rem; }
+  .pd-pick h3, .pd-block h3 { font-size: 0.72rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted-light); margin-bottom: 0.6rem; font-weight: 800; }
+  .pd-pick ul { list-style: none; display: grid; gap: 0.45rem; }
+  .pd-pick li { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; font-size: 0.95rem; }
+  .pd-pick li > span:first-child { flex: 1 1 10rem; }
+  .pd-pick .sz { background: var(--surface2); border: 1px solid var(--border-light); padding: 0.15rem 0.45rem; font-size: 0.82rem; font-weight: 700; }
+  .pd-pick .sz i { font-style: normal; color: var(--accent); }
+
+  /* Todos: lista compacta */
   .pd-bar { display: grid; gap: 0.6rem; margin-bottom: 1rem; }
   .pd-chips { display: flex; gap: 0.4rem; overflow-x: auto; scrollbar-width: none; }
   .pd-chip { flex: none; background: none; border: 1px solid var(--border-light); color: var(--white-dim); padding: 0.45rem 0.8rem; font: 600 0.85rem var(--font-body); cursor: pointer; }
   .pd-chip[aria-pressed="true"] { background: var(--white); color: var(--bg); border-color: var(--white); }
   .pd-chip i { font-style: normal; opacity: 0.6; margin-left: 0.3rem; }
-
-  /* Lista */
-  .pd-list { display: grid; }
-  .pd-day { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted-light); padding: 1.1rem 0 0.5rem; }
+  .pd-day { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted-light); padding: 1rem 0 0.45rem; }
   .pd-day:first-child { padding-top: 0; }
-  .pd-empty { color: var(--muted-light); padding: 2rem 0; text-align: center; }
-  .pd-row { background: var(--surface2); border: 1px solid var(--border); border-left: 4px solid var(--c); margin-bottom: 0.5rem; }
-  .pd-row.is-cancel { opacity: 0.55; }
-  .pd-row.is-cancel[open] { opacity: 1; }
-  .pd-row > summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: 1fr auto; gap: 0.15rem 0.8rem; padding: 0.85rem 1rem; }
+  .pd-row { background: var(--surface2); border: 1px solid var(--border); border-left: 4px solid var(--c); margin-bottom: 0.45rem; }
+  .pd-row.cancel:not([open]) { opacity: 0.55; }
+  .pd-row > summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: 1fr auto; gap: 0.15rem 0.8rem; padding: 0.8rem 0.95rem; }
   .pd-row > summary::-webkit-details-marker { display: none; }
-  .pd-name { font-weight: 700; font-size: 1.05rem; display: flex; align-items: center; gap: 0.45rem; min-width: 0; }
-  .pd-name span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .pd-new { flex: none; background: var(--accent); color: #071820; font-size: 0.62rem; font-weight: 800; letter-spacing: 0.1em; padding: 0.15rem 0.4rem; }
-  .pd-amount { font-family: var(--font-display); font-weight: 900; font-style: italic; font-size: 1.2rem; text-align: right; }
-  .pd-what { color: var(--white-dim); font-size: 0.88rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
-  .pd-step { justify-self: end; display: flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; font-weight: 700; color: var(--c); white-space: nowrap; }
-  .pd-sub { grid-column: 1 / -1; color: var(--muted-light); font-size: 0.78rem; }
-
-  .pd-detail { padding: 0 1rem 1rem; border-top: 1px solid var(--border); }
-  .pd-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; padding-top: 0.9rem; }
-  .pd-cols h3 { font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted-light); margin-bottom: 0.4rem; font-weight: 700; }
-  .pd-items { list-style: none; display: grid; gap: 0.3rem; font-size: 0.95rem; }
-  .pd-items em { font-style: normal; color: var(--muted-light); }
-  .pd-items .ship { color: var(--muted-light); font-size: 0.85rem; }
-  .pd-cust { font-size: 0.92rem; line-height: 1.55; color: var(--white-dim); }
-  .pd-cust a { color: var(--accent); text-decoration: none; }
-  .pd-notes { margin-top: 0.5rem; color: var(--white); font-size: 0.9rem; background: var(--surface); padding: 0.5rem 0.7rem; border-left: 2px solid var(--c-charge); }
-  .pd-track { font-size: 0.85rem; color: var(--white-dim); margin-top: 0.4rem; word-break: break-all; }
-  .pd-hist { margin-top: 0.8rem; font-size: 0.8rem; color: var(--muted-light); line-height: 1.6; }
-  .pd-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
-  .pd-actions .pd-btn { font-size: 0.82rem; padding: 0.7rem 0.95rem; }
+  .pd-row-name { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pd-row-amount { font-family: var(--font-display); font-weight: 900; font-style: italic; font-size: 1.1rem; text-align: right; }
+  .pd-row-what { color: var(--muted-light); font-size: 0.82rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pd-row-step { justify-self: end; display: flex; align-items: center; gap: 0.35rem; font-size: 0.75rem; font-weight: 700; color: var(--c); white-space: nowrap; }
+  .pd-row-detail { padding: 0.2rem 0.95rem 1rem; border-top: 1px solid var(--border); font-size: 0.9rem; color: var(--white-dim); line-height: 1.6; }
+  .pd-row-detail a { color: var(--accent); text-decoration: none; }
+  .pd-row-detail .pd-task-more { margin-top: 0.5rem; }
   .pd-more { display: block; width: 100%; margin-top: 0.4rem; background: none; border: 1px dashed var(--border-light); color: var(--white-dim); padding: 0.8rem; font: 600 0.9rem var(--font-body); cursor: pointer; }
 
-  /* Resumen */
-  .pd-h2 { font-family: var(--font-display); font-weight: 900; font-style: italic; text-transform: uppercase; font-size: 1.1rem; letter-spacing: 0.04em; margin: 2.5rem 0 0.8rem; color: var(--white-dim); }
-  .pd-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.6rem; margin-bottom: 1.1rem; }
-  .pd-stat { display: flex; flex-direction: column; justify-content: flex-start; background: var(--surface2); border: 1px solid var(--border); padding: 0.9rem 1rem; text-align: left; color: var(--white); font: inherit; cursor: pointer; }
-  .pd-stat:hover { border-color: var(--border-light); }
-  .pd-stat.hot b { color: var(--c); }
-  .pd-stat.hot { border-left: 3px solid var(--c); }
-  .pd-stat b { display: block; font-family: var(--font-display); font-weight: 900; font-style: italic; font-size: 2rem; line-height: 1.1; }
+  /* Números */
+  .pd-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem; margin-bottom: 1.25rem; }
+  .pd-stat { background: var(--surface2); border: 1px solid var(--border); padding: 0.9rem 1rem; }
   .pd-stat span { font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted-light); }
-  .pd-stat small { display: block; color: var(--white-dim); font-size: 0.82rem; margin-top: 0.2rem; }
-
-  .pd-tally, .pd-help { background: var(--surface); border: 1px solid var(--border); margin-bottom: 0.75rem; }
-  .pd-tally summary, .pd-help summary { cursor: pointer; padding: 0.9rem 1rem; font-family: var(--font-display); font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; font-size: 0.82rem; color: var(--white-dim); }
-  .pd-tally table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
-  .pd-tally th, .pd-tally td { padding: 0.55rem 0.8rem; text-align: center; border-top: 1px solid var(--border); font-size: 0.9rem; }
-  .pd-tally th:first-child, .pd-tally td:first-child { text-align: left; }
-  .pd-tally th { color: var(--muted-light); font-weight: 500; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; }
-  .pd-tally td.tot { font-weight: 600; color: var(--accent); }
-  .pd-tally .zero { color: var(--muted); }
-  .pd-tally-wrap { overflow-x: auto; }
-  .pd-help ul { list-style: none; display: grid; gap: 0.6rem; padding: 0 1rem; font-size: 0.9rem; color: var(--white-dim); line-height: 1.45; }
-  .pd-help li { display: flex; gap: 0.6rem; align-items: baseline; }
-  .pd-help b { color: var(--white); }
-  .pd-help em { font-style: normal; color: var(--accent); }
-  .pd-help p { padding: 0.8rem 1rem 1rem; font-size: 0.85rem; color: var(--muted-light); }
+  .pd-stat b { display: block; font-family: var(--font-display); font-weight: 900; font-style: italic; font-size: 2rem; line-height: 1.1; }
+  .pd-stat small { display: block; color: var(--white-dim); font-size: 0.82rem; margin-top: 0.15rem; }
+  .pd-stat.wide { grid-column: 1 / -1; }
+  .pd-stat.wide b { color: var(--accent); font-size: 2.6rem; }
+  .pd-block { background: var(--surface); border: 1px solid var(--border); padding: 0.9rem 1rem; margin-bottom: 1rem; }
+  .pd-block table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  .pd-block th, .pd-block td { padding: 0.5rem 0.5rem; text-align: center; border-top: 1px solid var(--border); font-size: 0.88rem; }
+  .pd-block th:first-child, .pd-block td:first-child { text-align: left; }
+  .pd-block th { color: var(--muted-light); font-weight: 600; font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; border-top: 0; }
+  .pd-block td.tot { font-weight: 700; color: var(--accent); }
+  .pd-block .zero { color: var(--muted); }
+  .pd-block .wrap { overflow-x: auto; }
+  .pd-block ul { list-style: none; display: grid; gap: 0.55rem; font-size: 0.9rem; color: var(--white-dim); line-height: 1.45; }
+  .pd-block li { display: flex; gap: 0.6rem; align-items: baseline; }
+  .pd-block li b { color: var(--white); }
 
   .pd-toast { position: fixed; left: 50%; bottom: 1.25rem; transform: translateX(-50%); background: var(--white); color: var(--bg); padding: 0.8rem 1.1rem; font-weight: 600; font-size: 0.9rem; z-index: 20; max-width: calc(100% - 2rem); box-shadow: 0 8px 30px rgba(0,0,0,.5); }
   .pd-toast.err { background: #ff7a7a; }
 
-  @media (max-width: 700px) {
-    .pd-stats { grid-template-columns: repeat(2, 1fr); }
-    .pd-cols { grid-template-columns: 1fr; }
-    .pd-actions .pd-btn { flex: 1 1 auto; text-align: center; }
-    .pd-tally th, .pd-tally td { padding: 0.5rem 0.35rem; font-size: 0.8rem; }
-    .pd-tally th { font-size: 0.62rem; letter-spacing: 0.04em; }
-    .pd-tally td:first-child { min-width: 7.5rem; }
+  @media (min-width: 700px) {
+    .pd-stats { grid-template-columns: repeat(4, 1fr); }
+    .pd-tab { font-size: 0.95rem; }
+  }
+  @media (max-width: 380px) {
+    .pd-tab { font-size: 0.72rem; letter-spacing: 0.04em; gap: 0.25rem; }
   }
 </style>
 
@@ -171,30 +180,31 @@ import Layout from '../layouts/Layout.astro';
     reminder_sent_at?: string | null; stripe_payment_intent?: string | null;
   };
   type Stock = { product_id: string; name: string; initial: number; stock: number };
+  type Tab = 'cobrar' | 'enviar' | 'todos' | 'numeros';
 
   const API = '/api/admin/pedidos';
   const SIZES = ['S', 'M', 'L', 'XL'];
-  const PAGE = 25;
+  const PAGE = 30;
+  const BIZUM = '601105483';
   const PAY: Record<string, string> = { tarjeta: 'Tarjeta / Apple Pay', bizum: 'Bizum', paypal: 'PayPal', contrarreembolso: 'Contrarreembolso' };
 
-  // Qué toca hacer con cada pedido, en palabras normales
-  type Step = { k: 'charge' | 'wait' | 'ship' | 'sent' | 'done' | 'cancel'; label: string };
-  function step(o: Order): Step {
-    if (o.status === 'cancelado') return { k: 'cancel', label: 'Cancelado' };
-    if (o.status === 'entregado') return { k: 'done', label: 'Entregado' };
-    if (o.status === 'enviado') return { k: 'sent', label: 'Enviado' };
-    if (o.status === 'pagado' || o.payment === 'contrarreembolso') return { k: 'ship', label: 'Toca enviar' };
-    if (o.payment === 'tarjeta') return { k: 'wait', label: 'Pago sin terminar' };
-    return { k: 'charge', label: `Comprobar ${PAY[o.payment] || o.payment}` };
+  // Qué toca con cada pedido
+  type K = 'charge' | 'wait' | 'ship' | 'sent' | 'done' | 'cancel';
+  const LABEL: Record<K, string> = { charge: 'Por cobrar', wait: 'Pago sin terminar', ship: 'Por enviar', sent: 'Enviado', done: 'Entregado', cancel: 'Cancelado' };
+  function kind(o: Order): K {
+    if (o.status === 'cancelado') return 'cancel';
+    if (o.status === 'entregado') return 'done';
+    if (o.status === 'enviado') return 'sent';
+    if (o.status === 'pagado' || o.payment === 'contrarreembolso') return 'ship';
+    if (o.payment === 'tarjeta') return 'wait';
+    return 'charge';
   }
 
   const FILTERS: [string, string, (o: Order) => boolean][] = [
     ['todos', 'Todos', () => true],
-    ['cobrar', 'Por cobrar', (o) => step(o).k === 'charge'],
-    ['enviar', 'Por enviar', (o) => step(o).k === 'ship'],
-    ['enviados', 'Enviados', (o) => ['sent', 'done'].includes(step(o).k)],
-    ['sinpagar', 'Sin terminar', (o) => step(o).k === 'wait'],
-    ['cancelados', 'Cancelados', (o) => o.status === 'cancelado'],
+    ['enviados', 'Enviados', (o) => ['sent', 'done'].includes(kind(o))],
+    ['sinpagar', 'Pago sin terminar', (o) => kind(o) === 'wait'],
+    ['cancelados', 'Cancelados', (o) => kind(o) === 'cancel'],
   ];
 
   const $ = <T extends HTMLElement>(s: string) => document.querySelector(s) as T;
@@ -206,27 +216,34 @@ import Layout from '../layouts/Layout.astro';
     const m = (Date.now() - Date.parse(iso)) / 6e4;
     if (m < 60) return `hace ${Math.max(1, Math.round(m))} min`;
     if (m < 60 * 24) return `hace ${Math.round(m / 60)} h`;
-    return `hace ${Math.round(m / 1440)} d`;
+    const d = Math.round(m / 1440);
+    return `hace ${d} ${d === 1 ? 'día' : 'días'}`;
   };
   const dayKey = (iso: string) => new Date(iso).toDateString();
   const dayLabel = (iso: string) => {
-    const d = new Date(iso); const t = new Date();
-    const diff = Math.round((new Date(t.toDateString()).getTime() - new Date(d.toDateString()).getTime()) / 864e5);
+    const d = new Date(iso);
+    const diff = Math.round((new Date(new Date().toDateString()).getTime() - new Date(d.toDateString()).getTime()) / 864e5);
     if (diff === 0) return 'Hoy';
     if (diff === 1) return 'Ayer';
     return d.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
   };
-  const short = (n: string) => n.replace(/^ISO\s+/i, '').replace(/^Classic\s+/i, 'Classic ').replace(/\s*·\s*/g, ' · ');
-  const isLate = (o: Order) => step(o).k === 'charge' && Date.now() - Date.parse(o.created_at) > 24 * 36e5;
-  const waLink = (p: string) => `https://wa.me/${p.replace(/\D/g, '').replace(/^(\d{9})$/, '34$1')}`;
+  const short = (n: string) => n.replace(/^ISO\s+/i, '');
+  const first = (n: string) => String(n || '').trim().split(/\s+/)[0];
+  const qtyOf = (o: Order) => o.items.reduce((a, i) => a + i.qty, 0);
+  const isLate = (o: Order) => kind(o) === 'charge' && Date.now() - Date.parse(o.created_at) > 24 * 36e5;
+  const isNew = (o: Order) => Date.parse(o.created_at) > lastSeen;
+  const inSantander = (o: Order) => /^390(0[1-9]|1[0-2])$/.test(String(o.postal_code).trim());
+  const wa = (o: Order, text: string) => o.phone
+    ? `https://wa.me/${o.phone.replace(/\D/g, '').replace(/^(\d{9})$/, '34$1')}?text=${encodeURIComponent(text)}` : '';
+  const addrText = (o: Order) => `${o.name}\n${o.address}\n${o.postal_code} ${o.city}${o.phone ? `\n${o.phone}` : ''}`;
 
   let pin = '';
   try { pin = sessionStorage.getItem('iso_staff_pin') || ''; } catch {}
-  // Pedidos nuevos desde la última vez que abriste el panel
   let lastSeen = Date.now();
   try { lastSeen = Number(localStorage.getItem('iso_pd_seen')) || 0; } catch {}
   let orders: Order[] = [];
   let stock: Stock[] = [];
+  let tab: Tab | null = null;
   let filter = 'todos';
   let query = '';
   let shown = PAGE;
@@ -252,7 +269,10 @@ import Layout from '../layouts/Layout.astro';
 
   async function load() {
     const data = await api('GET');
-    orders = data.orders; stock = data.stock;
+    orders = (data.orders as Order[]).sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at));
+    stock = data.stock;
+    // Al entrar, se abre la pestaña donde hay trabajo
+    if (!tab) tab = count('charge') ? 'cobrar' : count('ship') ? 'enviar' : 'todos';
     render();
   }
 
@@ -262,109 +282,197 @@ import Layout from '../layouts/Layout.astro';
     $('[data-app]').hidden = true; $('[data-when-in]').hidden = true; $('[data-login]').hidden = false;
   }
 
-  function renderChips() {
-    $('[data-chips]').innerHTML = FILTERS.map(([k, label, fn]) =>
-      `<button type="button" class="pd-chip" data-filter="${k}" aria-pressed="${filter === k}">${label}<i>${orders.filter(fn).length}</i></button>`).join('');
+  const count = (k: K) => orders.filter((o) => kind(o) === k).length;
+
+  // ---------- Arriba ----------
+  function renderHello() {
+    const c = count('charge'); const s = count('ship');
+    const parts: string[] = [];
+    if (c) parts.push(`<span class="y">${c} por cobrar</span>`);
+    if (s) parts.push(`<em>${s} por enviar</em>`);
+    $('[data-hello]').innerHTML = parts.length ? `Tienes ${parts.join(' y ')}.` : 'Todo al día ✓';
+    const paid = orders.filter((o) => ['pagado', 'enviado', 'entregado'].includes(o.status));
+    const sum = (l: Order[]) => eur(l.reduce((s, o) => s + o.total_cents, 0));
+    const today = paid.filter((o) => dayKey(o.paid_at || o.created_at) === new Date().toDateString());
+    const nuevos = orders.filter(isNew).length;
+    $('[data-kpis]').innerHTML = [
+      `Hoy <b>${sum(today)}</b>`,
+      `Cobrado <b>${sum(paid)}</b>`,
+      `<b>${paid.reduce((s, o) => s + qtyOf(o), 0)}</b> prendas vendidas`,
+      nuevos ? `<b style="color:var(--accent)">${nuevos} ${nuevos === 1 ? 'pedido nuevo' : 'pedidos nuevos'}</b>` : '',
+    ].filter(Boolean).map((x) => `<span>${x}</span>`).join('');
   }
 
-  function actions(o: Order) {
-    const b = (label: string, status: string, cls = '') => `<button type="button" class="pd-btn ${cls}" data-act="${status}" data-code="${o.code}">${label}</button>`;
-    const s = step(o).k;
-    const out: string[] = [];
-    if (s === 'charge') out.push(b('Ya ha pagado', 'pagado'), b('Recordarle el pago', 'recordatorio', 'ghost'));
-    if (s === 'wait') out.push(b('Ya ha pagado', 'pagado', 'ghost'));
-    if (s === 'ship') out.push(b('Enviado', 'enviado'));
-    if (s === 'sent') out.push(b('Entregado', 'entregado'));
-    if (o.stripe_payment_intent) out.push(`<a class="pd-btn ghost" href="https://dashboard.stripe.com/payments/${esc(o.stripe_payment_intent)}" target="_blank" rel="noopener">Ver en Stripe</a>`);
-    if (!['sent', 'done', 'cancel'].includes(s)) out.push(b('Cancelar', 'cancelado', 'danger'));
-    if (s === 'cancel') out.push(b('Borrar', 'borrar', 'danger'));
-    return out.length ? `<div class="pd-actions">${out.join('')}</div>` : '';
+  function renderTabs() {
+    const c = count('charge'); const s = count('ship');
+    const t = (id: Tab, label: string, n?: number, k?: K) =>
+      `<button type="button" class="pd-tab" role="tab" data-tab="${id}" aria-selected="${tab === id}">${label}${n !== undefined ? `<span class="n${n ? ` on ${k}` : ''}">${n}</span>` : ''}</button>`;
+    $('[data-tabs]').innerHTML = t('cobrar', 'Cobrar', c, 'charge') + t('enviar', 'Enviar', s, 'ship') + t('todos', 'Todos') + t('numeros', 'Números');
   }
 
+  // ---------- Cobrar ----------
+  function chargeCard(o: Order) {
+    const late = isLate(o);
+    const how = o.payment === 'bizum'
+      ? `Mira en tu banco si ha llegado un <b>Bizum de ${eur(o.total_cents)}</b> al ${BIZUM} con el concepto <code>${esc(o.code)}</code><button type="button" class="pd-copy" data-copy="${esc(o.code)}">copiar</button>`
+      : o.payment === 'paypal'
+        ? `Mira en PayPal si ha llegado un <b>pago de ${eur(o.total_cents)}</b> con la nota <code>${esc(o.code)}</code><button type="button" class="pd-copy" data-copy="${esc(o.code)}">copiar</button>`
+        : `Comprueba que te han pagado <b>${eur(o.total_cents)}</b>.`;
+    const msg = `¡Hola ${first(o.name)}! Soy Rafa de ISO 🏀 Te escribo por tu pedido ${o.code} (${eur(o.total_cents)}). ` +
+      (o.payment === 'bizum' ? `¿Me confirmas cuando hagas el Bizum al ${BIZUM}? Pon ${o.code} en el concepto 🙌` : '¿Me confirmas cuando hagas el pago? 🙌');
+    const link = wa(o, msg);
+    return `<article class="pd-task charge">
+      <div class="pd-task-head">
+        <span class="pd-task-name">${isNew(o) ? '<span class="pd-new">NUEVO</span>' : ''}${esc(o.name)}</span>
+        <span class="pd-task-total">${eur(o.total_cents)}</span>
+      </div>
+      <p class="pd-task-meta">${PAY[o.payment] || esc(o.payment)} · ${ago(o.created_at)}${late ? ' · <b>lleva +24 h sin pagar</b>' : ''}${o.reminder_sent_at ? ' · recordatorio enviado' : ''}</p>
+      <div class="pd-check">${how}</div>
+      <ul class="pd-garments">${garments(o)}</ul>
+      <div class="pd-task-actions">
+        <button type="button" class="pd-btn big" data-act="pagado" data-code="${o.code}">✓ Ya ha pagado</button>
+        ${link ? `<a class="pd-btn wa" href="${link}" target="_blank" rel="noopener">WhatsApp</a>` : ''}
+      </div>
+      <div class="pd-task-more">
+        <button type="button" class="pd-link" data-act="recordatorio" data-code="${o.code}">Mandarle recordatorio por email</button>
+        <button type="button" class="pd-link red" data-act="cancelado" data-code="${o.code}">Cancelar pedido</button>
+      </div>
+    </article>`;
+  }
+
+  const garments = (o: Order) => o.items.map((i) =>
+    `<li><span class="pd-size">${esc(i.size)}</span><span>${i.qty > 1 ? `<b>${i.qty}×</b> ` : ''}${esc(short(i.name))}${i.presale ? ' <em>· preventa</em>' : ''}</span></li>`).join('');
+
+  function viewCobrar() {
+    const list = orders.filter((o) => kind(o) === 'charge').reverse(); // los más antiguos primero
+    if (!list.length) return empty('Nada por cobrar', 'Cuando alguien pague por Bizum o PayPal, aparecerá aquí para que lo compruebes.');
+    return `<p class="pd-intro">Comprueba que te ha llegado el dinero y dale a <b>Ya ha pagado</b>. Se le manda el correo de confirmación y pasa a <b>Enviar</b>. Los más antiguos van primero.</p>` +
+      list.map(chargeCard).join('');
+  }
+
+  // ---------- Enviar ----------
+  function shipCard(o: Order) {
+    const hand = inSantander(o);
+    const msg = `¡Hola ${first(o.name)}! Soy Rafa de ISO 🏀 Tu pedido ${o.code} ya está listo. ` +
+      (hand ? '¿Cuándo te viene bien que te lo lleve?' : 'Te lo enviamos hoy, te paso el seguimiento en cuanto lo tenga.');
+    const link = wa(o, msg);
+    return `<article class="pd-task ship">
+      <div class="pd-task-head">
+        <span class="pd-task-name">${isNew(o) ? '<span class="pd-new">NUEVO</span>' : ''}${esc(o.name)}</span>
+        <span class="pd-task-total">${qtyOf(o)} ${qtyOf(o) === 1 ? 'prenda' : 'prendas'}</span>
+      </div>
+      <p class="pd-task-meta">${esc(o.code)} · pagado ${o.paid_at ? ago(o.paid_at) : ago(o.created_at)} · ${PAY[o.payment] || esc(o.payment)} · ${eur(o.total_cents)}</p>
+      <ul class="pd-garments">${garments(o)}</ul>
+      ${o.notes ? `<div class="pd-note">“${esc(o.notes)}”</div>` : ''}
+      <div class="pd-addr">
+        <span class="pd-tagline${hand ? ' hand' : ''}">${hand ? 'Santander · envío gratis' : `Envío ${eur(o.shipping_cents)}`}</span><br>
+        <b>${esc(o.name)}</b><br>${esc(o.address)}<br>${esc(o.postal_code)} ${esc(o.city)}${o.phone ? `<br>${esc(o.phone)}` : ''}
+        <button type="button" class="pd-copy" data-copy="${esc(addrText(o))}">copiar</button>
+      </div>
+      <div class="pd-task-actions">
+        <button type="button" class="pd-btn big" data-act="enviado" data-code="${o.code}">📦 Enviado</button>
+        ${link ? `<a class="pd-btn wa" href="${link}" target="_blank" rel="noopener">WhatsApp</a>` : ''}
+      </div>
+      <div class="pd-task-more">
+        <a class="pd-link" href="mailto:${esc(o.email)}">${esc(o.email)}</a>
+        ${o.stripe_payment_intent ? `<a class="pd-link" href="https://dashboard.stripe.com/payments/${esc(o.stripe_payment_intent)}" target="_blank" rel="noopener">Ver pago en Stripe</a>` : ''}
+        <button type="button" class="pd-link red" data-act="cancelado" data-code="${o.code}">Cancelar pedido</button>
+      </div>
+    </article>`;
+  }
+
+  function pickList(list: Order[]) {
+    const m = new Map<string, Record<string, number>>();
+    for (const o of list) for (const i of o.items) {
+      const r = m.get(i.name) || {};
+      r[i.size] = (r[i.size] || 0) + i.qty;
+      m.set(i.name, r);
+    }
+    const total = list.reduce((s, o) => s + qtyOf(o), 0);
+    const order = (z: string) => { const i = SIZES.indexOf(z); return i < 0 ? 99 : i; };
+    return `<div class="pd-pick"><h3>Para preparar · ${total} ${total === 1 ? 'prenda' : 'prendas'}</h3><ul>${
+      [...m.entries()].map(([name, sz]) => `<li><span>${esc(short(name))}</span>${
+        Object.keys(sz).sort((a, b) => order(a) - order(b)).map((z) => `<span class="sz">${esc(z)} <i>×${sz[z]}</i></span>`).join('')}</li>`).join('')
+    }</ul></div>`;
+  }
+
+  function viewEnviar() {
+    const list = orders.filter((o) => kind(o) === 'ship').reverse();
+    if (!list.length) return empty('Nada por enviar', 'Los pedidos pagados aparecerán aquí con la dirección y lo que hay que preparar.');
+    return pickList(list) + list.map(shipCard).join('');
+  }
+
+  // ---------- Todos ----------
   function row(o: Order) {
-    const s = step(o);
-    const isNew = Date.parse(o.created_at) > lastSeen;
-    const qty = o.items.reduce((a, i) => a + i.qty, 0);
+    const k = kind(o);
     const what = o.items.map((i) => `${i.qty > 1 ? `${i.qty}× ` : ''}${short(i.name)} (${i.size})`).join(', ');
     const hist = [
-      `Pedido: ${when(o.created_at)}`,
-      o.paid_at && `Pagado: ${when(o.paid_at)}`,
-      o.reminder_sent_at && `Recordatorio: ${when(o.reminder_sent_at)}`,
-      o.shipped_at && `Enviado: ${when(o.shipped_at)}`,
+      `Pedido ${when(o.created_at)}`,
+      o.paid_at && `pagado ${when(o.paid_at)}`,
+      o.shipped_at && `enviado ${when(o.shipped_at)}`,
     ].filter(Boolean).join(' · ');
-    return `<details class="pd-row ${s.k}${s.k === 'cancel' ? ' is-cancel' : ''}" data-code="${o.code}"${open.has(o.code) ? ' open' : ''}>
+    const acts: string[] = [];
+    if (k === 'wait') acts.push(`<button type="button" class="pd-link" data-act="pagado" data-code="${o.code}">Marcar como pagado</button>`);
+    if (k === 'sent') acts.push(`<button type="button" class="pd-btn" data-act="entregado" data-code="${o.code}">Entregado</button>`);
+    if (o.stripe_payment_intent) acts.push(`<a class="pd-link" href="https://dashboard.stripe.com/payments/${esc(o.stripe_payment_intent)}" target="_blank" rel="noopener">Ver en Stripe</a>`);
+    if (['wait', 'charge', 'ship'].includes(k)) acts.push(`<button type="button" class="pd-link red" data-act="cancelado" data-code="${o.code}">Cancelar</button>`);
+    if (k === 'cancel') acts.push(`<button type="button" class="pd-link red" data-act="borrar" data-code="${o.code}">Borrar para siempre</button>`);
+    return `<details class="pd-row ${k}" data-code="${o.code}"${open.has(o.code) ? ' open' : ''}>
       <summary>
-        <span class="pd-name">${isNew ? '<em class="pd-new">NUEVO</em>' : ''}<span>${esc(o.name)}</span></span>
-        <span class="pd-amount">${eur(o.total_cents)}</span>
-        <span class="pd-what">${esc(what)}</span>
-        <span class="pd-step"><i class="dot"></i>${s.label}</span>
-        <span class="pd-sub">${hour(o.created_at)} · ${ago(o.created_at)} · ${esc(o.code)} · ${PAY[o.payment] || esc(o.payment)}${o.has_presale ? ' · preventa' : ''}${isLate(o) ? ' · <b style="color:var(--c-charge)">+24 h sin pagar</b>' : ''}</span>
+        <span class="pd-row-name">${isNew(o) ? '<span class="pd-new">NUEVO</span>' : ''}${esc(o.name)}</span>
+        <span class="pd-row-amount">${eur(o.total_cents)}</span>
+        <span class="pd-row-what">${hour(o.created_at)} · ${esc(what)}</span>
+        <span class="pd-row-step"><i class="dot"></i>${LABEL[k]}</span>
       </summary>
-      <div class="pd-detail">
-        <div class="pd-cols">
-          <div>
-            <h3>${qty} ${qty === 1 ? 'prenda' : 'prendas'}</h3>
-            <ul class="pd-items">
-              ${o.items.map((i) => `<li>${i.qty}× ${esc(short(i.name))} <em>· talla ${esc(i.size)}</em></li>`).join('')}
-              <li class="ship">Envío ${o.shipping_cents ? eur(o.shipping_cents) : 'gratis'}</li>
-            </ul>
-          </div>
-          <div class="pd-cust">
-            <h3>Enviar a</h3>
-            ${esc(o.name)}<br>
-            ${esc(o.address)}<br>${esc(o.postal_code)} ${esc(o.city)}<br>
-            ${o.phone ? `<a href="${waLink(o.phone)}" target="_blank" rel="noopener">${esc(o.phone)} · WhatsApp</a><br>` : ''}
-            <a href="mailto:${esc(o.email)}">${esc(o.email)}</a><br>
-            <button type="button" class="pd-btn ghost" style="margin-top:.5rem;padding:.45rem .7rem;font-size:.72rem" data-copy="${esc(`${o.name}\n${o.address}\n${o.postal_code} ${o.city}${o.phone ? `\n${o.phone}` : ''}`)}">Copiar dirección</button>
-            ${o.notes ? `<div class="pd-notes">“${esc(o.notes)}”</div>` : ''}
-            ${o.tracking ? `<div class="pd-track">Seguimiento: ${esc(o.tracking)}</div>` : ''}
-          </div>
-        </div>
-        <div class="pd-hist">${hist}</div>
-        ${actions(o)}
+      <div class="pd-row-detail">
+        ${esc(o.code)} · ${PAY[o.payment] || esc(o.payment)} · envío ${o.shipping_cents ? eur(o.shipping_cents) : 'gratis'}<br>
+        ${esc(o.address)}, ${esc(o.postal_code)} ${esc(o.city)}<br>
+        <a href="mailto:${esc(o.email)}">${esc(o.email)}</a>${o.phone ? ` · <a href="${wa(o, `¡Hola ${first(o.name)}! Soy Rafa de ISO 🏀`)}" target="_blank" rel="noopener">${esc(o.phone)}</a>` : ''}
+        ${o.notes ? `<br>Nota: “${esc(o.notes)}”` : ''}
+        ${o.tracking ? `<br>Seguimiento: ${esc(o.tracking)}` : ''}
+        <br><span style="color:var(--muted-light);font-size:.8rem">${hist}</span>
+        ${acts.length ? `<div class="pd-task-more">${acts.join('')}</div>` : ''}
       </div>
     </details>`;
   }
 
-  function renderList() {
+  function viewTodos() {
     const fn = FILTERS.find((f) => f[0] === filter)![2];
     const q = query.trim().toLowerCase();
-    const list = orders
-      .filter(fn)
-      .filter((o) => !q || [o.code, o.name, o.email, o.phone, o.city, o.postal_code].some((v) => String(v ?? '').toLowerCase().includes(q)))
-      .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at)); // los últimos primero
-    let html = ''; let day = '';
+    const list = orders.filter(fn).filter((o) => !q || [o.code, o.name, o.email, o.phone, o.city, o.postal_code].some((v) => String(v ?? '').toLowerCase().includes(q)));
+    let rows = ''; let day = '';
     for (const o of list.slice(0, shown)) {
       const k = dayKey(o.created_at);
-      if (k !== day) { day = k; html += `<div class="pd-day">${dayLabel(o.created_at)}</div>`; }
-      html += row(o);
+      if (k !== day) { day = k; rows += `<div class="pd-day">${dayLabel(o.created_at)}</div>`; }
+      rows += row(o);
     }
-    $('[data-list]').innerHTML = html || `<p class="pd-empty">${orders.length ? 'No hay pedidos aquí.' : 'Todavía no hay pedidos.'}</p>`;
-    const more = $('[data-more]');
-    more.hidden = list.length <= shown;
-    more.textContent = `Ver más pedidos (${list.length - shown})`;
+    return `<div class="pd-bar">
+        <input type="search" class="pd-search" placeholder="Buscar nombre, código, email, teléfono…" data-search value="${esc(query)}" />
+        <div class="pd-chips">${FILTERS.map(([k, label, f]) => `<button type="button" class="pd-chip" data-filter="${k}" aria-pressed="${filter === k}">${label}<i>${orders.filter(f).length}</i></button>`).join('')}</div>
+      </div>
+      <div data-rows>${rows || `<p class="pd-empty">${orders.length ? 'No hay pedidos aquí.' : 'Todavía no hay pedidos.'}</p>`}</div>
+      ${list.length > shown ? `<button type="button" class="pd-more" data-more>Ver más (${list.length - shown})</button>` : ''}`;
   }
 
-  // ---- Arriba: los números (se pueden tocar para filtrar) ----
-  function renderStats() {
+  // ---------- Números ----------
+  function viewNumeros() {
     const live = orders.filter((o) => o.status !== 'cancelado');
-    const cobrar = orders.filter((o) => step(o).k === 'charge');
-    const enviar = orders.filter((o) => step(o).k === 'ship');
-    const cobrado = live.filter((o) => ['pagado', 'enviado', 'entregado'].includes(o.status));
-    const late = cobrar.filter(isLate).length;
-    const nuevos = orders.filter((o) => Date.parse(o.created_at) > lastSeen).length;
-    const sum = (l: Order[]) => eur(l.reduce((s, o) => s + o.total_cents, 0));
-    const tile = (f: string, label: string, n: number | string, sub = '', hot = '') =>
-      `<button type="button" class="pd-stat${hot ? ` hot ${hot}` : ''}" data-filter="${f}"><span>${label}</span><b>${n}</b>${sub ? `<small>${sub}</small>` : ''}</button>`;
-    $('[data-stats]').innerHTML =
-      tile('cobrar', 'Por cobrar', cobrar.length, `${sum(cobrar)}${late ? ` · ${late} +24 h` : ''}`, cobrar.length ? 'charge' : '') +
-      tile('enviar', 'Por enviar', enviar.length, '', enviar.length ? 'ship' : '') +
-      tile('enviados', 'Cobrados', cobrado.length, sum(cobrado)) +
-      tile('todos', 'Pedidos', live.length, `${live.reduce((s, o) => s + o.items.reduce((a, i) => a + i.qty, 0), 0)} prendas${nuevos ? ` · ${nuevos} nuevo${nuevos > 1 ? 's' : ''}` : ''}`);
-  }
+    const paid = live.filter((o) => ['pagado', 'enviado', 'entregado'].includes(o.status));
+    const sum = (l: Order[]) => l.reduce((s, o) => s + o.total_cents, 0);
+    const today = paid.filter((o) => dayKey(o.paid_at || o.created_at) === new Date().toDateString());
+    const week = paid.filter((o) => Date.now() - Date.parse(o.paid_at || o.created_at) < 7 * 864e5);
+    const pend = orders.filter((o) => kind(o) === 'charge');
+    const tile = (label: string, n: string | number, sub = '', cls = '') =>
+      `<div class="pd-stat ${cls}"><span>${label}</span><b>${n}</b>${sub ? `<small>${sub}</small>` : ''}</div>`;
+    const stats = `<div class="pd-stats">
+      ${tile('Cobrado en total', eur(sum(paid)), `${pl(paid.length, 'pedido', 'pedidos')} · ${pl(paid.reduce((s, o) => s + qtyOf(o), 0), 'prenda', 'prendas')}`, 'wide')}
+      ${tile('Hoy', eur(sum(today)), pl(today.length, 'pedido', 'pedidos'))}
+      ${tile('Últimos 7 días', eur(sum(week)), pl(week.length, 'pedido', 'pedidos'))}
+      ${tile('Por cobrar', eur(sum(pend)), pl(pend.length, 'pedido', 'pedidos'))}
+      ${tile('Ticket medio', paid.length ? eur(Math.round(sum(paid) / paid.length)) : '—')}
+    </div>`;
 
-  function renderTally() {
-    const live = orders.filter((o) => o.status !== 'cancelado');
+    // Preventa: unidades por modelo y talla (para encargar la producción)
     const rows = new Map<string, { name: string; sizes: Record<string, number>; paid: number }>();
     for (const s of stock) rows.set(s.product_id, { name: s.name, sizes: {}, paid: 0 });
     for (const o of live) for (const it of o.items) {
@@ -374,34 +482,58 @@ import Layout from '../layouts/Layout.astro';
       if (o.status !== 'pendiente') r.paid += it.qty;
       rows.set(it.product_id, r);
     }
-    if (!rows.size) { $('[data-tally]').innerHTML = '<p class="pd-empty">Aún no hay ventas de preventa.</p>'; return; }
     const st = new Map(stock.map((s) => [s.product_id, s]));
     const totals: Record<string, number> = {};
     const body = [...rows.entries()].map(([id, r]) => {
       const tot = SIZES.reduce((a, z) => a + (r.sizes[z] || 0), 0);
       SIZES.forEach((z) => (totals[z] = (totals[z] || 0) + (r.sizes[z] || 0)));
       const s = st.get(id);
-      return `<tr><td>${esc(r.name)}</td>${SIZES.map((z) => `<td class="${r.sizes[z] ? '' : 'zero'}">${r.sizes[z] || 0}</td>`).join('')}
-        <td class="tot">${tot}</td><td>${r.paid}</td><td>${s ? `${s.stock}/${s.initial}` : '—'}</td></tr>`;
+      return `<tr><td>${esc(short(r.name))}</td>${SIZES.map((z) => `<td class="${r.sizes[z] ? '' : 'zero'}">${r.sizes[z] || 0}</td>`).join('')}
+        <td class="tot">${tot}</td><td>${r.paid}</td><td>${s ? s.stock : '—'}</td></tr>`;
     }).join('');
-    const all = SIZES.reduce((a, z) => a + totals[z], 0);
-    $('[data-tally]').innerHTML = `<div class="pd-tally-wrap"><table>
+    const all = SIZES.reduce((a, z) => a + (totals[z] || 0), 0);
+    const tally = rows.size ? `<div class="pd-block"><h3>Preventa · unidades por talla</h3><div class="wrap"><table>
       <thead><tr><th>Modelo</th>${SIZES.map((z) => `<th>${z}</th>`).join('')}<th>Total</th><th>Pagadas</th><th>Quedan</th></tr></thead>
-      <tbody>${body}<tr><td><b>Total</b></td>${SIZES.map((z) => `<td>${totals[z]}</td>`).join('')}<td class="tot">${all}</td><td></td><td></td></tr></tbody>
-    </table></div>`;
+      <tbody>${body}<tr><td><b>Total</b></td>${SIZES.map((z) => `<td>${totals[z] || 0}</td>`).join('')}<td class="tot">${all}</td><td></td><td></td></tr></tbody>
+    </table></div></div>` : '';
+
+    const legend = `<div class="pd-block"><h3>Cómo funciona</h3><ul>
+      <li><i class="dot charge"></i><span><b>Por cobrar</b> · Bizum o PayPal. Compruebas el dinero y le das a <b>Ya ha pagado</b>.</span></li>
+      <li><i class="dot ship"></i><span><b>Por enviar</b> · pagado. Lo preparas, lo entregas y le das a <b>Enviado</b>. Los de tarjeta y Apple Pay llegan aquí solos.</span></li>
+      <li><i class="dot sent"></i><span><b>Enviado</b> · cuando lo tenga, márcalo como <b>Entregado</b> en Todos.</span></li>
+      <li><i class="dot wait"></i><span><b>Pago sin terminar</b> · abrió el pago con tarjeta y no lo acabó. Se cancela solo a las 2 h.</span></li>
+      <li><i class="dot cancel"></i><span><b>Cancelado</b> · el stock vuelve solo. Si estaba cobrado con tarjeta, devuélvelo en Stripe.</span></li>
+    </ul></div>`;
+    return stats + tally + legend;
   }
 
-  function render() { renderStats(); renderChips(); renderList(); renderTally(); }
+  const pl = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
+  const empty = (title: string, text: string) => `<div class="pd-empty"><b>${title}</b>${text}</div>`;
+
+  function render() {
+    renderHello(); renderTabs();
+    const v = $('[data-view]');
+    v.innerHTML = tab === 'cobrar' ? viewCobrar() : tab === 'enviar' ? viewEnviar() : tab === 'numeros' ? viewNumeros() : viewTodos();
+  }
+
+  // Al buscar solo se repinta la lista (para no perder el foco del buscador)
+  function renderRows() {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = viewTodos();
+    $('[data-rows]').replaceWith(tmp.querySelector('[data-rows]')!);
+    const more = $('[data-more]'); const nm = tmp.querySelector('[data-more]');
+    if (more && nm) more.replaceWith(nm); else if (more) more.remove(); else if (nm) $('[data-rows]').after(nm);
+  }
 
   async function act(code: string, status: string, btn: HTMLButtonElement) {
     const o = orders.find((x) => x.code === code)!;
     let tracking: string | undefined;
     if (status === 'pagado' && !confirm(`¿Te han llegado ${eur(o.total_cents)} de ${o.name}?\nSe le manda el correo de pago recibido.`)) return;
-    if (status === 'cancelado' && !confirm(`¿Cancelar el pedido de ${o.name} (${code})?\nLas unidades de preventa vuelven al stock y se le manda un correo.${o.status === 'pagado' && o.payment === 'tarjeta' ? '\n\nOjo: ya está cobrado. Devuélvele el dinero en Stripe.' : ''}`)) return;
-    if (status === 'recordatorio' && !confirm(`¿Mandar a ${o.email} un recordatorio de pago?`)) return;
+    if (status === 'cancelado' && !confirm(`¿Cancelar el pedido de ${o.name} (${code})?\nLas unidades vuelven al stock y se le manda un correo.${o.status === 'pagado' && o.payment === 'tarjeta' ? '\n\nOjo: ya está cobrado. Devuélvele el dinero en Stripe.' : ''}`)) return;
+    if (status === 'recordatorio' && !confirm(`¿Mandar a ${o.email} un recordatorio de pago por email?`)) return;
     if (status === 'borrar' && !confirm(`¿Borrar para siempre el pedido de ${o.name} (${code})?\nNo se puede deshacer.`)) return;
     if (status === 'enviado') {
-      const t = prompt(`Pedido de ${o.name} enviado.\nNúmero o enlace de seguimiento (opcional):`, o.tracking || '');
+      const t = prompt(`Pedido de ${o.name} enviado.\n\nSi va por mensajería, pega el número o enlace de seguimiento. Si lo entregas en mano, déjalo vacío.`, o.tracking || '');
       if (t === null) return;
       tracking = t;
     }
@@ -410,31 +542,25 @@ import Layout from '../layouts/Layout.astro';
       if (status === 'borrar') {
         await api('POST', { code, action: 'borrar' });
         orders = orders.filter((x) => x.code !== code);
-        open.delete(code);
-        render();
-        toast(`${code} borrado`);
+        render(); toast('Pedido borrado');
         return;
       }
       const r = await api('POST', { code, status, tracking });
-      const i = orders.findIndex((x) => x.code === code);
-      if (r.order) orders[i] = r.order;
-      if (status === 'cancelado') {
-        const d = await api('GET'); orders = d.orders; stock = d.stock;
-      }
-      render();
-      toast(r.email === 'enviado' ? `Hecho · correo enviado a ${o.name}` : r.email === 'error' ? 'Hecho, pero el correo ha fallado' : 'Hecho', r.email === 'error');
+      if (status === 'cancelado') await load();
+      else { const i = orders.findIndex((x) => x.code === code); if (r.order) orders[i] = r.order; render(); }
+      const done: Record<string, string> = { pagado: 'Cobrado · pasa a Enviar', enviado: 'Enviado', entregado: 'Entregado', cancelado: 'Cancelado', recordatorio: 'Recordatorio enviado' };
+      toast(r.email === 'error' ? 'Hecho, pero el correo ha fallado' : `${done[status] || 'Hecho'}${r.email === 'enviado' && status !== 'recordatorio' ? ' · correo enviado' : ''}`, r.email === 'error');
     } catch (e) {
       btn.disabled = false;
       toast(e instanceof Error ? e.message : 'Error', true);
     }
   }
 
-  // ---- eventos ----
+  // ---------- eventos ----------
   $('[data-login]').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const input = $<HTMLInputElement>('#pd-pin');
     const err = $('[data-login-err]');
-    pin = input.value.trim();
+    pin = $<HTMLInputElement>('#pd-pin').value.trim();
     err.hidden = true;
     try {
       await load();
@@ -453,9 +579,10 @@ import Layout from '../layouts/Layout.astro';
 
   $('[data-logout]').addEventListener('click', logout);
   $('[data-refresh]').addEventListener('click', () => load().then(() => toast('Actualizado')).catch((e) => toast(e.message, true)));
-  $('[data-search]').addEventListener('input', (e) => { query = (e.target as HTMLInputElement).value; shown = PAGE; renderList(); });
-  $('[data-more]').addEventListener('click', () => { shown += PAGE; renderList(); });
-  // Recordar qué pedidos están abiertos (para que no se cierren al actualizar)
+  document.addEventListener('input', (e) => {
+    const t = e.target as HTMLInputElement;
+    if (t.matches?.('[data-search]')) { query = t.value; shown = PAGE; renderRows(); }
+  });
   document.addEventListener('toggle', (e) => {
     const d = e.target as HTMLDetailsElement;
     if (!d.classList?.contains('pd-row')) return;
@@ -463,18 +590,20 @@ import Layout from '../layouts/Layout.astro';
   }, true);
   document.addEventListener('click', (e) => {
     const t = e.target as HTMLElement;
+    const tb = t.closest<HTMLButtonElement>('[data-tab]');
+    if (tb) { tab = tb.dataset.tab as Tab; render(); window.scrollTo({ top: 0 }); return; }
     const chip = t.closest<HTMLButtonElement>('[data-filter]');
-    if (chip) {
-      filter = chip.dataset.filter!; shown = PAGE; renderChips(); renderList();
-      return;
-    }
+    if (chip) { filter = chip.dataset.filter!; shown = PAGE; render(); return; }
+    if (t.closest('[data-more]')) { shown += PAGE; renderRows(); return; }
     const a = t.closest<HTMLButtonElement>('[data-act]');
-    if (a) { act(a.dataset.code!, a.dataset.act!, a); return; }
+    if (a) { e.preventDefault(); act(a.dataset.code!, a.dataset.act!, a); return; }
     const c = t.closest<HTMLButtonElement>('[data-copy]');
-    if (c) navigator.clipboard?.writeText(c.dataset.copy!).then(() => toast('Dirección copiada')).catch(() => {});
+    if (c) { e.preventDefault(); navigator.clipboard?.writeText(c.dataset.copy!).then(() => toast('Copiado')).catch(() => {}); }
   });
 
   if (pin) load().then(enter).catch(() => logout());
-  // Se actualiza solo cada minuto mientras está abierto
-  setInterval(() => { if (pin && !document.hidden) load().catch(() => {}); }, 60000);
+  // Se actualiza solo cada minuto (si no estás escribiendo en el buscador)
+  setInterval(() => {
+    if (pin && !document.hidden && document.activeElement?.matches?.('[data-search]') !== true) load().catch(() => {});
+  }, 60000);
 </script>
