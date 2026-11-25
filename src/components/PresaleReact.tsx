@@ -332,15 +332,17 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
                 <span className="ps-dot" aria-hidden="true" />
                 Drop 001 · Isolation · Preventa
               </p>
-              <h3 className="ps-title">{item.name}</h3>
-              {/* Antes de abrir: solo el nombre; lo demás, con interrogaciones */}
-              <p className="ps-desc">{veiled ? <span className="ps-qq">??? ????? ?? ???? ????? ? ?? ????? ?????? ?? ?? ????????.</span> : item.description}</p>
-              <p className="ps-big-price">
-                {veiled ? <span className="ps-qq">??,?? €</span> : eur(item.price_cents)}
+              <div className="ps-head">
+                <h3 className="ps-title">{item.name}</h3>
+                <p className="ps-big-price">{veiled ? <span className="ps-qq">??,?? €</span> : eur(item.price_cents)}</p>
+              </div>
+              <p className="ps-left-line">
                 <span className={`ps-left${soldOut ? " out" : itemLeft != null && itemLeft <= LOW_STOCK ? " low" : ""}`}>
                   {soldOut ? "Agotado" : !veiled && itemLeft != null && itemLeft <= LOW_STOCK ? `Quedan ${itemLeft}` : "Unidades limitadas"}
                 </span>
               </p>
+              {/* Antes de abrir: solo el nombre; lo demás, con interrogaciones */}
+              <p className="ps-desc">{veiled ? <span className="ps-qq">??? ????? ?? ???? ????? ? ?? ????? ?????? ?? ?? ????????.</span> : item.description}</p>
 
               <div className="ps-field">
                 <div className="ps-label">

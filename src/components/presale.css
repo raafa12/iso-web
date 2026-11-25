@@ -597,3 +597,10 @@
 .ps-qq { letter-spacing: 0.08em; opacity: 0.55; }
 .ps-sizes button.ps-qq-size:disabled { opacity: 0.45; cursor: default; text-decoration: none; }
 .ps-quick[hidden] { display: none; }
+
+/* Título con el precio a la derecha */
+.ps-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.ps-head .ps-title { padding-right: 0; min-width: 0; }
+.ps-head .ps-big-price { flex: none; white-space: nowrap; line-height: 1; margin-top: 0.25em; }
+.ps-left-line { margin-top: -0.4rem; }
+.ps-left-line .ps-left { margin-left: 0; }

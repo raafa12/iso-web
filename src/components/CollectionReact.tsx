@@ -313,9 +313,11 @@ export default function CollectionReact({
                 <span className="ps-dot" aria-hidden="true" />
                 {canBuy(item.id) ? "Best seller · Siempre disponible" : "Best seller"}
               </p>
-              <h3 className="ps-title">{item.model.name}</h3>
+              <div className="ps-head">
+                <h3 className="ps-title">{item.model.name}</h3>
+                <p className="ps-big-price">{eur(item.model.price_cents)}</p>
+              </div>
               <p className="ps-desc">{item.model.description}</p>
-              <p className="ps-big-price">{eur(item.model.price_cents)}</p>
 
               {siblings.length > 1 && (
                 <div className="ps-field">
