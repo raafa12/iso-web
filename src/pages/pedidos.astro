@@ -22,8 +22,7 @@ import Layout from '../layouts/Layout.astro';
     </form>
 
     <section data-app hidden>
-      <!-- 1) Lo primero: los últimos pedidos -->
-      <div class="pd-todo" data-todo></div>
+      <div class="pd-stats" data-stats></div>
 
       <div class="pd-bar">
         <div class="pd-chips" data-chips></div>
@@ -34,10 +33,7 @@ import Layout from '../layouts/Layout.astro';
       <button type="button" class="pd-more" data-more hidden>Ver más pedidos</button>
 
       <!-- 2) Lo demás -->
-      <h2 class="pd-h2">Resumen</h2>
-      <div class="pd-stats" data-stats></div>
-
-      <details class="pd-tally">
+      <details class="pd-tally" style="margin-top:2rem">
         <summary>Preventa · unidades por talla</summary>
         <div data-tally></div>
       </details>
@@ -87,11 +83,6 @@ import Layout from '../layouts/Layout.astro';
   .sent { --c: var(--c-sent); } .done { --c: var(--c-done); } .cancel { --c: var(--c-cancel); }
   .dot { background: var(--c); }
 
-  /* Aviso de lo que hay que hacer */
-  .pd-todo { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
-  .pd-todo button { display: flex; align-items: center; gap: 0.5rem; background: var(--surface2); border: 1px solid var(--border-light); color: var(--white); padding: 0.7rem 0.95rem; font: 600 0.95rem var(--font-body); cursor: pointer; }
-  .pd-todo button b { font-family: var(--font-display); font-style: italic; font-size: 1.15rem; color: var(--c); }
-  .pd-todo .ok { color: var(--muted-light); font-size: 0.95rem; padding: 0.4rem 0; }
 
   .pd-bar { display: grid; gap: 0.6rem; margin-bottom: 1rem; }
   .pd-chips { display: flex; gap: 0.4rem; overflow-x: auto; scrollbar-width: none; }
@@ -134,9 +125,12 @@ import Layout from '../layouts/Layout.astro';
 
   /* Resumen */
   .pd-h2 { font-family: var(--font-display); font-weight: 900; font-style: italic; text-transform: uppercase; font-size: 1.1rem; letter-spacing: 0.04em; margin: 2.5rem 0 0.8rem; color: var(--white-dim); }
-  .pd-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.6rem; margin-bottom: 1rem; }
-  .pd-stat { background: var(--surface2); border: 1px solid var(--border); padding: 0.9rem 1rem; }
-  .pd-stat b { display: block; font-family: var(--font-display); font-weight: 900; font-style: italic; font-size: 1.7rem; line-height: 1.1; }
+  .pd-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.6rem; margin-bottom: 1.1rem; }
+  .pd-stat { display: flex; flex-direction: column; justify-content: flex-start; background: var(--surface2); border: 1px solid var(--border); padding: 0.9rem 1rem; text-align: left; color: var(--white); font: inherit; cursor: pointer; }
+  .pd-stat:hover { border-color: var(--border-light); }
+  .pd-stat.hot b { color: var(--c); }
+  .pd-stat.hot { border-left: 3px solid var(--c); }
+  .pd-stat b { display: block; font-family: var(--font-display); font-weight: 900; font-style: italic; font-size: 2rem; line-height: 1.1; }
   .pd-stat span { font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted-light); }
   .pd-stat small { display: block; color: var(--white-dim); font-size: 0.82rem; margin-top: 0.2rem; }
 
@@ -268,21 +262,6 @@ import Layout from '../layouts/Layout.astro';
     $('[data-app]').hidden = true; $('[data-when-in]').hidden = true; $('[data-login]').hidden = false;
   }
 
-  // ---- Arriba: lo que hay que hacer ----
-  function renderTodo() {
-    const n = (k: string) => orders.filter((o) => step(o).k === k).length;
-    const cobrar = n('charge'); const enviar = n('ship');
-    const late = orders.filter(isLate).length;
-    const nuevos = orders.filter((o) => Date.parse(o.created_at) > lastSeen).length;
-    const btn = (k: string, filterKey: string, num: number, label: string) =>
-      `<button type="button" class="${k}" data-filter="${filterKey}"><i class="dot"></i><b>${num}</b>${label}</button>`;
-    const parts: string[] = [];
-    if (nuevos) parts.push(`<button type="button" class="ship" data-filter="todos"><b>${nuevos}</b>${nuevos === 1 ? 'nuevo' : 'nuevos'} desde la última vez</button>`);
-    if (cobrar) parts.push(btn('charge', 'cobrar', cobrar, `por cobrar${late ? ` · ${late} de hace +24 h` : ''}`));
-    if (enviar) parts.push(btn('ship', 'enviar', enviar, 'por enviar'));
-    $('[data-todo]').innerHTML = parts.length ? parts.join('') : '<p class="ok">✓ Todo al día. No hay nada por cobrar ni por enviar.</p>';
-  }
-
   function renderChips() {
     $('[data-chips]').innerHTML = FILTERS.map(([k, label, fn]) =>
       `<button type="button" class="pd-chip" data-filter="${k}" aria-pressed="${filter === k}">${label}<i>${orders.filter(fn).length}</i></button>`).join('');
@@ -366,19 +345,22 @@ import Layout from '../layouts/Layout.astro';
     more.textContent = `Ver más pedidos (${list.length - shown})`;
   }
 
-  // ---- Abajo: resumen ----
+  // ---- Arriba: los números (se pueden tocar para filtrar) ----
   function renderStats() {
     const live = orders.filter((o) => o.status !== 'cancelado');
+    const cobrar = orders.filter((o) => step(o).k === 'charge');
+    const enviar = orders.filter((o) => step(o).k === 'ship');
     const cobrado = live.filter((o) => ['pagado', 'enviado', 'entregado'].includes(o.status));
-    const today = cobrado.filter((o) => dayKey(o.paid_at || o.created_at) === new Date().toDateString());
-    const prendas = cobrado.reduce((s, o) => s + o.items.reduce((a, i) => a + i.qty, 0), 0);
-    const tile = (label: string, n: string | number, sub = '') =>
-      `<div class="pd-stat"><span>${label}</span><b>${n}</b>${sub ? `<small>${sub}</small>` : ''}</div>`;
+    const late = cobrar.filter(isLate).length;
+    const nuevos = orders.filter((o) => Date.parse(o.created_at) > lastSeen).length;
+    const sum = (l: Order[]) => eur(l.reduce((s, o) => s + o.total_cents, 0));
+    const tile = (f: string, label: string, n: number | string, sub = '', hot = '') =>
+      `<button type="button" class="pd-stat${hot ? ` hot ${hot}` : ''}" data-filter="${f}"><span>${label}</span><b>${n}</b>${sub ? `<small>${sub}</small>` : ''}</button>`;
     $('[data-stats]').innerHTML =
-      tile('Cobrado', eur(cobrado.reduce((s, o) => s + o.total_cents, 0)), `${cobrado.length} pedidos`) +
-      tile('Hoy', eur(today.reduce((s, o) => s + o.total_cents, 0)), `${today.length} pedidos`) +
-      tile('Prendas vendidas', prendas) +
-      tile('Ticket medio', cobrado.length ? eur(Math.round(cobrado.reduce((s, o) => s + o.total_cents, 0) / cobrado.length)) : '—');
+      tile('cobrar', 'Por cobrar', cobrar.length, `${sum(cobrar)}${late ? ` · ${late} +24 h` : ''}`, cobrar.length ? 'charge' : '') +
+      tile('enviar', 'Por enviar', enviar.length, '', enviar.length ? 'ship' : '') +
+      tile('enviados', 'Cobrados', cobrado.length, sum(cobrado)) +
+      tile('todos', 'Pedidos', live.length, `${live.reduce((s, o) => s + o.items.reduce((a, i) => a + i.qty, 0), 0)} prendas${nuevos ? ` · ${nuevos} nuevo${nuevos > 1 ? 's' : ''}` : ''}`);
   }
 
   function renderTally() {
@@ -409,7 +391,7 @@ import Layout from '../layouts/Layout.astro';
     </table></div>`;
   }
 
-  function render() { renderTodo(); renderChips(); renderList(); renderStats(); renderTally(); }
+  function render() { renderStats(); renderChips(); renderList(); renderTally(); }
 
   async function act(code: string, status: string, btn: HTMLButtonElement) {
     const o = orders.find((x) => x.code === code)!;
@@ -484,7 +466,6 @@ import Layout from '../layouts/Layout.astro';
     const chip = t.closest<HTMLButtonElement>('[data-filter]');
     if (chip) {
       filter = chip.dataset.filter!; shown = PAGE; renderChips(); renderList();
-      if (chip.closest('[data-todo]')) $('[data-chips]').scrollIntoView({ behavior: 'smooth', block: 'start' });
       return;
     }
     const a = t.closest<HTMLButtonElement>('[data-act]');
