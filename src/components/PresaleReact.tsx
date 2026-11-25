@@ -278,7 +278,7 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
 
   return (
     <>
-      {phase === "soon" && <NotifyForm featured label="Entrar en la lista" />}
+      {phase === "soon" && <NotifyForm featured label="Apuntarme" />}
       {demo && <p className="ps-demo">Vista de prueba: preventa abierta y 5 unidades por prenda. Los pedidos del carrito no se guardan.</p>}
       <ul className="ps-grid" ref={listRef}>
         {items.map((p, i) => (

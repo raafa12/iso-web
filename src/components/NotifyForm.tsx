@@ -63,8 +63,7 @@ export default function NotifyForm({
     return featured ? (
       <div className="ps-notify featured ok">
         <p className="ps-pri-kicker">● Estás dentro</p>
-        <p className="ps-pri-title">Ya eres de la lista.</p>
-        <p className="ps-pri-sub">El <b>14 de diciembre a las 00:00</b> te llega tu enlace con el precio especial. Mira el correo (y el spam, por si acaso).</p>
+        <p className="ps-pri-sub">Nos vemos el <b>14 de diciembre a las 00:00</b>. Mira el correo.</p>
       </div>
     ) : (
       <p className={`ps-notify ok${compact ? " compact" : ""}`}>{okText}</p>
@@ -74,12 +73,7 @@ export default function NotifyForm({
       {featured && (
         <>
           <p className="ps-pri-kicker">● Lista prioritaria</p>
-          <p className="ps-pri-title">Precio especial<br />para la lista.</p>
-          <ul className="ps-pri-list">
-            <li><b>Precio rebajado</b> solo para la lista, las primeras 24 h</li>
-            <li>El <b>14 dic a las 00:00</b> te llega tu enlace, antes de que lo subamos a redes</li>
-            <li><b>25 unidades</b> por modelo</li>
-          </ul>
+          <p className="ps-pri-sub">Los de la lista entran primero. Y con ventaja.</p>
         </>
       )}
       {!compact && !featured && (
