@@ -15,6 +15,8 @@ export function renderWelcome({ email, name = '', source = 'web', now = Date.now
   const presaleSoon = now < Date.parse(PRESALE_OPEN);
   const presaleOpen = !presaleSoon && now < Date.parse(PRESALE_CLOSE);
   const link = `${SITE}/preventa?utm_source=email&utm_medium=bienvenida`;
+  // Antes de abrir, el botón lleva a la cuenta atrás (que el día 14 se convierte en la preventa)
+  const countdown = `${SITE}/cuenta-atras?utm_source=email&utm_medium=bienvenida`;
 
   let subject, kicker, title, body, text;
 
@@ -26,9 +28,9 @@ export function renderWelcome({ email, name = '', source = 'web', now = Date.now
     body =
       p(`${hi ? `${hi}tienes` : 'Tienes'} ${b('prioridad')}. El ${b(open)} te llega el enlace antes que a nadie.`) +
       p(`4 modelos. Unidades limitadas.`) +
-      button('Ver la cuenta atrás', link) +
+      button('Ver la cuenta atrás', countdown) +
       p(b('Call for an ISO.'), 'margin-top:24px;');
-    text = `Estás dentro.\nTienes prioridad: el ${open} te llega el enlace antes que a nadie.\n4 modelos. Unidades limitadas.\n\n${link}\n\nCall for an ISO.`;
+    text = `Estás dentro.\nTienes prioridad: el ${open} te llega el enlace antes que a nadie.\n4 modelos. Unidades limitadas.\n\n${countdown}\n\nCall for an ISO.`;
   } else {
     subject = 'Estás dentro · Acceso prioritario ISO';
     kicker = 'Acceso prioritario';
@@ -41,7 +43,7 @@ export function renderWelcome({ email, name = '', source = 'web', now = Date.now
     body =
       p(`${hi ? `${hi}gracias` : 'Gracias'} por apuntarte. Te escribimos ${b('antes que a nadie')} cada vez que saquemos algo nuevo: drops, preventas y eventos.`) +
       drop +
-      (presaleOpen ? dropImage(link) + button('Ir a la preventa', link) : presaleSoon ? button('Ver la cuenta atrás', link) : button('Ver la web', SITE));
+      (presaleOpen ? dropImage(link) + button('Ir a la preventa', link) : presaleSoon ? button('Ver la cuenta atrás', countdown) : button('Ver la web', SITE));
     text = `Estás dentro.\nTe escribimos antes que a nadie cuando saquemos algo nuevo.\n\n${link}`;
   }
 
