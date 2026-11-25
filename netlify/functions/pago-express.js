@@ -108,6 +108,9 @@ export default async (req) => {
   } catch (e) {
     console.error('Pago express: error', e);
     const why = String(e?.message || '').replace(/^Stripe \d+: /, '').replace(/(sk|rk|pk)_(live|test)_[A-Za-z0-9*]+/g, '$1_$2_…');
-    return json({ error: 'stripe', message: `No se ha podido iniciar el pago. ${why}` }, 502);
+    // Pista sin revelar la clave: a qué cuenta pertenece (los primeros caracteres) y cuánto mide
+    const k = (process.env.STRIPE_SECRET_KEY || '').trim();
+    const hint = /Invalid API Key/i.test(why) ? ` (clave en Netlify: ${k.slice(0, 15)}… · ${k.length} caracteres · debería empezar por rk_live_51UfNJq o sk_live_51UfNJq y tener unos 100)` : '';
+    return json({ error: 'stripe', message: `No se ha podido iniciar el pago. ${why}${hint}` }, 502);
   }
 };

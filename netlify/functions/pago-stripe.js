@@ -35,6 +35,9 @@ export default async (req) => {
     console.error('Stripe: no se pudo crear el pago', code, e);
     // El motivo de Stripe ayuda a ver qué falta en la cuenta (no incluye claves)
     const why = String(e?.message || '').replace(/^Stripe \d+: /, '').replace(/(sk|rk|pk)_(live|test)_[A-Za-z0-9*]+/g, '$1_$2_…');
-    return json({ error: `No se ha podido abrir el pago con tarjeta. ${why}` }, 502);
+    // Pista sin revelar la clave: a qué cuenta pertenece (los primeros caracteres) y cuánto mide
+    const k = (process.env.STRIPE_SECRET_KEY || '').trim();
+    const hint = /Invalid API Key/i.test(why) ? ` (clave en Netlify: ${k.slice(0, 15)}… · ${k.length} caracteres · debería empezar por rk_live_51UfNJq o sk_live_51UfNJq y tener unos 100)` : '';
+    return json({ error: `No se ha podido abrir el pago con tarjeta. ${why}${hint}` }, 502);
   }
 };
