@@ -88,7 +88,7 @@ const classicHoodie = (color: string, slug: string): DropProduct => ({
   category: "Sudadera · Siempre disponible",
   price_cents: 2999,
   sizes: SIZES,
-  description: "Sudadera con el logo de ISO en el pecho.",
+  description: "Corte hoodie, fit regular. Básico imprescindible de ISO.",
   image_url: `/rack/classic-hoodie-${slug}-front.webp`,
   image_mono_url: `/rack/classic-hoodie-${slug}-front-mono.webp`,
   image_side_url: `/rack/classic-hoodie-${slug}-side.webp`,
