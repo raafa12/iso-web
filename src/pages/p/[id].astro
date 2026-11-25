@@ -13,7 +13,7 @@ export function getStaticPaths() {
     })),
     ...ISOLATION_DROP.map((p) => ({
       params: { id: p.id },
-      props: { title: p.name, price: eur(p.price_cents), to: `/preventa?p=${p.id}`, desc: `Preventa Isolation · Unidades limitadas. ${p.description ?? ""}` },
+      props: { title: p.name, price: "", to: `/preventa?p=${p.id}`, desc: "Drop 001 de ISO: Preventa. Unidades limitadas. 14 de diciembre. Envío gratis en Santander." },
     })),
   ];
 }
@@ -22,7 +22,7 @@ const { id } = Astro.params;
 const { title, price, to, desc } = Astro.props;
 const site = "https://isowear.es";
 const image = `${site}/og/${id}.jpg?v=2`;
-const full = `${title} · ${price}`;
+const full = price ? `${title} · ${price}` : title;
 ---
 
 <!doctype html>
