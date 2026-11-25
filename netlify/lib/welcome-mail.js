@@ -25,10 +25,10 @@ export function renderWelcome({ email, name = '', source = 'web', now = Date.now
     title = 'Estás dentro.';
     body =
       p(`${hi ? `${hi}tienes` : 'Tienes'} ${b('prioridad')}. El ${b(open)} te llega el enlace antes que a nadie.`) +
-      p(`4 modelos. Unidades limitadas. Cuando se acaban, no vuelven.`) +
+      p(`4 modelos. Unidades limitadas.`) +
       button('Ver la cuenta atrás', link) +
       p(b('Call for an ISO.'), 'margin-top:24px;');
-    text = `Estás dentro.\nTienes prioridad: el ${open} te llega el enlace antes que a nadie.\n4 modelos. Unidades limitadas. Cuando se acaban, no vuelven.\n\n${link}\n\nCall for an ISO.`;
+    text = `Estás dentro.\nTienes prioridad: el ${open} te llega el enlace antes que a nadie.\n4 modelos. Unidades limitadas.\n\n${link}\n\nCall for an ISO.`;
   } else {
     subject = 'Estás dentro · Acceso prioritario ISO';
     kicker = 'Acceso prioritario';

@@ -595,3 +595,4 @@
 }
 .ps-badge.big { top: 1.1rem; right: auto; left: 1.1rem; font-size: 0.68rem; padding: 0.4rem 0.65rem; }
 .ps-qq { letter-spacing: 0.08em; opacity: 0.55; }
+.ps-sizes button.ps-qq-size:disabled { opacity: 0.45; cursor: default; text-decoration: none; }

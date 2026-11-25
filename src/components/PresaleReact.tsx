@@ -346,16 +346,18 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
                   <span>Talla</span>
                 </div>
                 <div className="ps-sizes" role="group" aria-label="Elige tu talla">
-                  {item.sizes.map((s) => (
-                    <button key={s} type="button" aria-pressed={size === s} className={size === s ? "on" : ""} onClick={() => setSize(s)}>
-                      {s}
-                    </button>
-                  ))}
+                  {veiled
+                    ? item.sizes.map((s) => <button key={s} type="button" disabled className="ps-qq-size">?</button>)
+                    : item.sizes.map((s) => (
+                        <button key={s} type="button" aria-pressed={size === s} className={size === s ? "on" : ""} onClick={() => setSize(s)}>
+                          {s}
+                        </button>
+                      ))}
                 </div>
-                <SizeGuideInline key={item.id} kind={guideKindOf(item.id)} />
+                {!veiled && <SizeGuideInline key={item.id} kind={guideKindOf(item.id)} />}
               </div>
 
-              <div className="ps-field">
+              <div className="ps-field" hidden={veiled}>
                 <div className="ps-label"><span>Cantidad</span></div>
                 <div className="ps-qty">
                   <button type="button" onClick={() => setQty((q) => Math.max(1, q - 1))} aria-label="Una menos" disabled={qty <= 1}>−</button>
