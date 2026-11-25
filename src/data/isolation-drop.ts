@@ -75,7 +75,7 @@ const classicTee = (color: string, slug: string, sizes: string[] = SIZES): DropP
   category: "Camiseta · Siempre disponible",
   price_cents: 1999,
   sizes,
-  description: "El logo de ISO en grande en el pecho. Basketball clothing brand. 100% algodón 220gsm. Fit: Oversize.",
+  description: "Basic, con el logo de ISO en el pecho, para la calle o la pista. 100% algodón 200gsm. Fit: Oversize.",
   image_url: `/rack/classic-tee-${slug}-front.webp`,
   image_mono_url: `/rack/classic-tee-${slug}-front-mono.webp`,
   image_side_url: `/rack/classic-tee-${slug}-side.webp`,
