@@ -14,7 +14,7 @@ const GUIDE: Record<GuideKind, { label: string; fit: string; rows: [string, numb
   },
   hoodie: {
     label: "Sudadera",
-    fit: "Pide tu talla de siempre. Si la quieres más ancha, con look oversize, una talla más.",
+    fit: "Regular fit: pide tu talla de siempre. Si la quieres más ancha, con look oversize, una talla más.",
     rows: [["S", 51, 69], ["M", 56, 71], ["L", 61, 74], ["XL", 66, 76]],
   },
 };
