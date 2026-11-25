@@ -533,7 +533,7 @@ export default function RackReact({ products: initial, title = "El Perchero", pr
               {products.map((p, i) => (
                 <li
                   key={p.id}
-                  className={`rack-item${p.image_side_url ? " has-side" : ""}${hovered === i ? " is-hover" : ""}${open === i ? " is-picked" : ""}`}
+                  className={`rack-item${p.image_side_url ? " has-side" : ""}${i > 0 && products[i - 1].id === "iso-classic-tee-grey" && p.id === "iso-classic-hoodie-black" ? " gap-before" : ""}${hovered === i ? " is-hover" : ""}${open === i ? " is-picked" : ""}`}
                   data-i={i}
                   ref={(el) => (els.current[i] = el)}
                   style={{ zIndex: hovered === i ? 50 : 10 + (i % 2) }}

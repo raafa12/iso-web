@@ -512,3 +512,11 @@
   .rack:has(.rack-item.has-side) .rack-stage { justify-content: center; padding-inline: 1rem; }
   .rack-item.has-side { margin-inline: calc(var(--gh) * -0.06); }
 }
+
+/* Más aire entre la camiseta gris y la sudadera negra (se montaban) */
+.rack-item.gap-before,
+.rack-item.has-side.gap-before { margin-left: calc(var(--gh) * 0.1); }
+@media (max-width: 700px) {
+  .rack-item.gap-before,
+  .rack-item.has-side.gap-before { margin-left: calc(var(--gh) * 0.07); }
+}
