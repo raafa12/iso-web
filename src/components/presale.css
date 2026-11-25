@@ -594,4 +594,4 @@
   font: 800 0.6rem/1 var(--font-body); letter-spacing: 0.14em; text-transform: uppercase;
 }
 .ps-badge.big { top: 1.1rem; right: auto; left: 1.1rem; font-size: 0.68rem; padding: 0.4rem 0.65rem; }
-.ps-big-price.no-price .ps-left { margin-left: 0; }
+.ps-qq { letter-spacing: 0.08em; opacity: 0.55; }
