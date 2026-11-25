@@ -24,7 +24,7 @@ const site = "https://isowear.es";
 // Antes de que abra la preventa, las prendas del drop se comparten con la foto difuminada.
 // La página se genera al publicar: el 14 dic hay que volver a publicar (Trigger deploy) para que salgan las fotos reales.
 const veiled = id.startsWith("isolation-") && Date.now() < Date.parse(PRESALE.open);
-const image = veiled ? `${site}/og/${id}-soon.jpg?v=1` : `${site}/og/${id}.jpg?v=3`;
+const image = veiled ? `${site}/og/${id}-soon.jpg?v=1` : `${site}/og/${id}.jpg?v=4`;
 const full = price ? `${title} · ${price}` : title;
 ---
 
