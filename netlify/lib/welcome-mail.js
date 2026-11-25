@@ -1,6 +1,6 @@
 // Correo de bienvenida al apuntarse (aviso de la preventa o lista prioritaria).
 
-import { SITE, layout, sendEmail, p, b, button, dropImage, esc } from './email.js';
+import { SITE, layout, sendEmail, p, b, box, button, dropImage, esc } from './email.js';
 import { PRESALE_OPEN, PRESALE_CLOSE } from './presale-mail.js';
 
 const fmt = (iso) =>
@@ -19,15 +19,23 @@ export function renderWelcome({ email, name = '', source = 'web', now = Date.now
   let subject, kicker, title, body, text;
 
   if (source.startsWith('preventa')) {
-    subject = 'Te avisamos cuando abra la preventa';
-    kicker = 'Estás en la lista';
-    title = 'Te avisamos.';
+    // Antes de abrir no se enseñan los diseños (en la web también están tapados)
+    subject = 'Estás dentro. Tienes prioridad 🏀';
+    kicker = 'Lista prioritaria · Drop 001';
+    title = 'Buena jugada.';
+    const item = (t) => `<tr><td style="padding:0 10px 10px 0;vertical-align:top;color:#7ec8e3;font-weight:bold;">&#9679;</td><td style="padding:0 0 10px;">${t}</td></tr>`;
     body =
-      p(`${hi ? `${hi}la` : 'La'} preventa de ${b('Isolation')}, el primer drop de ISO, abre el ${b(open)}. En cuanto abra te llega un correo con el enlace directo.`) +
-      p(`${b('4 modelos')}, ${b('unidades limitadas')}. Cuando se acaban, se acaban.`) +
-      dropImage(link) +
-      button('Ver los diseños', link);
-    text = `Estás en la lista.\nLa preventa de Isolation abre el ${open}. Te mandamos un correo en cuanto abra.\n4 modelos, unidades limitadas.\n\nVer los diseños: ${link}`;
+      p(`${hi ? `${hi}acabas` : 'Acabas'} de hacer lo que hacen los que saben: apuntarte ${b('antes que nadie')}. Ya estás en la lista prioritaria de ${b('Isolation')}, el Drop 001 de ISO.`) +
+      p(`Mientras el resto sigue calentando en el banquillo, tú ya estás en pista.`) +
+      box(`<table role="presentation" cellpadding="0" cellspacing="0">
+        ${item(`${b('Prioridad.')} El ${b(open)} te llega el enlace directo a este correo, sin esperar a que lo subamos a redes.`)}
+        ${item(`${b('Unidades limitadas.')} 4 modelos y pocas unidades de cada uno. Cuando se acaban, no vuelven.`)}
+        ${item(`${b('Envío gratis')} en Santander.`)}
+      </table>`) +
+      p(`Hasta entonces los diseños siguen tapados. Ni a nuestras madres se los hemos enseñado. Tú serás de los primeros en verlos.`) +
+      button('Ver la cuenta atrás', link) +
+      p(`Gracias por estar desde el principio. Esto va de gente como tú.<br>${b('Call for an ISO.')}`, 'margin-top:24px;');
+    text = `Estás dentro. Tienes prioridad.\nYa estás en la lista prioritaria de Isolation, el Drop 001 de ISO.\n\n- Prioridad: el ${open} te llega el enlace directo a este correo.\n- Unidades limitadas: 4 modelos y pocas unidades de cada uno.\n- Envío gratis en Santander.\n\nHasta entonces los diseños siguen tapados.\n\nCuenta atrás: ${link}\n\nCall for an ISO.`;
   } else {
     subject = 'Estás dentro · Acceso prioritario ISO';
     kicker = 'Acceso prioritario';
@@ -40,7 +48,7 @@ export function renderWelcome({ email, name = '', source = 'web', now = Date.now
     body =
       p(`${hi ? `${hi}gracias` : 'Gracias'} por apuntarte. Te escribimos ${b('antes que a nadie')} cada vez que saquemos algo nuevo: drops, preventas y eventos.`) +
       drop +
-      (presaleSoon || presaleOpen ? dropImage(link) + button(presaleOpen ? 'Ir a la preventa' : 'Ver los diseños', link) : button('Ver la web', SITE));
+      (presaleOpen ? dropImage(link) + button('Ir a la preventa', link) : presaleSoon ? button('Ver la cuenta atrás', link) : button('Ver la web', SITE));
     text = `Estás dentro.\nTe escribimos antes que a nadie cuando saquemos algo nuevo.\n\n${link}`;
   }
 
