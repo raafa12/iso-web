@@ -2,6 +2,7 @@
 // El monedero da el nombre, el email y la dirección, así que no hay formulario.
 // Flujo: el cliente confirma en el monedero → /api/pago-express hace el pedido y el
 // PaymentIntent → se confirma con el método del monedero → el webhook lo marca pagado.
+import { vipParam } from "../lib/vip";
 import { useEffect, useRef, useState } from "react";
 import { loadStripe, type PaymentRequest } from "@stripe/stripe-js";
 import "./cart-drawer.css";
@@ -121,6 +122,7 @@ export default function ExpressPay({
               items: cartRef.current.map((i) => ({ product_id: i.id, size: i.size, qty: i.qty })),
               customer,
               expected_cents: sub() + shipping,
+              vip: vipParam(),
             }),
           })
             .then((r) => r.json())

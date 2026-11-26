@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { vipParam } from "../lib/vip";
 import ExpressPay from "./ExpressPay";
 import PayButtons from "./PayButtons";
 import "./cart-drawer.css";
@@ -235,6 +236,7 @@ export default function CartDrawerReact() {
             p_items: cart.map((i) => ({ product_id: i.id, size: i.size, qty: i.qty })),
             p_customer: customer,
             p_payment: payment,
+            ...(vipParam() ? { p_vip: vipParam() } : {}),
           }),
         });
       } catch (err) {

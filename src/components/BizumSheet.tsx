@@ -4,6 +4,7 @@
 //   3) "Ya lo he hecho": confeti y confirmación
 // Desde una web no se puede abrir Bizum directamente (cada banco tiene su app),
 // así que se lo dejamos todo listo para copiar y pegar.
+import { vipParam } from "../lib/vip";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import "./bizum.css";
@@ -114,6 +115,7 @@ export default function BizumSheet({ line, qty, onClose }: { line: Line; qty: nu
           p_items: [{ product_id: line.id, size: line.size, qty }],
           p_customer: c,
           p_payment: "bizum",
+          ...(vipParam() ? { p_vip: vipParam() } : {}),
         }),
       });
       const data = await res.json().catch(() => null);

@@ -66,7 +66,8 @@ export default async (req) => {
     const r = await fetch(`${url}/rest/v1/rpc/place_order`, {
       method: 'POST',
       headers,
-      body: JSON.stringify({ p_items: body.items, p_customer: c, p_payment: 'tarjeta' }),
+      // p_vip solo si viene (precio de lista): así funciona también con la versión antigua de place_order
+      body: JSON.stringify({ p_items: body.items, p_customer: c, p_payment: 'tarjeta', ...(body.vip ? { p_vip: body.vip } : {}) }),
     });
     const order = await r.json();
     if (!r.ok || !order?.ok) return json({ error: order?.error || 'order' }, 400);

@@ -614,3 +614,7 @@
 .ps-notify.featured.ok { color: inherit; }
 
 .ps-notify-hint { margin: 0 0 0.5rem; font-size: 0.88rem; color: var(--white-dim, #b9b3a8); }
+
+/* Precio de lista: el normal tachado al lado */
+.ps-was { color: var(--muted-light, #8a857d); font-weight: 500; text-decoration-thickness: 1.5px; margin-right: 0.45em; font-size: 0.8em; }
+.ps-list-tag { display: block; margin-top: 0.3rem; font: 800 0.62rem var(--font-body); letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); text-align: right; }

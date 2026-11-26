@@ -1,6 +1,26 @@
 // Correo "La preventa está abierta" + envío a toda la lista.
 
+import { createHmac } from 'node:crypto';
 import { SITE, sb, layout, sendEmail, p, b, button, dropImage } from './email.js';
+
+// ---------- Lista prioritaria: enlace personal con precio de lista ----------
+// La firma es la misma que comprueba la base de datos (public.vip_ok): HMAC-SHA256 del email con vip_secret.
+let vipCfg = null;
+async function vipConfig() {
+  if (vipCfg) return vipCfg;
+  const { url, headers } = sb();
+  const r = await fetch(`${url}/rest/v1/presale_config?id=eq.1&select=vip_secret,vip_hours,vip_discount_cents`, { headers });
+  const [c] = r.ok ? await r.json() : [];
+  vipCfg = c && c.vip_secret ? c : { vip_secret: null, vip_hours: 24, vip_discount_cents: 500 };
+  return vipCfg;
+}
+export async function vipLink(email) {
+  const c = await vipConfig();
+  if (!c.vip_secret) return null;
+  const em = email.trim().toLowerCase();
+  const t = createHmac('sha256', c.vip_secret).update(em).digest('hex').slice(0, 32);
+  return `${SITE}/preventa?vip=${Buffer.from(em).toString('base64url')}.${t}&utm_source=email&utm_medium=aviso&utm_campaign=isolation`;
+}
 
 // Mantener igual que PRESALE en src/data/isolation-drop.ts
 export const PRESALE_OPEN = process.env.PRESALE_OPEN || '2026-12-14T00:00:00+01:00';
@@ -13,8 +33,8 @@ const fmtClose = () =>
     day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid',
   }).format(new Date(PRESALE_CLOSE)).replace(',', ' a las');
 
-export function renderEmail(email) {
-  const link = `${SITE}/preventa?utm_source=email&utm_medium=aviso&utm_campaign=isolation`;
+export function renderEmail(email, vip = null) {
+  const link = vip || `${SITE}/preventa?utm_source=email&utm_medium=aviso&utm_campaign=isolation`;
   const close = fmtClose();
   const html = layout({
     subject: SUBJECT,
@@ -24,13 +44,17 @@ export function renderEmail(email) {
     unsub: email,
     footer: 'Envío gratis en Santander · Diseñado en Santander',
     body:
-      p(`Ya puedes reservar el primer drop de ISO: ${b('4 modelos')}, ${b('unidades limitadas')}. La preventa cierra el ${b(close)} o cuando se acaben.`) +
+      (vip
+        ? p(`Eres de la lista. Con este enlace tienes ${b('precio de lista')} hasta mañana a las 00:00:`) +
+          p(`Camisetas <s style="color:#7a766f;">24,99 €</s> ${b('19,99 €')} · Sudadera <s style="color:#7a766f;">39,99 €</s> ${b('34,99 €')}`) +
+          p(`El enlace es tuyo. No lo compartas.`, 'font-size:13px;')
+        : p(`Ya puedes reservar el primer drop de ISO: ${b('4 modelos')}, ${b('unidades limitadas')}. La preventa cierra el ${b(close)} o cuando se acaben.`)) +
       dropImage(link) +
-      button('Ir a la preventa', link),
+      button(vip ? 'Entrar con mi precio' : 'Ir a la preventa', link),
   });
   const text = `ISOLATION. — Drop 001 de ISO
 La preventa está abierta: 4 modelos, unidades limitadas.
-Cierra el ${close} o cuando se acaben.
+${vip ? 'Eres de la lista: con tu enlace, camisetas a 19,99 € (24,99 €) y sudadera a 34,99 € (39,99 €) hasta mañana a las 00:00.\n' : ''}Cierra el ${close} o cuando se acaben.
 
 Ir a la preventa: ${link}
 
@@ -39,7 +63,7 @@ Envío gratis en Santander.`;
 }
 
 export async function sendOne(email) {
-  const { subject, html, text } = renderEmail(email);
+  const { subject, html, text } = renderEmail(email, await vipLink(email).catch(() => null));
   await sendEmail({ to: email, subject, html, text, unsub: email, tags: ['preventa-isolation'] });
 }
 

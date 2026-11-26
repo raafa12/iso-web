@@ -5,6 +5,7 @@ import ShareWhatsApp from "./ShareWhatsApp";
 import MoreProducts from "./MoreProducts";
 import ProductDetails, { ShippingReturns } from "./ProductDetails";
 import NotifyForm from "./NotifyForm";
+import { captureVip, vipActive, listPrice } from "../lib/vip";
 import "./presale.css";
 import { SB_HEADERS, STRIPE_ENABLED, SUPABASE_ANON_KEY, SUPABASE_URL, eur } from "../lib/shop";
 
@@ -65,6 +66,16 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
   const returnFocus = useRef<HTMLElement | null>(null);
 
   // Fase de la preventa (en el navegador; ?abierta en la URL la simula abierta para probar)
+  // Lista prioritaria: enlace personal del correo (?vip=...) y precio de lista en las primeras horas
+  const [vip, setVip] = useState(false);
+  useEffect(() => {
+    captureVip();
+    setVip(vipActive());
+    const t = window.setInterval(() => setVip(vipActive()), 60000);
+    return () => window.clearInterval(t);
+  }, []);
+  const priceOf = (it: PresaleItem) => (vip ? listPrice(it.id, it.price_cents) : it.price_cents);
+
   useEffect(() => {
     const qs = new URLSearchParams(location.search);
     const isDemo = qs.has("demo");
@@ -235,7 +246,7 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
   function preorder() {
     if (!item || !size || phase !== "open" || soldOut) return;
     window.ISOCart?.add(
-      { id: item.id, name: `${item.name} · Preventa`, size, price: item.price_cents, image: item.front ?? item.back ?? "/logo-mark.png" },
+      { id: item.id, name: `${item.name} · Preventa`, size, price: priceOf(item), image: item.front ?? item.back ?? "/logo-mark.png" },
       qty,
     );
     setAdded(true);
@@ -270,7 +281,7 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
     if (phase === "closed") return "Preventa cerrada";
     if (!size) return "Elige tu talla";
     if (added) return "Añadido ✓";
-    return `Añadir al carrito · ${eur(item.price_cents * qty)}`;
+    return `Añadir al carrito · ${eur(priceOf(item) * qty)}`;
   })();
 
   // Antes de que abra, los diseños se ven difuminados
@@ -283,7 +294,7 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
       <ul className="ps-grid" ref={listRef}>
         {items.map((p, i) => (
           <li key={p.id} className={`ps-item${shown[i] ? " is-in" : ""}`} style={{ transitionDelay: `${i * 0.08}s` }}>
-            <Card item={p} left={left(p.id)} flipped={fingerOn === p.id} veiled={veiled} onOpen={(e, sz) => openItem(i, e, sz)} />
+            <Card item={p} left={left(p.id)} flipped={fingerOn === p.id} veiled={veiled} price={priceOf(p)} onOpen={(e, sz) => openItem(i, e, sz)} />
           </li>
         ))}
       </ul>
@@ -335,7 +346,7 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
               </p>
               <div className="ps-head">
                 <h3 className="ps-title">{item.name}</h3>
-                <p className="ps-big-price">{veiled ? <span className="ps-qq">??,?? €</span> : eur(item.price_cents)}</p>
+                <p className="ps-big-price">{veiled ? <span className="ps-qq">??,?? €</span> : priceOf(item) < item.price_cents ? <><s className="ps-was">{eur(item.price_cents)}</s>{eur(priceOf(item))}<small className="ps-list-tag">Precio de lista</small></> : eur(item.price_cents)}</p>
               </div>
               <p className="ps-left-line">
                 <span className={`ps-left${soldOut ? " out" : itemLeft != null && itemLeft <= LOW_STOCK ? " low" : ""}`}>
@@ -372,7 +383,7 @@ export default function PresaleReact({ items, opensAt, closesAt, shippingCents, 
 
               {phase === "open" && size && !soldOut ? (
                 <BuyNow
-                  line={{ id: item.id, name: `${item.name} · Preventa`, size, price: item.price_cents, image: item.front ?? item.back ?? "/logo-mark.png" }}
+                  line={{ id: item.id, name: `${item.name} · Preventa`, size, price: priceOf(item), image: item.front ?? item.back ?? "/logo-mark.png" }}
                   qty={qty}
                   close={closeItem}
                   onAddToCart={preorder}
@@ -435,12 +446,14 @@ function Card({
   left,
   flipped,
   veiled = false,
+  price,
   onOpen,
 }: {
   item: PresaleItem;
   left: number | null;
   flipped: boolean;
   veiled?: boolean;
+  price?: number;
   onOpen: (e: React.MouseEvent<HTMLElement>, size: string | null) => void;
 }) {
   const first = p.cover === "front" ? p.front ?? p.back : p.back ?? p.front;
@@ -528,7 +541,7 @@ function Card({
       <button type="button" className="ps-meta-btn" onClick={(e) => onOpen(e, null)} tabIndex={-1} aria-hidden="true">
         <span className="ps-meta">
           <span className="ps-name">{p.name}</span>
-          {!veiled && <span className="ps-price">{eur(p.price_cents)}</span>}
+          {!veiled && (price != null && price < p.price_cents ? <span className="ps-price"><s className="ps-was">{eur(p.price_cents)}</s>{eur(price)}</span> : <span className="ps-price">{eur(p.price_cents)}</span>)}
         </span>
         <span className="ps-cat">
           {p.category} · Isolation
